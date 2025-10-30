@@ -111,7 +111,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="about" className="py-20 px-4 bg-[#FAF0C0]">
+      <section id="about" className="py-20 px-4 bg-gradient-to-b from-[#E8F5E9] to-[#F5E6A8]">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-[#0099CC]">О проекте "Фармер"</h2>
@@ -124,15 +124,15 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/60 border-[#E5D68B]">
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#E5F5FA] rounded-full flex items-center justify-center">
-                  <Icon name="Shield" className="text-[#0099CC]" size={32} />
+                <div className="w-16 h-16 bg-[#C8E6C9] rounded-full flex items-center justify-center">
+                  <Icon name="Shield" className="text-[#4CAF50]" size={32} />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-[#0099CC]">Надёжный щит</h3>
+              <h3 className="text-xl font-bold mb-3 text-[#4CAF50]">Надёжный щит</h3>
               <p className="text-[#5A9FB8]">Все сделки застрахованы. Ваши инвестиции под защитой</p>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/60 border-[#E5D68B]">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/70 border-[#A8D5A5]">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-[#FFF3CC] rounded-full flex items-center justify-center">
                   <Icon name="TrendingUp" className="text-[#FFAA00]" size={32} />
@@ -142,20 +142,20 @@ const Index = () => {
               <p className="text-[#5A9FB8]">Данные и прогнозы для эффективного управления фермой</p>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/60 border-[#E5D68B]">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/70 border-[#A8D5A5]">
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#E5F5FA] rounded-full flex items-center justify-center">
-                  <Icon name="Users" className="text-[#0099CC]" size={32} />
+                <div className="w-16 h-16 bg-[#C8E6C9] rounded-full flex items-center justify-center">
+                  <Icon name="Users" className="text-[#4CAF50]" size={32} />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-[#0099CC]">Три стороны в выигрыше</h3>
+              <h3 className="text-xl font-bold mb-3 text-[#4CAF50]">Три стороны в выигрыше</h3>
               <p className="text-[#5A9FB8]">Фермеры, инвесторы и продавцы находят взаимную выгоду</p>
             </Card>
           </div>
         </div>
       </section>
 
-      <section id="farmers" className="py-20 px-4 bg-[#F5E6A8]">
+      <section id="farmers" className="py-20 px-4 bg-gradient-to-br from-[#F5E6A8] to-[#E8F5E9]">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             <div className="order-2 md:order-1">
@@ -166,8 +166,8 @@ const Index = () => {
               />
             </div>
             <div className="order-1 md:order-2">
-              <h2 className="text-4xl font-bold mb-6 text-[#0099CC]">
-                <Icon name="Sprout" className="inline mr-3 text-[#0099CC]" size={36} />
+              <h2 className="text-4xl font-bold mb-6 text-[#4CAF50]">
+                <Icon name="Sprout" className="inline mr-3 text-[#66BB6A]" size={36} />
                 Фермерам
               </h2>
               <h3 className="text-2xl font-semibold mb-4 text-[#5A9FB8]">
@@ -188,14 +188,14 @@ const Index = () => {
                 </li>
               </ul>
 
-              <Card className="p-6 bg-white/80 shadow-lg border-[#E5D68B]">
-                <h4 className="text-xl font-semibold mb-4 text-[#0099CC]">Расскажи, актуально ли для тебя?</h4>
+              <Card className="p-6 bg-white/80 shadow-lg border-[#A8D5A5]">
+                <h4 className="text-xl font-semibold mb-4 text-[#4CAF50]">Расскажи, актуально ли для тебя?</h4>
                 <form onSubmit={(e) => handleSubmit(e, 'farmer')} className="space-y-4">
                   <Input placeholder="Ваше имя" required className="bg-white" />
                   <Input type="email" placeholder="Email" required className="bg-white" />
                   <Input type="tel" placeholder="Телефон" required className="bg-white" />
                   <Input placeholder="Название фермы" className="bg-white" />
-                  <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799]">
+                  <Button type="submit" className="w-full bg-[#66BB6A] hover:bg-[#4CAF50]">
                     Отправить заявку
                   </Button>
                 </form>
@@ -205,7 +205,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="investors" className="py-20 px-4 bg-[#FAF0C0]">
+      <section id="investors" className="py-20 px-4 bg-gradient-to-bl from-[#FAF0C0] to-[#E8F5E9]">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             <div>
@@ -220,10 +220,10 @@ const Index = () => {
               <div className="space-y-6 mb-8">
                 <div className="flex items-start">
                   <div className="w-12 h-12 bg-[#E5F5FA] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <span className="text-xl font-bold text-[#0099CC]">1</span>
+                    <span className="text-xl font-bold text-[#4CAF50]">1</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-lg mb-1 text-[#0099CC]">Финансовый доход</h4>
+                    <h4 className="font-semibold text-lg mb-1 text-[#4CAF50]">Финансовый доход</h4>
                     <p className="text-[#5A9FB8]">Доходность более 19% годовых</p>
                   </div>
                 </div>
@@ -239,11 +239,11 @@ const Index = () => {
                 </div>
                 
                 <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#E5F5FA] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <span className="text-xl font-bold text-[#0099CC]">3</span>
+                  <div className="w-12 h-12 bg-[#C8E6C9] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                    <span className="text-xl font-bold text-[#4CAF50]">3</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-lg mb-1 text-[#0099CC]">Патронаж животных</h4>
+                    <h4 className="font-semibold text-lg mb-1 text-[#4CAF50]">Патронаж животных</h4>
                     <p className="text-[#5A9FB8]">Видео с фермы и эмоциональная связь</p>
                   </div>
                 </div>
@@ -276,24 +276,24 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="sellers" className="py-20 px-4 bg-[#F5E6A8]">
+      <section id="sellers" className="py-20 px-4 bg-gradient-to-tr from-[#E8F5E9] to-[#FAF0C0]">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             <div className="order-2 md:order-1">
-              <div className="bg-white/80 rounded-lg shadow-xl p-8 border border-[#E5D68B]">
-                <Icon name="Package" className="text-[#FFAA00] mb-4" size={48} />
-                <h4 className="text-2xl font-bold mb-4 text-[#0099CC]">Продукты для продавцов:</h4>
+              <div className="bg-white/80 rounded-lg shadow-xl p-8 border border-[#A8D5A5]">
+                <Icon name="Package" className="text-[#66BB6A] mb-4" size={48} />
+                <h4 className="text-2xl font-bold mb-4 text-[#4CAF50]">Продукты для продавцов:</h4>
                 <ul className="space-y-3">
                   <li className="flex items-start">
-                    <Icon name="BarChart" className="text-[#0099CC] mr-2 flex-shrink-0" size={20} />
+                    <Icon name="BarChart" className="text-[#66BB6A] mr-2 flex-shrink-0" size={20} />
                     <span className="text-[#5A9FB8]">Доступ к аналитике рынка и потребностям ферм</span>
                   </li>
                   <li className="flex items-start">
-                    <Icon name="ShoppingCart" className="text-[#0099CC] mr-2 flex-shrink-0" size={20} />
+                    <Icon name="ShoppingCart" className="text-[#66BB6A] mr-2 flex-shrink-0" size={20} />
                     <span className="text-[#5A9FB8]">Прямые продажи через платформу с комиссией</span>
                   </li>
                   <li className="flex items-start">
-                    <Icon name="Megaphone" className="text-[#0099CC] mr-2 flex-shrink-0" size={20} />
+                    <Icon name="Megaphone" className="text-[#66BB6A] mr-2 flex-shrink-0" size={20} />
                     <span className="text-[#5A9FB8]">Размещение баннеров и рекламы</span>
                   </li>
                 </ul>
