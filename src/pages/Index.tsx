@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
-  const [showCustomRegion, setShowCustomRegion] = React.useState<{farmer?: boolean, investor?: boolean, seller?: boolean}>({});
+  const [showCustomRegion, setShowCustomRegion] = React.useState<{farmer?: boolean, investor?: boolean, seller?: boolean, survey?: boolean}>({});
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -516,8 +516,13 @@ const Index = () => {
 
               <div>
                 <label className="block mb-2 font-semibold text-[#0099CC]">Регион</label>
-                <select name="region" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                <select 
+                  name="region" 
+                  className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white"
+                  onChange={(e) => setShowCustomRegion(prev => ({...prev, survey: e.target.value === 'Другой регион'}))}
+                >
                   <option value="">Выберите регион</option>
+                  <option>Республика Бурятия</option>
                   <option>Москва</option>
                   <option>Санкт-Петербург</option>
                   <option>Московская область</option>
@@ -538,6 +543,9 @@ const Index = () => {
                   <option>Волгоградская область</option>
                   <option>Другой регион</option>
                 </select>
+                {showCustomRegion.survey && (
+                  <Input name="custom_region" placeholder="Введите ваш регион" required className="bg-white mt-2" />
+                )}
               </div>
 
               <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799] text-white py-6 text-lg">
@@ -649,6 +657,15 @@ const Index = () => {
               <ul className="space-y-2 text-[#B3E5F5]">
                 <li><button onClick={() => scrollToSection('about')} className="hover:text-white">О проекте</button></li>
                 <li><button onClick={() => scrollToSection('survey')} className="hover:text-white">Опрос</button></li>
+                <li>
+                  <a 
+                    href="/survey" 
+                    className="hover:text-white flex items-center gap-1"
+                  >
+                    <Icon name="BarChart3" size={16} />
+                    Результаты опроса
+                  </a>
+                </li>
                 <li>
                   <a 
                     href="https://planeta.ru/campaigns/235852" 
