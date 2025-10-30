@@ -508,11 +508,15 @@ const Index = () => {
               <ul className="space-y-2 text-[#B3E5F5]">
                 <li className="flex items-center gap-2">
                   <Icon name="Mail" size={16} />
-                  <span>info@farmer.ru</span>
+                  <a href="mailto:iliakrasnopeev@yandex.ru" className="hover:text-white">
+                    iliakrasnopeev@yandex.ru
+                  </a>
                 </li>
                 <li className="flex items-center gap-2">
                   <Icon name="MessageCircle" size={16} />
-                  <span>@farmer_platform</span>
+                  <a href="https://t.me/Ilia_Krasnopeev" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                    @Ilia_Krasnopeev
+                  </a>
                 </li>
               </ul>
             </div>
