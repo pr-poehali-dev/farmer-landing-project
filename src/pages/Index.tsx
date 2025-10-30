@@ -34,24 +34,30 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-[#0099CC] tracking-wide" style={{ fontFamily: 'serif' }}>ФАРМЕР</h1>
+              <h1 className="text-3xl font-bold text-[#8B7355] tracking-wide" style={{ fontFamily: 'serif' }}>ФАРМЕР</h1>
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <button
+                onClick={() => scrollToSection('founder')}
+                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
+              >
+                Об авторе
+              </button>
+              <button
                 onClick={() => scrollToSection('farmers')}
-                className="text-sm font-medium text-[#0099CC] hover:text-[#007799] transition-colors"
+                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
               >
                 Для фермеров
               </button>
               <button
                 onClick={() => scrollToSection('investors')}
-                className="text-sm font-medium text-[#0099CC] hover:text-[#007799] transition-colors"
+                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
               >
                 Для инвесторов
               </button>
               <button
                 onClick={() => scrollToSection('sellers')}
-                className="text-sm font-medium text-[#0099CC] hover:text-[#007799] transition-colors"
+                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
               >
                 Для продавцов
               </button>
@@ -59,7 +65,7 @@ const Index = () => {
                 href="https://planeta.ru/campaigns/235852"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-[#0099CC] text-white rounded-lg hover:bg-[#007799] transition-colors font-medium"
+                className="px-4 py-2 bg-[#8B7355] text-white rounded-lg hover:bg-[#7A6347] transition-colors font-medium"
               >
                 Поддержать на Planeta.ru
               </a>
@@ -396,7 +402,58 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-[#0099CC] text-white">
+      <section id="founder" className="py-20 px-4 bg-gradient-to-br from-[#8B7355] to-[#A0826D]">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="order-2 md:order-1">
+              <div className="bg-[#F5E6A8] rounded-2xl p-8 shadow-2xl">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-20 h-20 bg-[#8B7355] rounded-full flex items-center justify-center">
+                    <Icon name="User" className="text-[#F5E6A8]" size={40} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-[#8B7355]">Илья Краснопеев</h3>
+                    <p className="text-[#A0826D]">Основатель проекта</p>
+                  </div>
+                </div>
+                <div className="space-y-4 text-[#5A4A3A]">
+                  <p className="leading-relaxed">
+                    Создатель и главный герой сериала <span className="font-bold">«Илюхина ферма»</span> — документального проекта о настоящей жизни фермера.
+                  </p>
+                  <p className="leading-relaxed">
+                    Владелец КФХ «Там, где рассвет» — хозяйства, где рождаются истории о труде, природе и искренней любви к земле.
+                  </p>
+                  <a
+                    href="https://t.me/ilyukhina_ferma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-[#8B7355] text-[#F5E6A8] rounded-lg hover:bg-[#7A6347] transition-colors font-medium"
+                  >
+                    <Icon name="Send" size={20} />
+                    Telegram-канал "Илюхина ферма"
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 md:order-2 text-[#F5E6A8]">
+              <h2 className="text-4xl font-bold mb-6">Автор и идейный вдохновитель</h2>
+              <div className="space-y-4 text-lg">
+                <p className="leading-relaxed">
+                  Илья не просто предприниматель — он живет фермерством. Каждый день на его ферме — это история труда, заботы о животных и природе.
+                </p>
+                <p className="leading-relaxed">
+                  В сериале «Илюхина ферма» Илья делится реальным опытом: от рассвета до заката, от радостей до трудностей фермерской жизни.
+                </p>
+                <p className="leading-relaxed font-semibold">
+                  Его миссия — сделать сельское хозяйство доступным для инвестиций и показать людям красоту фермерского труда.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-4 bg-[#D4C4B0] text-[#5A4A3A]">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-6">Почему мы?</h2>
@@ -420,8 +477,8 @@ const Index = () => {
                     <Icon name="Award" className="text-[#0099CC]" size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold mb-2">Опыт основателя</h3>
-                    <p className="text-[#E5F5FA]">Илья Краснопеев, владелец фермы "Там где рассвет"</p>
+                    <h3 className="text-xl font-bold mb-2 text-[#F5E6A8]">Опыт основателя</h3>
+                    <p className="text-[#F5E6A8]/90">Илья Краснопеев — создатель «Илюхиной фермы» и КФХ «Там, где рассвет»</p>
                   </div>
                 </div>
 
