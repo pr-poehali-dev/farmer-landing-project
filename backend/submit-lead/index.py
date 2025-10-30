@@ -65,10 +65,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    cur.execute(
-        "INSERT INTO leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-        (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region)
-    )
+    if user_type == 'farmer':
+        cur.execute(
+            "INSERT INTO farmer_leads (name, email, phone, company_name, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (name, email, phone, company_name, region)
+        )
+    elif user_type == 'investor':
+        cur.execute(
+            "INSERT INTO investor_leads (name, email, phone, interest_type, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (name, email, phone, interest_type, region)
+        )
+    elif user_type == 'seller':
+        cur.execute(
+            "INSERT INTO seller_leads (company_name, email, phone, message, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (company_name, email, phone, message, region)
+        )
+    else:
+        cur.execute(
+            "INSERT INTO leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region)
+        )
     
     result = cur.fetchone()
     lead_id = result['id'] if result else None

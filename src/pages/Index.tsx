@@ -223,7 +223,28 @@ const Index = () => {
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
                   <Input name="company_name" placeholder="Название фермы" className="bg-white" />
-                  <Input name="region" placeholder="Регион" className="bg-white" />
+                  <select name="region" className="w-full px-3 py-2 border border-[#A8D5A5] rounded-md bg-white">
+                    <option value="">Выберите регион</option>
+                    <option>Москва</option>
+                    <option>Санкт-Петербург</option>
+                    <option>Московская область</option>
+                    <option>Ленинградская область</option>
+                    <option>Краснодарский край</option>
+                    <option>Ростовская область</option>
+                    <option>Свердловская область</option>
+                    <option>Новосибирская область</option>
+                    <option>Татарстан</option>
+                    <option>Челябинская область</option>
+                    <option>Башкортостан</option>
+                    <option>Нижегородская область</option>
+                    <option>Самарская область</option>
+                    <option>Омская область</option>
+                    <option>Красноярский край</option>
+                    <option>Воронежская область</option>
+                    <option>Пермский край</option>
+                    <option>Волгоградская область</option>
+                    <option>Другой регион</option>
+                  </select>
                   <Button type="submit" className="w-full bg-[#66BB6A] hover:bg-[#4CAF50]">
                     Отправить заявку
                   </Button>
@@ -283,7 +304,28 @@ const Index = () => {
                 <form onSubmit={(e) => handleSubmit(e, 'investor')} className="space-y-4">
                   <Input name="name" placeholder="Ваше имя" required className="bg-white" />
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
-                  <Input name="region" placeholder="Регион" className="bg-white" />
+                  <select name="region" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                    <option value="">Выберите регион</option>
+                    <option>Москва</option>
+                    <option>Санкт-Петербург</option>
+                    <option>Московская область</option>
+                    <option>Ленинградская область</option>
+                    <option>Краснодарский край</option>
+                    <option>Ростовская область</option>
+                    <option>Свердловская область</option>
+                    <option>Новосибирская область</option>
+                    <option>Татарстан</option>
+                    <option>Челябинская область</option>
+                    <option>Башкортостан</option>
+                    <option>Нижегородская область</option>
+                    <option>Самарская область</option>
+                    <option>Омская область</option>
+                    <option>Красноярский край</option>
+                    <option>Воронежская область</option>
+                    <option>Пермский край</option>
+                    <option>Волгоградская область</option>
+                    <option>Другой регион</option>
+                  </select>
                   <select name="interest_type" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
                     <option>Интересует финансовый доход</option>
                     <option>Интересуют натуральные продукты</option>
@@ -346,7 +388,28 @@ const Index = () => {
                   <Input name="company_name" placeholder="Название компании" required className="bg-white" />
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
-                  <Input name="region" placeholder="Регион" className="bg-white" />
+                  <select name="region" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                    <option value="">Выберите регион</option>
+                    <option>Москва</option>
+                    <option>Санкт-Петербург</option>
+                    <option>Московская область</option>
+                    <option>Ленинградская область</option>
+                    <option>Краснодарский край</option>
+                    <option>Ростовская область</option>
+                    <option>Свердловская область</option>
+                    <option>Новосибирская область</option>
+                    <option>Татарстан</option>
+                    <option>Челябинская область</option>
+                    <option>Башкортостан</option>
+                    <option>Нижегородская область</option>
+                    <option>Самарская область</option>
+                    <option>Омская область</option>
+                    <option>Красноярский край</option>
+                    <option>Воронежская область</option>
+                    <option>Пермский край</option>
+                    <option>Волгоградская область</option>
+                    <option>Другой регион</option>
+                  </select>
                   <Textarea name="message" placeholder="Что вы продаёте?" rows={3} className="bg-white" />
                   <Button type="submit" className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white">
                     Стать партнёром
@@ -424,7 +487,28 @@ const Index = () => {
 
               <div>
                 <label className="block mb-2 font-semibold text-[#0099CC]">Регион</label>
-                <Input name="region" placeholder="Укажите ваш регион" className="bg-white" />
+                <select name="region" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                  <option value="">Выберите регион</option>
+                  <option>Москва</option>
+                  <option>Санкт-Петербург</option>
+                  <option>Московская область</option>
+                  <option>Ленинградская область</option>
+                  <option>Краснодарский край</option>
+                  <option>Ростовская область</option>
+                  <option>Свердловская область</option>
+                  <option>Новосибирская область</option>
+                  <option>Татарстан</option>
+                  <option>Челябинская область</option>
+                  <option>Башкортостан</option>
+                  <option>Нижегородская область</option>
+                  <option>Самарская область</option>
+                  <option>Омская область</option>
+                  <option>Красноярский край</option>
+                  <option>Воронежская область</option>
+                  <option>Пермский край</option>
+                  <option>Волгоградская область</option>
+                  <option>Другой регион</option>
+                </select>
               </div>
 
               <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799] text-white py-6 text-lg">
