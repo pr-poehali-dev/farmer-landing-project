@@ -37,7 +37,15 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-gray-400">
               <li className="flex items-center gap-2">
                 <Icon name="Mail" size={14} />
-                <span>info@farmer.ru</span>
+                <a href="mailto:iliakrasnopeev@yandex.ru" className="hover:text-white transition-colors">
+                  iliakrasnopeev@yandex.ru
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Icon name="Send" size={14} />
+                <a href="https://t.me/Ilia_Krasnopeev" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                  @Ilia_Krasnopeev
+                </a>
               </li>
             </ul>
           </div>
