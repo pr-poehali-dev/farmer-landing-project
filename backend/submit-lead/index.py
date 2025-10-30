@@ -43,6 +43,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     message: Optional[str] = body_data.get('message')
     rating: Optional[int] = body_data.get('rating')
     suggestions: Optional[str] = body_data.get('suggestions')
+    region: Optional[str] = body_data.get('region')
     
     if not name or not email or not user_type:
         return {
@@ -65,8 +66,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     cur.execute(
-        "INSERT INTO leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-        (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions)
+        "INSERT INTO leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+        (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region)
     )
     
     result = cur.fetchone()

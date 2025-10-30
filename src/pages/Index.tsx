@@ -223,6 +223,7 @@ const Index = () => {
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
                   <Input name="company_name" placeholder="Название фермы" className="bg-white" />
+                  <Input name="region" placeholder="Регион" className="bg-white" />
                   <Button type="submit" className="w-full bg-[#66BB6A] hover:bg-[#4CAF50]">
                     Отправить заявку
                   </Button>
@@ -282,6 +283,7 @@ const Index = () => {
                 <form onSubmit={(e) => handleSubmit(e, 'investor')} className="space-y-4">
                   <Input name="name" placeholder="Ваше имя" required className="bg-white" />
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
+                  <Input name="region" placeholder="Регион" className="bg-white" />
                   <select name="interest_type" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
                     <option>Интересует финансовый доход</option>
                     <option>Интересуют натуральные продукты</option>
@@ -344,6 +346,7 @@ const Index = () => {
                   <Input name="company_name" placeholder="Название компании" required className="bg-white" />
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
+                  <Input name="region" placeholder="Регион" className="bg-white" />
                   <Textarea name="message" placeholder="Что вы продаёте?" rows={3} className="bg-white" />
                   <Button type="submit" className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white">
                     Стать партнёром
@@ -417,6 +420,11 @@ const Index = () => {
               <div>
                 <label className="block mb-2 font-semibold text-[#0099CC]">Контакт для связи</label>
                 <Input name="email" type="email" placeholder="Ваш email" required className="bg-white" />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0099CC]">Регион</label>
+                <Input name="region" placeholder="Укажите ваш регион" className="bg-white" />
               </div>
 
               <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799] text-white py-6 text-lg">
