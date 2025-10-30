@@ -1,4 +1,5 @@
 {
+  "get-leads": "https://functions.poehali.dev/9c5c37d0-1241-4e83-8326-058b1dccc945",
   "submit-lead": "https://functions.poehali.dev/095ae814-3cbd-4db4-98e5-255517829146",
   "investors": "https://functions.poehali.dev/30d55d3c-842e-4719-b0e7-16cc84d86abd",
   "farmers": "https://functions.poehali.dev/f2f79627-2956-4166-8ffc-58fe95ec7947",
