@@ -11,6 +11,7 @@ interface Lead {
   email: string;
   phone?: string;
   company_name?: string;
+  farm_type?: string;
   interest_type?: string;
   message?: string;
   rating?: number;
@@ -228,6 +229,16 @@ const Admin = () => {
                       <div>
                         <p className="text-xs text-[#5A9FB8]">Ферма</p>
                         <p className="font-medium text-[#0099CC]">{lead.company_name}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {lead.farm_type && activeTab === 'farmers' && (
+                    <div className="flex items-start gap-2">
+                      <Icon name="Leaf" className="text-[#4CAF50] mt-1 flex-shrink-0" size={18} />
+                      <div>
+                        <p className="text-xs text-[#5A9FB8]">Направление</p>
+                        <p className="font-medium text-[#0099CC]">{lead.farm_type}</p>
                       </div>
                     </div>
                   )}

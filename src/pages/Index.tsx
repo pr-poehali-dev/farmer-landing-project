@@ -229,6 +229,16 @@ const Index = () => {
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
                   <Input name="company_name" placeholder="Название фермы" className="bg-white" />
                   <select 
+                    name="farm_type" 
+                    className="w-full px-3 py-2 border border-[#A8D5A5] rounded-md bg-white"
+                    required
+                  >
+                    <option value="">Направление фермы</option>
+                    <option value="Животноводство">Животноводство</option>
+                    <option value="Растениеводство">Растениеводство</option>
+                    <option value="Смешанное">Смешанное (и то, и другое)</option>
+                  </select>
+                  <select 
                     name="region" 
                     className="w-full px-3 py-2 border border-[#A8D5A5] rounded-md bg-white"
                     onChange={(e) => setShowCustomRegion(prev => ({...prev, farmer: e.target.value === 'Другой регион'}))}

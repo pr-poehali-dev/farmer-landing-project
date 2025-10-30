@@ -39,6 +39,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     phone: Optional[str] = body_data.get('phone')
     user_type: str = body_data.get('type', 'farmer')
     company_name: Optional[str] = body_data.get('company_name')
+    farm_type: Optional[str] = body_data.get('farm_type')
     interest_type: Optional[str] = body_data.get('interest_type')
     message: Optional[str] = body_data.get('message')
     rating: Optional[int] = body_data.get('rating')
@@ -73,8 +74,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if user_type == 'farmer':
         cur.execute(
-            f"INSERT INTO {schema}.farmer_leads (name, email, phone, company_name, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
-            (name, email, phone, company_name, region)
+            f"INSERT INTO {schema}.farmer_leads (name, email, phone, company_name, farm_type, region) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+            (name, email, phone, company_name, farm_type, region)
         )
     elif user_type == 'investor':
         cur.execute(
