@@ -1,603 +1,388 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
+  const [activeSection, setActiveSection] = useState('');
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>, type: string) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success('Спасибо! Мы свяжемся с вами в ближайшее время');
+    toast.success('Спасибо! Мы свяжемся с вами');
     (e.target as HTMLFormElement).reset();
   };
 
   return (
-    <div className="min-h-screen bg-[#F5E6A8]">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#F5E6A8]/95 backdrop-blur-sm border-b border-[#E5D68B] shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-white">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-[#8B7355] tracking-wide" style={{ fontFamily: 'serif' }}>ФАРМЕР</h1>
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-500 rounded-2xl flex items-center justify-center">
+                <Icon name="Sprout" className="text-white" size={20} />
+              </div>
+              <span className="text-2xl font-bold text-gradient">Фармер</span>
             </div>
-            <nav className="hidden md:flex items-center gap-6">
-              <button
-                onClick={() => scrollToSection('founder')}
-                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
-              >
-                Об авторе
+            <div className="hidden md:flex items-center gap-8">
+              <button onClick={() => scrollToSection('founder')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Автор
               </button>
-              <button
-                onClick={() => scrollToSection('farmers')}
-                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
-              >
-                Для фермеров
+              <button onClick={() => scrollToSection('about')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                О проекте
               </button>
-              <button
-                onClick={() => scrollToSection('investors')}
-                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
-              >
-                Для инвесторов
+              <button onClick={() => scrollToSection('contact')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Контакт
               </button>
-              <button
-                onClick={() => scrollToSection('sellers')}
-                className="text-sm font-medium text-[#8B7355] hover:text-[#7A6347] transition-colors"
-              >
-                Для продавцов
-              </button>
-              <a
-                href="https://planeta.ru/campaigns/235852"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-[#8B7355] text-white rounded-lg hover:bg-[#7A6347] transition-colors font-medium"
-              >
-                Поддержать на Planeta.ru
-              </a>
-            </nav>
+              <Button asChild className="rounded-full shadow-glow">
+                <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
+                  Поддержать
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden bg-[#F5E6A8]">
-        <div className="container mx-auto relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div className="order-2 md:order-1 text-left">
-              <h2 className="text-5xl md:text-6xl font-bold mb-6 text-[#0099CC] animate-fade-in" style={{ fontFamily: 'serif' }}>
-                Инвестируй в фермы<br />просто и выгодно!
-              </h2>
-              <p className="text-xl mb-4 text-[#5A9FB8] animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                Расскажи, нужна ли тебе такая платформа?<br />Оставь контакты и пройди опрос
-              </p>
-              <p className="text-lg mb-8 text-[#5A9FB8] animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                Соединяем фермеров, инвесторов и продавцов для роста агробизнеса. С аналитикой, патронажем и страховкой!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-                <Button
-                  size="lg"
-                  onClick={() => scrollToSection('about')}
-                  className="bg-[#0099CC] hover:bg-[#007799] text-white px-8 py-6 text-lg"
-                >
+      <section className="pt-32 pb-20 px-6">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200">
+                  🌱 Агроинвестиции 2025
+                </Badge>
+                <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
+                  Инвестируй в <span className="text-gradient">фермы</span> будущего
+                </h1>
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Соединяем фермеров, инвесторов и поставщиков через умную платформу с аналитикой и страховкой
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <Button size="lg" onClick={() => scrollToSection('about')} className="rounded-full shadow-soft px-8">
                   Узнать больше
                 </Button>
-                <Button
-                  size="lg"
-                  asChild
-                  className="bg-[#4DB8E8] hover:bg-[#3AA8D8] text-white px-8 py-6 text-lg"
-                >
-                  <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
-                    Поддержать проект
+                <Button size="lg" variant="outline" asChild className="rounded-full">
+                  <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer">
+                    <Icon name="Send" size={18} className="mr-2" />
+                    Telegram
                   </a>
                 </Button>
               </div>
+              <div className="flex gap-8 pt-4">
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">1000+</div>
+                  <div className="text-sm text-gray-600">Активных ферм</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">₽15 млрд</div>
+                  <div className="text-sm text-gray-600">Целевой рынок</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">19%+</div>
+                  <div className="text-sm text-gray-600">Доходность</div>
+                </div>
+              </div>
             </div>
-            <div className="order-1 md:order-2 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-400/20 rounded-[3rem] blur-3xl"></div>
               <img
                 src="https://cdn.poehali.dev/files/e2d42910-470f-4203-ab0b-cfc4d4df832a.png"
                 alt="Фермер"
-                className="w-full h-auto max-w-md mx-auto"
+                className="relative w-full h-auto animate-float"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="py-20 px-4 bg-gradient-to-b from-[#E8F5E9] to-[#F5E6A8]">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-[#0099CC]">О проекте "Фармер"</h2>
-            <p className="text-lg text-[#5A9FB8] leading-relaxed">
-              "Фармер" — приложение для инвестиций в реальные фермы. Фермеры получают деньги без кредитов,
-              инвесторы — доход или продукты, продавцы — клиентов. Все сделки застрахованы!
+      <section id="founder" className="py-24 px-6 bg-gradient-to-b from-white to-green-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              👨‍🌾 Основатель
+            </Badge>
+            <h2 className="text-5xl font-bold mb-4">Илья Краснопеев</h2>
+            <p className="text-xl text-gray-600">Создатель «Илюхиной фермы» и КФХ «Там, где рассвет»</p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            <Card className="p-8 shadow-soft rounded-3xl border-0 bg-white">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <Icon name="Video" className="text-green-600" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Сериал «Илюхина ферма»</h3>
+                    <p className="text-gray-600">Документальный проект о настоящей жизни фермера — от рассвета до заката, от радостей до трудностей</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <Icon name="Tractor" className="text-green-600" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">КФХ «Там, где рассвет»</h3>
+                    <p className="text-gray-600">Хозяйство, где рождаются истории о труде, природе и искренней любви к земле</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <Icon name="Target" className="text-green-600" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Миссия проекта</h3>
+                    <p className="text-gray-600">Сделать сельское хозяйство доступным для инвестиций и показать красоту фермерского труда</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <div className="space-y-6">
+              <Card className="p-8 shadow-soft rounded-3xl border-0 glass-dark text-white">
+                <blockquote className="text-lg leading-relaxed mb-6">
+                  "Я не просто предприниматель — я живу фермерством. Каждый день на моей ферме — это история труда, заботы о животных и природе. Моя цель — показать людям, что агробизнес может быть современным, прозрачным и доходным."
+                </blockquote>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                    <Icon name="User" size={32} />
+                  </div>
+                  <div>
+                    <div className="font-semibold">Илья Краснопеев</div>
+                    <div className="text-sm text-white/80">Основатель Фармер</div>
+                  </div>
+                </div>
+              </Card>
+
+              <Button asChild size="lg" className="w-full rounded-2xl shadow-glow" variant="default">
+                <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                  <Icon name="Send" size={20} />
+                  Telegram-канал «Илюхина ферма»
+                </a>
+              </Button>
+
+              <Button asChild size="lg" variant="outline" className="w-full rounded-2xl">
+                <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
+                  Поддержать на Planeta.ru
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="py-24 px-6 bg-white">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              💡 Возможности
+            </Badge>
+            <h2 className="text-5xl font-bold mb-4">Три стороны — одна экосистема</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Платформа объединяет фермеров, инвесторов и поставщиков в единую прозрачную систему
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/60 border-[#E5D68B]">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#C8E6C9] rounded-full flex items-center justify-center">
-                  <Icon name="Shield" className="text-[#4CAF50]" size={32} />
-                </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-8 shadow-soft rounded-3xl border-0 hover:shadow-glow transition-all duration-300 group">
+              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Icon name="Tractor" className="text-green-600" size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-[#4CAF50]">Надёжный щит</h3>
-              <p className="text-[#5A9FB8]">Все сделки застрахованы. Ваши инвестиции под защитой</p>
-            </Card>
-
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/70 border-[#A8D5A5]">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#FFF3CC] rounded-full flex items-center justify-center">
-                  <Icon name="TrendingUp" className="text-[#FFAA00]" size={32} />
-                </div>
-              </div>
-              <h3 className="text-xl font-bold mb-3 text-[#0099CC]">Аналитика для роста</h3>
-              <p className="text-[#5A9FB8]">Данные и прогнозы для эффективного управления фермой</p>
-            </Card>
-
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-white/70 border-[#A8D5A5]">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#C8E6C9] rounded-full flex items-center justify-center">
-                  <Icon name="Users" className="text-[#4CAF50]" size={32} />
-                </div>
-              </div>
-              <h3 className="text-xl font-bold mb-3 text-[#4CAF50]">Три стороны в выигрыше</h3>
-              <p className="text-[#5A9FB8]">Фермеры, инвесторы и продавцы находят взаимную выгоду</p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section id="farmers" className="py-20 px-4 bg-gradient-to-br from-[#F5E6A8] to-[#E8F5E9]">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div className="order-2 md:order-1">
-              <img
-                src="https://cdn.poehali.dev/projects/80552da2-4ca1-4213-94e1-8d74d09e40e7/files/186e1396-25bc-4af3-8a63-21ee8044513c.jpg"
-                alt="Фермер с планшетом"
-                className="rounded-lg shadow-xl w-full h-auto"
-              />
-            </div>
-            <div className="order-1 md:order-2">
-              <h2 className="text-4xl font-bold mb-6 text-[#4CAF50]">
-                <Icon name="Sprout" className="inline mr-3 text-[#66BB6A]" size={36} />
-                Фермерам
-              </h2>
-              <h3 className="text-2xl font-semibold mb-4 text-[#5A9FB8]">
-                Получи деньги и данные для роста
-              </h3>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start">
-                  <span className="text-[#0099CC] mr-2">✓</span>
-                  <span className="text-[#5A9FB8]">Диагностика фермы для входа в систему</span>
+              <h3 className="text-2xl font-bold mb-4">Фермерам</h3>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Диагностика фермы для входа</span>
                 </li>
-                <li className="flex items-start">
-                  <span className="text-[#0099CC] mr-2">✓</span>
-                  <span className="text-[#5A9FB8]">Подписка на аналитику для управления</span>
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Аналитика для управления</span>
                 </li>
-                <li className="flex items-start">
-                  <span className="text-[#0099CC] mr-2">✓</span>
-                  <span className="text-[#5A9FB8]">Комиссия 5-10% для фермеров с высоким рейтингом</span>
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Комиссия 5-10% для высокого рейтинга</span>
                 </li>
               </ul>
+            </Card>
 
-              <Card className="p-6 bg-white/80 shadow-lg border-[#A8D5A5]">
-                <h4 className="text-xl font-semibold mb-4 text-[#4CAF50]">Расскажи, актуально ли для тебя?</h4>
-                <form onSubmit={(e) => handleSubmit(e, 'farmer')} className="space-y-4">
-                  <Input placeholder="Ваше имя" required className="bg-white" />
-                  <Input type="email" placeholder="Email" required className="bg-white" />
-                  <Input type="tel" placeholder="Телефон" required className="bg-white" />
-                  <Input placeholder="Название фермы" className="bg-white" />
-                  <Button type="submit" className="w-full bg-[#66BB6A] hover:bg-[#4CAF50]">
-                    Отправить заявку
-                  </Button>
-                </form>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="investors" className="py-20 px-4 bg-gradient-to-bl from-[#FAF0C0] to-[#E8F5E9]">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div>
-              <h2 className="text-4xl font-bold mb-6 text-[#0099CC]">
-                <Icon name="TrendingUp" className="inline mr-3 text-[#FFAA00]" size={36} />
-                Инвесторам
-              </h2>
-              <h3 className="text-2xl font-semibold mb-4 text-[#5A9FB8]">
-                Вложи в природу и получи пользу
-              </h3>
-              
-              <div className="space-y-6 mb-8">
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#E5F5FA] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <span className="text-xl font-bold text-[#4CAF50]">1</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg mb-1 text-[#4CAF50]">Финансовый доход</h4>
-                    <p className="text-[#5A9FB8]">Доходность более 19% годовых</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#FFF3CC] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <span className="text-xl font-bold text-[#FFAA00]">2</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg mb-1 text-[#0099CC]">Натуральные ресурсы</h4>
-                    <p className="text-[#5A9FB8]">Получайте мёд, мясо и другие продукты</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#C8E6C9] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <span className="text-xl font-bold text-[#4CAF50]">3</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg mb-1 text-[#4CAF50]">Патронаж животных</h4>
-                    <p className="text-[#5A9FB8]">Видео с фермы и эмоциональная связь</p>
-                  </div>
-                </div>
+            <Card className="p-8 shadow-soft rounded-3xl border-0 hover:shadow-glow transition-all duration-300 group bg-gradient-to-br from-green-50 to-emerald-50">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-soft">
+                <Icon name="TrendingUp" className="text-green-600" size={32} />
               </div>
+              <h3 className="text-2xl font-bold mb-4">Инвесторам</h3>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Доходность более 19% годовых</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Натуральные продукты (мёд, мясо)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Патронаж животных с видео</span>
+                </li>
+              </ul>
+            </Card>
 
-              <Card className="p-6 bg-white/80 shadow-lg border-[#E5D68B]">
-                <h4 className="text-xl font-semibold mb-4 text-[#0099CC]">Интересно? Оставь контакты!</h4>
-                <form onSubmit={(e) => handleSubmit(e, 'investor')} className="space-y-4">
-                  <Input placeholder="Ваше имя" required className="bg-white" />
-                  <Input type="email" placeholder="Email" required className="bg-white" />
-                  <select className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
-                    <option>Интересует финансовый доход</option>
-                    <option>Интересуют натуральные продукты</option>
-                    <option>Интересует патронаж животных</option>
-                  </select>
-                  <Button type="submit" className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white">
-                    Стать инвестором
-                  </Button>
-                </form>
-              </Card>
-            </div>
-            <div>
-              <img
-                src="https://cdn.poehali.dev/projects/80552da2-4ca1-4213-94e1-8d74d09e40e7/files/e62bca31-f679-406d-93db-f050477bd3fa.jpg"
-                alt="Инвесторы"
-                className="rounded-lg shadow-xl w-full h-auto"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="sellers" className="py-20 px-4 bg-gradient-to-tr from-[#E8F5E9] to-[#FAF0C0]">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div className="order-2 md:order-1">
-              <div className="bg-white/80 rounded-lg shadow-xl p-8 border border-[#A8D5A5]">
-                <Icon name="Package" className="text-[#66BB6A] mb-4" size={48} />
-                <h4 className="text-2xl font-bold mb-4 text-[#4CAF50]">Продукты для продавцов:</h4>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <Icon name="BarChart" className="text-[#66BB6A] mr-2 flex-shrink-0" size={20} />
-                    <span className="text-[#5A9FB8]">Доступ к аналитике рынка и потребностям ферм</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Icon name="ShoppingCart" className="text-[#66BB6A] mr-2 flex-shrink-0" size={20} />
-                    <span className="text-[#5A9FB8]">Прямые продажи через платформу с комиссией</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Icon name="Megaphone" className="text-[#66BB6A] mr-2 flex-shrink-0" size={20} />
-                    <span className="text-[#5A9FB8]">Размещение баннеров и рекламы</span>
-                  </li>
-                </ul>
+            <Card className="p-8 shadow-soft rounded-3xl border-0 hover:shadow-glow transition-all duration-300 group">
+              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Icon name="Store" className="text-green-600" size={32} />
               </div>
-            </div>
-            <div className="order-1 md:order-2">
-              <h2 className="text-4xl font-bold mb-6 text-[#0099CC]">
-                <Icon name="Store" className="inline mr-3 text-[#FFAA00]" size={36} />
-                Продавцам
-              </h2>
-              <h3 className="text-2xl font-semibold mb-6 text-[#5A9FB8]">
-                Найди клиентов среди ферм
-              </h3>
+              <h3 className="text-2xl font-bold mb-4">Продавцам</h3>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Аналитика рынка и потребностей</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Прямые продажи через платформу</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
+                  <span>Баннеры и таргетированная реклама</span>
+                </li>
+              </ul>
+            </Card>
+          </div>
 
-              <Card className="p-6 bg-white/80 shadow-lg border-[#E5D68B]">
-                <h4 className="text-xl font-semibold mb-4 text-[#0099CC]">
-                  Полезно для бизнеса? Поделись мнением!
-                </h4>
-                <form onSubmit={(e) => handleSubmit(e, 'seller')} className="space-y-4">
-                  <Input placeholder="Название компании" required className="bg-white" />
-                  <Input type="email" placeholder="Email" required className="bg-white" />
-                  <Input type="tel" placeholder="Телефон" className="bg-white" />
-                  <Textarea placeholder="Что вы продаёте?" rows={3} className="bg-white" />
-                  <Button type="submit" className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white">
-                    Стать партнёром
-                  </Button>
-                </form>
-              </Card>
-            </div>
+          <div className="mt-16 grid md:grid-cols-3 gap-8">
+            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
+              <Icon name="Shield" className="text-green-600 mx-auto mb-4" size={40} />
+              <h4 className="text-xl font-bold mb-2">Страховка сделок</h4>
+              <p className="text-gray-600">Все инвестиции защищены. Ваши средства в безопасности</p>
+            </Card>
+
+            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
+              <Icon name="BarChart3" className="text-green-600 mx-auto mb-4" size={40} />
+              <h4 className="text-xl font-bold mb-2">Прозрачная аналитика</h4>
+              <p className="text-gray-600">Данные и прогнозы для эффективного управления</p>
+            </Card>
+
+            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
+              <Icon name="Users" className="text-green-600 mx-auto mb-4" size={40} />
+              <h4 className="text-xl font-bold mb-2">Взаимная выгода</h4>
+              <p className="text-gray-600">Три стороны находят пользу в экосистеме</p>
+            </Card>
           </div>
         </div>
       </section>
 
-      <section id="survey" className="py-20 px-4 bg-[#FAF0C0]">
-        <div className="container mx-auto max-w-4xl">
+      <section id="contact" className="py-24 px-6 bg-gradient-to-b from-white to-green-50">
+        <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6 text-[#0099CC]">
-              Пройди опрос: Нужна ли такая платформа?
-            </h2>
-            <p className="text-lg text-[#5A9FB8]">
-              Твой отзыв поможет улучшить "Фармер"! После — получи PDF с советами по инвестициям.
-            </p>
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              ✉️ Обратная связь
+            </Badge>
+            <h2 className="text-5xl font-bold mb-4">Расскажите о своих планах</h2>
+            <p className="text-xl text-gray-600">Мы свяжемся с вами и обсудим возможности сотрудничества</p>
           </div>
 
-          <Card className="p-8 shadow-xl bg-white/80 border-[#E5D68B]">
-            <div className="text-center mb-6">
-              <Icon name="ClipboardList" className="inline text-[#0099CC] mb-4" size={48} />
-              <h3 className="text-2xl font-bold text-[#0099CC] mb-2">Опрос для всех пользователей</h3>
-              <p className="text-[#5A9FB8]">Ответьте на несколько вопросов, чтобы помочь нам улучшить платформу</p>
-            </div>
+          <Card className="p-10 shadow-soft rounded-3xl border-0">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Ваше имя</label>
+                  <Input required className="rounded-xl border-gray-200" placeholder="Иван Иванов" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Email</label>
+                  <Input type="email" required className="rounded-xl border-gray-200" placeholder="ivan@example.com" />
+                </div>
+              </div>
 
-            <form onSubmit={(e) => handleSubmit(e, 'survey')} className="space-y-6">
               <div>
-                <label className="block mb-2 font-semibold text-[#0099CC]">Кто вы?</label>
-                <select className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white" required>
+                <label className="block text-sm font-medium mb-2">Я...</label>
+                <select className="w-full px-4 py-3 rounded-xl border border-gray-200" required>
                   <option value="">Выберите...</option>
                   <option>Фермер</option>
                   <option>Инвестор</option>
-                  <option>Продавец</option>
+                  <option>Продавец агротоваров</option>
                   <option>Просто интересуюсь</option>
                 </select>
               </div>
 
               <div>
-                <label className="block mb-2 font-semibold text-[#0099CC]">
-                  Насколько актуальна для вас такая платформа? (от 1 до 10)
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  className="w-full"
-                  required
-                />
-                <div className="flex justify-between text-sm text-[#5A9FB8] mt-1">
-                  <span>1 - Не актуально</span>
-                  <span>10 - Очень актуально</span>
-                </div>
+                <label className="block text-sm font-medium mb-2">Сообщение</label>
+                <Textarea className="rounded-xl border-gray-200 min-h-32" placeholder="Расскажите о ваших целях и интересах..." />
               </div>
 
-              <div>
-                <label className="block mb-2 font-semibold text-[#0099CC]">Ваши предложения и идеи</label>
-                <Textarea
-                  placeholder="Поделитесь своими мыслями о платформе..."
-                  rows={4}
-                  className="bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 font-semibold text-[#0099CC]">Контакт для связи</label>
-                <Input type="email" placeholder="Ваш email" required className="bg-white" />
-              </div>
-
-              <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799] text-white py-6 text-lg">
-                Отправить опрос
+              <Button type="submit" size="lg" className="w-full rounded-xl shadow-glow">
+                Отправить заявку
               </Button>
             </form>
           </Card>
         </div>
       </section>
 
-      <section id="founder" className="py-20 px-4 bg-gradient-to-br from-[#8B7355] to-[#A0826D]">
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="order-2 md:order-1">
-              <div className="bg-[#F5E6A8] rounded-2xl p-8 shadow-2xl">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-20 h-20 bg-[#8B7355] rounded-full flex items-center justify-center">
-                    <Icon name="User" className="text-[#F5E6A8]" size={40} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-[#8B7355]">Илья Краснопеев</h3>
-                    <p className="text-[#A0826D]">Основатель проекта</p>
-                  </div>
-                </div>
-                <div className="space-y-4 text-[#5A4A3A]">
-                  <p className="leading-relaxed">
-                    Создатель и главный герой сериала <span className="font-bold">«Илюхина ферма»</span> — документального проекта о настоящей жизни фермера.
-                  </p>
-                  <p className="leading-relaxed">
-                    Владелец КФХ «Там, где рассвет» — хозяйства, где рождаются истории о труде, природе и искренней любви к земле.
-                  </p>
-                  <a
-                    href="https://t.me/ilyukhina_ferma"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-[#8B7355] text-[#F5E6A8] rounded-lg hover:bg-[#7A6347] transition-colors font-medium"
-                  >
-                    <Icon name="Send" size={20} />
-                    Telegram-канал "Илюхина ферма"
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="order-1 md:order-2 text-[#F5E6A8]">
-              <h2 className="text-4xl font-bold mb-6">Автор и идейный вдохновитель</h2>
-              <div className="space-y-4 text-lg">
-                <p className="leading-relaxed">
-                  Илья не просто предприниматель — он живет фермерством. Каждый день на его ферме — это история труда, заботы о животных и природе.
-                </p>
-                <p className="leading-relaxed">
-                  В сериале «Илюхина ферма» Илья делится реальным опытом: от рассвета до заката, от радостей до трудностей фермерской жизни.
-                </p>
-                <p className="leading-relaxed font-semibold">
-                  Его миссия — сделать сельское хозяйство доступным для инвестиций и показать людям красоту фермерского труда.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 px-4 bg-[#D4C4B0] text-[#5A4A3A]">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">Почему мы?</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#F5E6A8] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <Icon name="Shield" className="text-[#0099CC]" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">Страховка как волшебный сад</h3>
-                    <p className="text-[#E5F5FA]">Все инвестиции защищены. Ваши средства в безопасности</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#F5E6A8] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <Icon name="Award" className="text-[#0099CC]" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mb-2 text-[#F5E6A8]">Опыт основателя</h3>
-                    <p className="text-[#F5E6A8]/90">Илья Краснопеев — создатель «Илюхиной фермы» и КФХ «Там, где рассвет»</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#F5E6A8] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <Icon name="Target" className="text-[#0099CC]" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">Большой рынок</h3>
-                    <p className="text-[#E5F5FA]">Рынок 1 трлн руб., планируем захватить 10-15 млрд</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <Card className="p-8 bg-white/10 backdrop-blur-sm border-white/20">
-                <h3 className="text-2xl font-bold mb-4">Присоединяйся к будущему сельского хозяйства</h3>
-                <p className="text-[#E5F5FA] mb-6">
-                  Мы создаём экосистему, где каждый находит свою выгоду. Фермеры растут,
-                  инвесторы получают доход, продавцы находят клиентов.
-                </p>
-                <div className="space-y-4">
-                  <Button
-                    onClick={() => scrollToSection('survey')}
-                    className="w-full bg-[#F5E6A8] hover:bg-[#E5D68B] text-[#0099CC] py-6 text-lg"
-                  >
-                    Пройти опрос сейчас
-                  </Button>
-                  <Button
-                    asChild
-                    className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white py-6 text-lg"
-                  >
-                    <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
-                      Поддержать на Planeta.ru
-                    </a>
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-[#007799] text-white py-12 px-4">
+      <footer className="py-12 px-6 bg-gray-900 text-white">
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-2xl font-bold" style={{ fontFamily: 'serif' }}>ФАРМЕР</h3>
+                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-500 rounded-2xl flex items-center justify-center">
+                  <Icon name="Sprout" className="text-white" size={20} />
+                </div>
+                <span className="text-xl font-bold">Фармер</span>
               </div>
-              <p className="text-[#B3E5F5]">
-                Платформа для инвестиций в реальные фермы
-              </p>
+              <p className="text-gray-400 text-sm">Платформа для инвестиций в реальные фермы</p>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4">Для пользователей</h4>
-              <ul className="space-y-2 text-[#B3E5F5]">
-                <li><button onClick={() => scrollToSection('farmers')} className="hover:text-white">Фермерам</button></li>
-                <li><button onClick={() => scrollToSection('investors')} className="hover:text-white">Инвесторам</button></li>
-                <li><button onClick={() => scrollToSection('sellers')} className="hover:text-white">Продавцам</button></li>
+              <h4 className="font-semibold mb-4">Проект</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><button onClick={() => scrollToSection('founder')} className="hover:text-white transition-colors">Об авторе</button></li>
+                <li><button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors">О платформе</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors">Контакты</button></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4">Информация</h4>
-              <ul className="space-y-2 text-[#B3E5F5]">
-                <li><button onClick={() => scrollToSection('about')} className="hover:text-white">О проекте</button></li>
-                <li><button onClick={() => scrollToSection('survey')} className="hover:text-white">Опрос</button></li>
+              <h4 className="font-semibold mb-4">Ссылки</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a 
-                    href="https://planeta.ru/campaigns/235852" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-white"
-                  >
-                    Поддержать на Planeta.ru
+                  <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
+                    <Icon name="Send" size={14} />
+                    Telegram-канал
+                  </a>
+                </li>
+                <li>
+                  <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                    Planeta.ru
                   </a>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4">Контакты</h4>
-              <ul className="space-y-2 text-[#B3E5F5]">
+              <h4 className="font-semibold mb-4">Контакты</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
                 <li className="flex items-center gap-2">
-                  <Icon name="Mail" size={16} />
+                  <Icon name="Mail" size={14} />
                   <span>info@farmer.ru</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Icon name="MessageCircle" size={16} />
-                  <span>@farmer_platform</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-[#0099CC] pt-8">
-            <div className="text-center">
-              <p className="text-[#B3E5F5] mb-4">
-                Оставь email для получения обновлений о запуске платформы
-              </p>
-              <form onSubmit={(e) => handleSubmit(e, 'newsletter')} className="flex gap-2 max-w-md mx-auto">
-                <Input
-                  type="email"
-                  placeholder="Ваш email"
-                  className="bg-white/10 border-white/20 text-white placeholder:text-[#B3E5F5]"
-                  required
-                />
-                <Button type="submit" className="bg-[#F5E6A8] hover:bg-[#E5D68B] text-[#0099CC]">
-                  Подписаться
-                </Button>
-              </form>
-            </div>
-          </div>
-
-          <div className="text-center mt-8 text-[#B3E5F5] text-sm">
-            <p>© 2024 Фармер. Все права защищены.</p>
+          <div className="pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
+            <p>© 2025 Фармер. Все права защищены.</p>
           </div>
         </div>
       </footer>
