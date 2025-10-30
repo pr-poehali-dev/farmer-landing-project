@@ -75,9 +75,7 @@ const Index = () => {
               <h2 className="text-5xl md:text-6xl font-bold mb-6 text-[#0099CC] animate-fade-in" style={{ fontFamily: 'serif' }}>
                 Инвестируй в фермы<br />просто и выгодно!
               </h2>
-              <p className="text-xl mb-4 text-[#5A9FB8] animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                Расскажи, нужна ли тебе такая платформа?<br />Оставь контакты и пройди опрос
-              </p>
+
               <p className="text-lg mb-8 text-[#5A9FB8] animate-fade-in" style={{ animationDelay: '0.4s' }}>
                 Соединяем фермеров, инвесторов и продавцов для роста агробизнеса. С аналитикой, патронажем и страховкой!
               </p>
