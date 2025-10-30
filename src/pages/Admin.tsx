@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -27,6 +28,7 @@ interface LeadsData {
 }
 
 const Admin = () => {
+  const navigate = useNavigate();
   const [leads, setLeads] = useState<LeadsData>({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'farmers' | 'investors' | 'sellers' | 'surveys'>('farmers');
@@ -82,9 +84,15 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-[#F5E6A8] py-8 px-4">
       <div className="container mx-auto max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#0099CC] mb-2">Админ-панель</h1>
-          <p className="text-[#5A9FB8]">Управление заявками с сайта</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-[#0099CC] mb-2">Админ-панель</h1>
+            <p className="text-[#5A9FB8]">Управление заявками с сайта</p>
+          </div>
+          <Button onClick={() => navigate('/survey')} className="bg-[#FFAA00] hover:bg-[#FF9900] text-white">
+            <Icon name="BarChart3" className="mr-2" size={20} />
+            Результаты опроса
+          </Button>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">
