@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,6 +7,8 @@ import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
+  const [showCustomRegion, setShowCustomRegion] = React.useState<{farmer?: boolean, investor?: boolean, seller?: boolean}>({});
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -36,7 +39,8 @@ const Index = () => {
       message: formData.get('message'),
       rating: formData.get('rating'),
       suggestions: formData.get('suggestions'),
-      region: formData.get('region')
+      region: formData.get('region'),
+      custom_region: formData.get('custom_region')
     };
 
     try {
@@ -224,8 +228,13 @@ const Index = () => {
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
                   <Input name="company_name" placeholder="Название фермы" className="bg-white" />
-                  <select name="region" className="w-full px-3 py-2 border border-[#A8D5A5] rounded-md bg-white">
+                  <select 
+                    name="region" 
+                    className="w-full px-3 py-2 border border-[#A8D5A5] rounded-md bg-white"
+                    onChange={(e) => setShowCustomRegion(prev => ({...prev, farmer: e.target.value === 'Другой регион'}))}
+                  >
                     <option value="">Выберите регион</option>
+                    <option>Республика Бурятия</option>
                     <option>Москва</option>
                     <option>Санкт-Петербург</option>
                     <option>Московская область</option>
@@ -246,6 +255,9 @@ const Index = () => {
                     <option>Волгоградская область</option>
                     <option>Другой регион</option>
                   </select>
+                  {showCustomRegion.farmer && (
+                    <Input name="custom_region" placeholder="Введите ваш регион" required className="bg-white" />
+                  )}
                   <Button type="submit" className="w-full bg-[#66BB6A] hover:bg-[#4CAF50]">
                     Отправить заявку
                   </Button>
@@ -305,8 +317,13 @@ const Index = () => {
                 <form onSubmit={(e) => handleSubmit(e, 'investor')} className="space-y-4">
                   <Input name="name" placeholder="Ваше имя" required className="bg-white" />
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
-                  <select name="region" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                  <select 
+                    name="region" 
+                    className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white"
+                    onChange={(e) => setShowCustomRegion(prev => ({...prev, investor: e.target.value === 'Другой регион'}))}
+                  >
                     <option value="">Выберите регион</option>
+                    <option>Республика Бурятия</option>
                     <option>Москва</option>
                     <option>Санкт-Петербург</option>
                     <option>Московская область</option>
@@ -327,6 +344,9 @@ const Index = () => {
                     <option>Волгоградская область</option>
                     <option>Другой регион</option>
                   </select>
+                  {showCustomRegion.investor && (
+                    <Input name="custom_region" placeholder="Введите ваш регион" required className="bg-white" />
+                  )}
                   <select name="interest_type" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
                     <option>Интересует финансовый доход</option>
                     <option>Интересуют натуральные продукты</option>
@@ -389,8 +409,13 @@ const Index = () => {
                   <Input name="company_name" placeholder="Название компании" required className="bg-white" />
                   <Input name="email" type="email" placeholder="Email" required className="bg-white" />
                   <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
-                  <select name="region" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                  <select 
+                    name="region" 
+                    className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white"
+                    onChange={(e) => setShowCustomRegion(prev => ({...prev, seller: e.target.value === 'Другой регион'}))}
+                  >
                     <option value="">Выберите регион</option>
+                    <option>Республика Бурятия</option>
                     <option>Москва</option>
                     <option>Санкт-Петербург</option>
                     <option>Московская область</option>
@@ -411,6 +436,9 @@ const Index = () => {
                     <option>Волгоградская область</option>
                     <option>Другой регион</option>
                   </select>
+                  {showCustomRegion.seller && (
+                    <Input name="custom_region" placeholder="Введите ваш регион" required className="bg-white" />
+                  )}
                   <Textarea name="message" placeholder="Что вы продаёте?" rows={3} className="bg-white" />
                   <Button type="submit" className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white">
                     Стать партнёром

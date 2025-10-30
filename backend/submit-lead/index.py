@@ -44,6 +44,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     rating: Optional[int] = body_data.get('rating')
     suggestions: Optional[str] = body_data.get('suggestions')
     region: Optional[str] = body_data.get('region')
+    custom_region: Optional[str] = body_data.get('custom_region')
+    
+    if region == 'Другой регион' and custom_region:
+        region = custom_region
     
     if not email or not user_type:
         return {
