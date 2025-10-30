@@ -701,7 +701,7 @@ const Index = () => {
           </div>
 
           <div className="text-center mt-8 text-[#B3E5F5] text-sm">
-            <p>© 2024 Фармер. Все права защищены.</p>
+            <p>© 2025 Фармер. Все права защищены.</p>
           </div>
         </div>
       </footer>
