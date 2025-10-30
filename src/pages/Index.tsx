@@ -397,7 +397,12 @@ const Index = () => {
       <section className="py-20 px-4 bg-[#0099CC] text-white">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">Почему мы?</h2>
+            <h2 className="text-4xl font-bold mb-6">Почему "Фармер"?</h2>
+            <p className="text-lg text-[#E5F5FA] max-w-4xl mx-auto leading-relaxed">
+              Мы — это мост между людьми и природой, где инвестиции в фермы становятся простыми, безопасными и полезными для всех. 
+              Наша миссия — сделать агробизнес доступным: фермерам — деньги без бюрократии, инвесторам — доход и связь с реальными активами, 
+              продавцам — точные клиенты.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -408,8 +413,18 @@ const Index = () => {
                     <Icon name="Shield" className="text-[#0099CC]" size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold mb-2">Страховка как волшебный сад</h3>
-                    <p className="text-[#E5F5FA]">Все инвестиции защищены. Ваши средства в безопасности</p>
+                    <h3 className="text-xl font-bold mb-2">Надёжная защита</h3>
+                    <p className="text-[#E5F5FA]">Все сделки застрахованы как надёжный щит от рисков с AI-аналитикой для роста</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="w-12 h-12 bg-[#F5E6A8] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                    <Icon name="TrendingUp" className="text-[#0099CC]" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">Устойчивый доход</h3>
+                    <p className="text-[#E5F5FA]">Доход выше банковских вкладов (~19%), снижение расходов ферм на 20–30%</p>
                   </div>
                 </div>
 
@@ -419,17 +434,7 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold mb-2">Опыт основателя</h3>
-                    <p className="text-[#E5F5FA]">Илья Краснопеев, владелец фермы "Там где рассвет"</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#F5E6A8] rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <Icon name="Target" className="text-[#0099CC]" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">Большой рынок</h3>
-                    <p className="text-[#E5F5FA]">Рынок 1 трлн руб., планируем захватить 10-15 млрд</p>
+                    <p className="text-[#E5F5FA]">Илья Краснопеев — опытный сельхозпроизводитель меда, владелец туристической фермы КФХ "Там где рассвет" и автор популярного сериала "Илюхина ферма". С многолетним опытом он знает, как сделать агробизнес увлекательным и доступным.</p>
                   </div>
                 </div>
               </div>
