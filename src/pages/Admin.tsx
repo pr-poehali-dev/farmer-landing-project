@@ -32,6 +32,22 @@ const Admin = () => {
   const [leads, setLeads] = useState<LeadsData>({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'farmers' | 'investors' | 'sellers' | 'surveys'>('farmers');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const ADMIN_PASSWORD = 'Krasnopeev95!';
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      setError('');
+    } else {
+      setError('Неверный пароль');
+      setPassword('');
+    }
+  };
 
   useEffect(() => {
     fetchLeads();
@@ -68,6 +84,44 @@ const Admin = () => {
     { key: 'surveys' as const, label: 'Опросы', icon: 'ClipboardList', count: leads.surveys?.length || 0 }
   ];
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#F5E6A8] flex items-center justify-center px-4">
+        <Card className="w-full max-w-md p-8 bg-white/90">
+          <div className="text-center mb-6">
+            <Icon name="Lock" className="text-[#0099CC] mx-auto mb-4" size={48} />
+            <h1 className="text-3xl font-bold text-[#0099CC] mb-2">Админ-панель</h1>
+            <p className="text-[#5A9FB8]">Введите пароль для доступа</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Пароль"
+                className="w-full px-4 py-3 border-2 border-[#0099CC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0099CC]"
+                autoFocus
+              />
+              {error && (
+                <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                  <Icon name="AlertCircle" size={16} />
+                  {error}
+                </p>
+              )}
+            </div>
+            
+            <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799] text-white py-3">
+              <Icon name="LogIn" className="mr-2" size={20} />
+              Войти
+            </Button>
+          </form>
+        </Card>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F5E6A8] flex items-center justify-center">
@@ -89,10 +143,16 @@ const Admin = () => {
             <h1 className="text-4xl font-bold text-[#0099CC] mb-2">Админ-панель</h1>
             <p className="text-[#5A9FB8]">Управление заявками с сайта</p>
           </div>
-          <Button onClick={() => navigate('/survey')} className="bg-[#FFAA00] hover:bg-[#FF9900] text-white">
-            <Icon name="BarChart3" className="mr-2" size={20} />
-            Результаты опроса
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/survey')} className="bg-[#FFAA00] hover:bg-[#FF9900] text-white">
+              <Icon name="BarChart3" className="mr-2" size={20} />
+              Результаты опроса
+            </Button>
+            <Button onClick={() => setIsAuthenticated(false)} variant="outline" className="border-[#0099CC] text-[#0099CC] hover:bg-[#E5F5FA]">
+              <Icon name="LogOut" className="mr-2" size={20} />
+              Выйти
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">
