@@ -35,7 +35,8 @@ const Index = () => {
       interest_type: formData.get('interest_type'),
       message: formData.get('message'),
       rating: formData.get('rating'),
-      suggestions: formData.get('suggestions')
+      suggestions: formData.get('suggestions'),
+      region: formData.get('region')
     };
 
     try {

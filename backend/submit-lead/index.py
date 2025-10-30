@@ -45,12 +45,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     suggestions: Optional[str] = body_data.get('suggestions')
     region: Optional[str] = body_data.get('region')
     
-    if not name or not email or not user_type:
+    if not email or not user_type:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'isBase64Encoded': False,
-            'body': json.dumps({'error': 'Name, email and type are required'})
+            'body': json.dumps({'error': 'Email and type are required'})
         }
     
     database_url = os.environ.get('DATABASE_URL')
@@ -65,24 +65,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
+    schema = 't_p53065890_farmer_landing_proje'
+    
     if user_type == 'farmer':
         cur.execute(
-            "INSERT INTO farmer_leads (name, email, phone, company_name, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            f"INSERT INTO {schema}.farmer_leads (name, email, phone, company_name, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
             (name, email, phone, company_name, region)
         )
     elif user_type == 'investor':
         cur.execute(
-            "INSERT INTO investor_leads (name, email, phone, interest_type, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            f"INSERT INTO {schema}.investor_leads (name, email, phone, interest_type, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
             (name, email, phone, interest_type, region)
         )
     elif user_type == 'seller':
+        seller_name = company_name or name or 'Не указано'
         cur.execute(
-            "INSERT INTO seller_leads (company_name, email, phone, message, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
-            (company_name, email, phone, message, region)
+            f"INSERT INTO {schema}.seller_leads (company_name, email, phone, message, region) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (seller_name, email, phone, message, region)
+        )
+    elif user_type == 'survey':
+        cur.execute(
+            f"INSERT INTO {schema}.leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region)
         )
     else:
         cur.execute(
-            "INSERT INTO leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            f"INSERT INTO {schema}.leads (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (name, email, phone, user_type, company_name, interest_type, message, rating, suggestions, region)
         )
     

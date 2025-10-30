@@ -47,22 +47,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
+    schema = 't_p53065890_farmer_landing_proje'
     results: Dict[str, List[Dict]] = {}
     
     if lead_type == 'all' or lead_type == 'farmer':
-        cur.execute("SELECT id, name, email, phone, company_name, region, created_at FROM farmer_leads ORDER BY created_at DESC")
+        cur.execute(f"SELECT id, name, email, phone, company_name, region, created_at FROM {schema}.farmer_leads ORDER BY created_at DESC")
         results['farmers'] = [dict(row) for row in cur.fetchall()]
     
     if lead_type == 'all' or lead_type == 'investor':
-        cur.execute("SELECT id, name, email, phone, interest_type, region, created_at FROM investor_leads ORDER BY created_at DESC")
+        cur.execute(f"SELECT id, name, email, phone, interest_type, region, created_at FROM {schema}.investor_leads ORDER BY created_at DESC")
         results['investors'] = [dict(row) for row in cur.fetchall()]
     
     if lead_type == 'all' or lead_type == 'seller':
-        cur.execute("SELECT id, company_name, email, phone, message, region, created_at FROM seller_leads ORDER BY created_at DESC")
+        cur.execute(f"SELECT id, company_name, email, phone, message, region, created_at FROM {schema}.seller_leads ORDER BY created_at DESC")
         results['sellers'] = [dict(row) for row in cur.fetchall()]
     
     if lead_type == 'all' or lead_type == 'survey':
-        cur.execute("SELECT id, name, email, phone, user_type, interest_type, rating, suggestions, region, created_at FROM leads ORDER BY created_at DESC")
+        cur.execute(f"SELECT id, name, email, phone, user_type, interest_type, rating, suggestions, region, created_at FROM {schema}.leads ORDER BY created_at DESC")
         results['surveys'] = [dict(row) for row in cur.fetchall()]
     
     cur.close()
