@@ -4,11 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState('');
+  const [farmerData, setFarmerData] = useState({ name: '', email: '', region: '', interest: '' });
+  const [investorData, setInvestorData] = useState({ name: '', email: '', amount: '', returnType: '' });
+  const [sellerData, setSellerData] = useState({ name: '', email: '', company: '', budget: '' });
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -17,10 +21,25 @@ const Index = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFarmerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Спасибо! Мы свяжемся с вами');
-    (e.target as HTMLFormElement).reset();
+    console.log('Фермер:', farmerData);
+    toast.success('Спасибо! Ваши данные сохранены');
+    setFarmerData({ name: '', email: '', region: '', interest: '' });
+  };
+
+  const handleInvestorSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Инвестор:', investorData);
+    toast.success('Спасибо! Ваши данные сохранены');
+    setInvestorData({ name: '', email: '', amount: '', returnType: '' });
+  };
+
+  const handleSellerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Продавец:', sellerData);
+    toast.success('Спасибо! Ваши данные сохранены');
+    setSellerData({ name: '', email: '', company: '', budget: '' });
   };
 
   return (
@@ -35,14 +54,14 @@ const Index = () => {
               <span className="text-2xl font-bold text-gradient">Фармер</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => scrollToSection('founder')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                Автор
+              <button onClick={() => scrollToSection('farmers')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Фермерам
               </button>
-              <button onClick={() => scrollToSection('about')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                О проекте
+              <button onClick={() => scrollToSection('investors')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Инвесторам
               </button>
-              <button onClick={() => scrollToSection('contact')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                Контакт
+              <button onClick={() => scrollToSection('sellers')} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Продавцам
               </button>
               <Button asChild className="rounded-full shadow-glow">
                 <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
@@ -60,39 +79,25 @@ const Index = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200">
-                  🌱 Агроинвестиции 2025
+                  🌱 Тестируем идею
                 </Badge>
                 <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
-                  Инвестируй в <span className="text-gradient">фермы</span> будущего
+                  Нужна ли вам платформа для <span className="text-gradient">агроинвестиций</span>?
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Соединяем фермеров, инвесторов и поставщиков через умную платформу с аналитикой и страховкой
+                  Мы создаём платформу, которая соединит фермеров, инвесторов и поставщиков. Расскажите, актуально ли это для вас?
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" onClick={() => scrollToSection('about')} className="rounded-full shadow-soft px-8">
-                  Узнать больше
+                <Button size="lg" onClick={() => scrollToSection('farmers')} className="rounded-full shadow-soft px-8">
+                  Я фермер
                 </Button>
-                <Button size="lg" variant="outline" asChild className="rounded-full">
-                  <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer">
-                    <Icon name="Send" size={18} className="mr-2" />
-                    Telegram
-                  </a>
+                <Button size="lg" variant="outline" onClick={() => scrollToSection('investors')} className="rounded-full px-8">
+                  Я инвестор
                 </Button>
-              </div>
-              <div className="flex gap-8 pt-4">
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">1000+</div>
-                  <div className="text-sm text-gray-600">Активных ферм</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">₽15 млрд</div>
-                  <div className="text-sm text-gray-600">Целевой рынок</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">19%+</div>
-                  <div className="text-sm text-gray-600">Доходность</div>
-                </div>
+                <Button size="lg" variant="outline" onClick={() => scrollToSection('sellers')} className="rounded-full px-8">
+                  Я продавец
+                </Button>
               </div>
             </div>
             <div className="relative">
@@ -107,233 +112,383 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="founder" className="py-24 px-6 bg-gradient-to-b from-white to-green-50">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
+      <section id="farmers" className="py-24 px-6 bg-gradient-to-b from-white to-green-50">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
             <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
-              👨‍🌾 Основатель
+              🚜 Для фермеров
             </Badge>
-            <h2 className="text-5xl font-bold mb-4">Илья Краснопеев</h2>
-            <p className="text-xl text-gray-600">Создатель «Илюхиной фермы» и КФХ «Там, где рассвет»</p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-12">
-            <Card className="p-8 shadow-soft rounded-3xl border-0 bg-white">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <Icon name="Video" className="text-green-600" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Сериал «Илюхина ферма»</h3>
-                    <p className="text-gray-600">Документальный проект о настоящей жизни фермера — от рассвета до заката, от радостей до трудностей</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <Icon name="Tractor" className="text-green-600" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">КФХ «Там, где рассвет»</h3>
-                    <p className="text-gray-600">Хозяйство, где рождаются истории о труде, природе и искренней любви к земле</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <Icon name="Target" className="text-green-600" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Миссия проекта</h3>
-                    <p className="text-gray-600">Сделать сельское хозяйство доступным для инвестиций и показать красоту фермерского труда</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <div className="space-y-6">
-              <Card className="p-8 shadow-soft rounded-3xl border-0 glass-dark text-white">
-                <blockquote className="text-lg leading-relaxed mb-6">
-                  "Я не просто предприниматель — я живу фермерством. Каждый день на моей ферме — это история труда, заботы о животных и природе. Моя цель — показать людям, что агробизнес может быть современным, прозрачным и доходным."
-                </blockquote>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                    <Icon name="User" size={32} />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Илья Краснопеев</div>
-                    <div className="text-sm text-white/80">Основатель Фармер</div>
-                  </div>
-                </div>
-              </Card>
-
-              <Button asChild size="lg" className="w-full rounded-2xl shadow-glow" variant="default">
-                <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                  <Icon name="Send" size={20} />
-                  Telegram-канал «Илюхина ферма»
-                </a>
-              </Button>
-
-              <Button asChild size="lg" variant="outline" className="w-full rounded-2xl">
-                <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
-                  Поддержать на Planeta.ru
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="about" className="py-24 px-6 bg-white">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
-              💡 Возможности
-            </Badge>
-            <h2 className="text-5xl font-bold mb-4">Три стороны — одна экосистема</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Платформа объединяет фермеров, инвесторов и поставщиков в единую прозрачную систему
+            <h2 className="text-5xl font-bold mb-4">Фермерам: получайте инвестиции без кредитов</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Расскажите о своей ферме и узнайте, как платформа может помочь вам привлечь финансирование
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-8 shadow-soft rounded-3xl border-0 hover:shadow-glow transition-all duration-300 group">
-              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Icon name="Tractor" className="text-green-600" size={32} />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Фермерам</h3>
+          <Card className="p-10 shadow-soft rounded-3xl border-0 bg-white">
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold mb-4">Что мы предлагаем:</h3>
               <ul className="space-y-3 text-gray-600">
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Диагностика фермы для входа</span>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Диагностика вашей фермы для оценки инвестиционного потенциала</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Аналитика для управления</span>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Аналитика и рекомендации для повышения эффективности</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Комиссия 5-10% для высокого рейтинга</span>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Прямой доступ к инвесторам без банков (комиссия 5-10%)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Страховка сделок для вашей безопасности</span>
                 </li>
               </ul>
-            </Card>
+            </div>
 
-            <Card className="p-8 shadow-soft rounded-3xl border-0 hover:shadow-glow transition-all duration-300 group bg-gradient-to-br from-green-50 to-emerald-50">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-soft">
-                <Icon name="TrendingUp" className="text-green-600" size={32} />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Инвесторам</h3>
-              <ul className="space-y-3 text-gray-600">
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Доходность более 19% годовых</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Натуральные продукты (мёд, мясо)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Патронаж животных с видео</span>
-                </li>
-              </ul>
-            </Card>
-
-            <Card className="p-8 shadow-soft rounded-3xl border-0 hover:shadow-glow transition-all duration-300 group">
-              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Icon name="Store" className="text-green-600" size={32} />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Продавцам</h3>
-              <ul className="space-y-3 text-gray-600">
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Аналитика рынка и потребностей</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Прямые продажи через платформу</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={18} />
-                  <span>Баннеры и таргетированная реклама</span>
-                </li>
-              </ul>
-            </Card>
-          </div>
-
-          <div className="mt-16 grid md:grid-cols-3 gap-8">
-            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
-              <Icon name="Shield" className="text-green-600 mx-auto mb-4" size={40} />
-              <h4 className="text-xl font-bold mb-2">Страховка сделок</h4>
-              <p className="text-gray-600">Все инвестиции защищены. Ваши средства в безопасности</p>
-            </Card>
-
-            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
-              <Icon name="BarChart3" className="text-green-600 mx-auto mb-4" size={40} />
-              <h4 className="text-xl font-bold mb-2">Прозрачная аналитика</h4>
-              <p className="text-gray-600">Данные и прогнозы для эффективного управления</p>
-            </Card>
-
-            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
-              <Icon name="Users" className="text-green-600 mx-auto mb-4" size={40} />
-              <h4 className="text-xl font-bold mb-2">Взаимная выгода</h4>
-              <p className="text-gray-600">Три стороны находят пользу в экосистеме</p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="py-24 px-6 bg-gradient-to-b from-white to-green-50">
-        <div className="container mx-auto max-w-3xl">
-          <div className="text-center mb-12">
-            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
-              ✉️ Обратная связь
-            </Badge>
-            <h2 className="text-5xl font-bold mb-4">Расскажите о своих планах</h2>
-            <p className="text-xl text-gray-600">Мы свяжемся с вами и обсудим возможности сотрудничества</p>
-          </div>
-
-          <Card className="p-10 shadow-soft rounded-3xl border-0">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Ваше имя</label>
-                  <Input required className="rounded-xl border-gray-200" placeholder="Иван Иванов" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Email</label>
-                  <Input type="email" required className="rounded-xl border-gray-200" placeholder="ivan@example.com" />
-                </div>
+            <form onSubmit={handleFarmerSubmit} className="space-y-6">
+              <div>
+                <Label className="text-base font-medium mb-2">Ваше имя *</Label>
+                <Input
+                  required
+                  value={farmerData.name}
+                  onChange={(e) => setFarmerData({ ...farmerData, name: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="Иван Петров"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Я...</label>
-                <select className="w-full px-4 py-3 rounded-xl border border-gray-200" required>
-                  <option value="">Выберите...</option>
-                  <option>Фермер</option>
-                  <option>Инвестор</option>
-                  <option>Продавец агротоваров</option>
-                  <option>Просто интересуюсь</option>
-                </select>
+                <Label className="text-base font-medium mb-2">Email *</Label>
+                <Input
+                  type="email"
+                  required
+                  value={farmerData.email}
+                  onChange={(e) => setFarmerData({ ...farmerData, email: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="ivan@example.com"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Сообщение</label>
-                <Textarea className="rounded-xl border-gray-200 min-h-32" placeholder="Расскажите о ваших целях и интересах..." />
+                <Label className="text-base font-medium mb-2">Регион вашей фермы *</Label>
+                <Input
+                  required
+                  value={farmerData.region}
+                  onChange={(e) => setFarmerData({ ...farmerData, region: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="Краснодарский край"
+                />
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-3">Нужна ли вам такая платформа? *</Label>
+                <RadioGroup required value={farmerData.interest} onValueChange={(val) => setFarmerData({ ...farmerData, interest: val })}>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="very-interested" id="f1" />
+                    <Label htmlFor="f1" className="flex-1 cursor-pointer">Да, очень нужна! Готов попробовать</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="interested" id="f2" />
+                    <Label htmlFor="f2" className="flex-1 cursor-pointer">Интересно, хочу узнать больше</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="maybe" id="f3" />
+                    <Label htmlFor="f3" className="flex-1 cursor-pointer">Возможно, нужно подумать</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="not-interested" id="f4" />
+                    <Label htmlFor="f4" className="flex-1 cursor-pointer">Скорее нет, не актуально</Label>
+                  </div>
+                </RadioGroup>
               </div>
 
               <Button type="submit" size="lg" className="w-full rounded-xl shadow-glow">
-                Отправить заявку
+                Отправить ответы
               </Button>
             </form>
           </Card>
         </div>
       </section>
 
+      <section id="investors" className="py-24 px-6 bg-white">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              📈 Для инвесторов
+            </Badge>
+            <h2 className="text-5xl font-bold mb-4">Инвесторам: вкладывайте в реальное производство</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Узнайте, как инвестировать в сельское хозяйство с прозрачностью и контролем
+            </p>
+          </div>
+
+          <Card className="p-10 shadow-soft rounded-3xl border-0 bg-white">
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold mb-4">Что вы получите:</h3>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Выбор формата отдачи: финансовая доходность, натуральные продукты или патронаж животных</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Прозрачная аналитика по каждой ферме</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Видео с фермы и отчёты о развитии</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Страховка ваших инвестиций</span>
+                </li>
+              </ul>
+            </div>
+
+            <form onSubmit={handleInvestorSubmit} className="space-y-6">
+              <div>
+                <Label className="text-base font-medium mb-2">Ваше имя *</Label>
+                <Input
+                  required
+                  value={investorData.name}
+                  onChange={(e) => setInvestorData({ ...investorData, name: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="Сергей Иванов"
+                />
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-2">Email *</Label>
+                <Input
+                  type="email"
+                  required
+                  value={investorData.email}
+                  onChange={(e) => setInvestorData({ ...investorData, email: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="sergey@example.com"
+                />
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-2">Примерная сумма инвестиций *</Label>
+                <select
+                  required
+                  value={investorData.amount}
+                  onChange={(e) => setInvestorData({ ...investorData, amount: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200"
+                >
+                  <option value="">Выберите...</option>
+                  <option value="100k-500k">100 000 - 500 000 ₽</option>
+                  <option value="500k-1m">500 000 - 1 000 000 ₽</option>
+                  <option value="1m-5m">1 000 000 - 5 000 000 ₽</option>
+                  <option value="5m+">Более 5 000 000 ₽</option>
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-3">Нужна ли вам такая платформа? *</Label>
+                <RadioGroup required value={investorData.returnType} onValueChange={(val) => setInvestorData({ ...investorData, returnType: val })}>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="very-interested" id="i1" />
+                    <Label htmlFor="i1" className="flex-1 cursor-pointer">Да, очень нужна! Готов инвестировать</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="interested" id="i2" />
+                    <Label htmlFor="i2" className="flex-1 cursor-pointer">Интересно, хочу узнать условия</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="maybe" id="i3" />
+                    <Label htmlFor="i3" className="flex-1 cursor-pointer">Возможно, но есть сомнения</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="not-interested" id="i4" />
+                    <Label htmlFor="i4" className="flex-1 cursor-pointer">Скорее нет, не интересно</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <Button type="submit" size="lg" className="w-full rounded-xl shadow-glow">
+                Отправить ответы
+              </Button>
+            </form>
+          </Card>
+        </div>
+      </section>
+
+      <section id="sellers" className="py-24 px-6 bg-gradient-to-b from-white to-green-50">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              🏪 Для продавцов
+            </Badge>
+            <h2 className="text-5xl font-bold mb-4">Продавцам: находите клиентов среди ферм</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Узнайте, как платформа поможет вам продавать агротовары напрямую фермерам
+            </p>
+          </div>
+
+          <Card className="p-10 shadow-soft rounded-3xl border-0 bg-white">
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold mb-4">Что мы предлагаем:</h3>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Доступ к аналитике: кто, что и когда покупает</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Прямые продажи через платформу с комиссией</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>Таргетированная реклама для нужных сегментов</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                  <span>База контактов активных фермеров</span>
+                </li>
+              </ul>
+            </div>
+
+            <form onSubmit={handleSellerSubmit} className="space-y-6">
+              <div>
+                <Label className="text-base font-medium mb-2">Ваше имя *</Label>
+                <Input
+                  required
+                  value={sellerData.name}
+                  onChange={(e) => setSellerData({ ...sellerData, name: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="Алексей Смирнов"
+                />
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-2">Email *</Label>
+                <Input
+                  type="email"
+                  required
+                  value={sellerData.email}
+                  onChange={(e) => setSellerData({ ...sellerData, email: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="alexey@example.com"
+                />
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-2">Название компании *</Label>
+                <Input
+                  required
+                  value={sellerData.company}
+                  onChange={(e) => setSellerData({ ...sellerData, company: e.target.value })}
+                  className="rounded-xl border-gray-200"
+                  placeholder="ООО АгроТех"
+                />
+              </div>
+
+              <div>
+                <Label className="text-base font-medium mb-3">Нужна ли вам такая платформа? *</Label>
+                <RadioGroup required value={sellerData.budget} onValueChange={(val) => setSellerData({ ...sellerData, budget: val })}>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="very-interested" id="s1" />
+                    <Label htmlFor="s1" className="flex-1 cursor-pointer">Да, очень нужна! Готов платить за доступ</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="interested" id="s2" />
+                    <Label htmlFor="s2" className="flex-1 cursor-pointer">Интересно, хочу узнать цены</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="maybe" id="s3" />
+                    <Label htmlFor="s3" className="flex-1 cursor-pointer">Возможно, зависит от условий</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 rounded-xl border border-gray-200 hover:border-green-300 transition-colors">
+                    <RadioGroupItem value="not-interested" id="s4" />
+                    <Label htmlFor="s4" className="flex-1 cursor-pointer">Скорее нет, не вижу пользы</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <Button type="submit" size="lg" className="w-full rounded-xl shadow-glow">
+                Отправить ответы
+              </Button>
+            </form>
+          </Card>
+        </div>
+      </section>
+
+      <section className="py-24 px-6 bg-white">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              💡 О платформе
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">Как это работает</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
+              <Icon name="Shield" className="text-green-600 mx-auto mb-4" size={40} />
+              <h4 className="text-xl font-bold mb-2">Страховка сделок</h4>
+              <p className="text-gray-600">Все инвестиции защищены</p>
+            </Card>
+
+            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
+              <Icon name="BarChart3" className="text-green-600 mx-auto mb-4" size={40} />
+              <h4 className="text-xl font-bold mb-2">Прозрачная аналитика</h4>
+              <p className="text-gray-600">Данные в реальном времени</p>
+            </Card>
+
+            <Card className="p-8 shadow-soft rounded-3xl border-0 text-center">
+              <Icon name="Users" className="text-green-600 mx-auto mb-4" size={40} />
+              <h4 className="text-xl font-bold mb-2">Взаимная выгода</h4>
+              <p className="text-gray-600">Все стороны в плюсе</p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section id="founder" className="py-24 px-6 bg-gradient-to-b from-white to-gray-50">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <Badge className="rounded-full px-4 py-1.5 bg-green-50 text-green-700 border-green-200 mb-4">
+              👨‍🌾 Автор проекта
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">Илья Краснопеев</h2>
+            <p className="text-xl text-gray-600">Создатель «Илюхиной фермы» и КФХ «Там, где рассвет»</p>
+          </div>
+
+          <Card className="p-10 shadow-soft rounded-3xl border-0">
+            <div className="space-y-6 mb-8">
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Автор и главный герой документального сериала «Илюхина ферма», где делюсь реальным опытом фермерства — от рассвета до заката, от радостей до трудностей.
+              </p>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Владелец КФХ «Там, где рассвет» — хозяйства, где рождаются истории о труде, природе и искренней любви к земле.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild size="lg" className="rounded-2xl shadow-glow flex-1">
+                <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                  <Icon name="Send" size={20} />
+                  Telegram «Илюхина ферма»
+                </a>
+              </Button>
+
+              <Button asChild size="lg" variant="outline" className="rounded-2xl flex-1">
+                <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
+                  Поддержать на Planeta.ru
+                </a>
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </section>
+
       <footer className="py-12 px-6 bg-gray-900 text-white">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-500 rounded-2xl flex items-center justify-center">
@@ -345,21 +500,12 @@ const Index = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Проект</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><button onClick={() => scrollToSection('founder')} className="hover:text-white transition-colors">Об авторе</button></li>
-                <li><button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors">О платформе</button></li>
-                <li><button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors">Контакты</button></li>
-              </ul>
-            </div>
-
-            <div>
               <h4 className="font-semibold mb-4">Ссылки</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <a href="https://t.me/ilyukhina_ferma" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
                     <Icon name="Send" size={14} />
-                    Telegram-канал
+                    Telegram
                   </a>
                 </li>
                 <li>
