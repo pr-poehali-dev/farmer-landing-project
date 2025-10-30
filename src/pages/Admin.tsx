@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import * as XLSX from 'xlsx';
 
 interface Lead {
   id: number;
@@ -78,6 +79,39 @@ const Admin = () => {
     });
   };
 
+  const exportToExcel = () => {
+    const currentLeads = leads[activeTab] || [];
+    
+    if (currentLeads.length === 0) {
+      toast.error('Нет данных для экспорта');
+      return;
+    }
+
+    const data = currentLeads.map(lead => ({
+      'ID': lead.id,
+      'Имя': lead.name || '',
+      'Email': lead.email,
+      'Телефон': lead.phone || '',
+      'Компания/Ферма': lead.company_name || '',
+      'Направление фермы': lead.farm_type || '',
+      'Тип интереса': lead.interest_type || '',
+      'Регион': lead.region || '',
+      'Оценка': lead.rating || '',
+      'Сообщение': lead.message || '',
+      'Предложения': lead.suggestions || '',
+      'Дата создания': formatDate(lead.created_at)
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, activeTab);
+    
+    const fileName = `${activeTab}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    toast.success(`Файл ${fileName} успешно скачан`);
+  };
+
   const tabs = [
     { key: 'farmers' as const, label: 'Фермеры', icon: 'Sprout', count: leads.farmers?.length || 0 },
     { key: 'investors' as const, label: 'Инвесторы', icon: 'TrendingUp', count: leads.investors?.length || 0 },
@@ -145,6 +179,10 @@ const Admin = () => {
             <p className="text-[#5A9FB8]">Управление заявками с сайта</p>
           </div>
           <div className="flex gap-2">
+            <Button onClick={exportToExcel} className="bg-[#4CAF50] hover:bg-[#45a049] text-white">
+              <Icon name="Download" className="mr-2" size={20} />
+              Скачать Excel
+            </Button>
             <Button onClick={() => navigate('/survey')} className="bg-[#FFAA00] hover:bg-[#FF9900] text-white">
               <Icon name="BarChart3" className="mr-2" size={20} />
               Результаты опроса
