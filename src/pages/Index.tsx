@@ -22,10 +22,40 @@ const Index = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>, type: string) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, type: string) => {
     e.preventDefault();
-    toast.success('Спасибо! Мы свяжемся с вами в ближайшее время');
-    (e.target as HTMLFormElement).reset();
+    
+    const formData = new FormData(e.currentTarget);
+    const data: Record<string, any> = {
+      type,
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      company_name: formData.get('company_name'),
+      interest_type: formData.get('interest_type'),
+      message: formData.get('message'),
+      rating: formData.get('rating'),
+      suggestions: formData.get('suggestions')
+    };
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/095ae814-3cbd-4db4-98e5-255517829146', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка отправки');
+      }
+
+      toast.success('Спасибо! Мы свяжемся с вами в ближайшее время');
+      (e.target as HTMLFormElement).reset();
+    } catch (error) {
+      toast.error('Не удалось отправить заявку. Попробуйте позже');
+    }
   };
 
   return (
@@ -189,10 +219,10 @@ const Index = () => {
               <Card className="p-6 bg-white/80 shadow-lg border-[#A8D5A5]">
                 <h4 className="text-xl font-semibold mb-4 text-[#4CAF50]">Расскажи, актуально ли для тебя?</h4>
                 <form onSubmit={(e) => handleSubmit(e, 'farmer')} className="space-y-4">
-                  <Input placeholder="Ваше имя" required className="bg-white" />
-                  <Input type="email" placeholder="Email" required className="bg-white" />
-                  <Input type="tel" placeholder="Телефон" required className="bg-white" />
-                  <Input placeholder="Название фермы" className="bg-white" />
+                  <Input name="name" placeholder="Ваше имя" required className="bg-white" />
+                  <Input name="email" type="email" placeholder="Email" required className="bg-white" />
+                  <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
+                  <Input name="company_name" placeholder="Название фермы" className="bg-white" />
                   <Button type="submit" className="w-full bg-[#66BB6A] hover:bg-[#4CAF50]">
                     Отправить заявку
                   </Button>
@@ -250,9 +280,9 @@ const Index = () => {
               <Card className="p-6 bg-white/80 shadow-lg border-[#E5D68B]">
                 <h4 className="text-xl font-semibold mb-4 text-[#0099CC]">Интересно? Оставь контакты!</h4>
                 <form onSubmit={(e) => handleSubmit(e, 'investor')} className="space-y-4">
-                  <Input placeholder="Ваше имя" required className="bg-white" />
-                  <Input type="email" placeholder="Email" required className="bg-white" />
-                  <select className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
+                  <Input name="name" placeholder="Ваше имя" required className="bg-white" />
+                  <Input name="email" type="email" placeholder="Email" required className="bg-white" />
+                  <select name="interest_type" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white">
                     <option>Интересует финансовый доход</option>
                     <option>Интересуют натуральные продукты</option>
                     <option>Интересует патронаж животных</option>
@@ -311,10 +341,10 @@ const Index = () => {
                   Полезно для бизнеса? Поделись мнением!
                 </h4>
                 <form onSubmit={(e) => handleSubmit(e, 'seller')} className="space-y-4">
-                  <Input placeholder="Название компании" required className="bg-white" />
-                  <Input type="email" placeholder="Email" required className="bg-white" />
-                  <Input type="tel" placeholder="Телефон" className="bg-white" />
-                  <Textarea placeholder="Что вы продаёте?" rows={3} className="bg-white" />
+                  <Input name="company_name" placeholder="Название компании" required className="bg-white" />
+                  <Input name="email" type="email" placeholder="Email" required className="bg-white" />
+                  <Input name="phone" type="tel" placeholder="Телефон" className="bg-white" />
+                  <Textarea name="message" placeholder="Что вы продаёте?" rows={3} className="bg-white" />
                   <Button type="submit" className="w-full bg-[#FFAA00] hover:bg-[#FF9900] text-white">
                     Стать партнёром
                   </Button>
@@ -346,7 +376,7 @@ const Index = () => {
             <form onSubmit={(e) => handleSubmit(e, 'survey')} className="space-y-6">
               <div>
                 <label className="block mb-2 font-semibold text-[#0099CC]">Кто вы?</label>
-                <select className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white" required>
+                <select name="interest_type" className="w-full px-3 py-2 border border-[#E5D68B] rounded-md bg-white" required>
                   <option value="">Выберите...</option>
                   <option>Фермер</option>
                   <option>Инвестор</option>
@@ -360,9 +390,11 @@ const Index = () => {
                   Насколько актуальна для вас такая платформа? (от 1 до 10)
                 </label>
                 <input
+                  name="rating"
                   type="range"
                   min="1"
                   max="10"
+                  defaultValue="5"
                   className="w-full"
                   required
                 />
@@ -375,6 +407,7 @@ const Index = () => {
               <div>
                 <label className="block mb-2 font-semibold text-[#0099CC]">Ваши предложения и идеи</label>
                 <Textarea
+                  name="suggestions"
                   placeholder="Поделитесь своими мыслями о платформе..."
                   rows={4}
                   className="bg-white"
@@ -383,7 +416,7 @@ const Index = () => {
 
               <div>
                 <label className="block mb-2 font-semibold text-[#0099CC]">Контакт для связи</label>
-                <Input type="email" placeholder="Ваш email" required className="bg-white" />
+                <Input name="email" type="email" placeholder="Ваш email" required className="bg-white" />
               </div>
 
               <Button type="submit" className="w-full bg-[#0099CC] hover:bg-[#007799] text-white py-6 text-lg">
