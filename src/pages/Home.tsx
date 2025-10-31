@@ -147,13 +147,22 @@ const Home = () => {
               получаешь свежие продукты. Это не сделка — это история жизни, где твоя поддержка 
               спасает от искусственного, возвращая здоровье и энергию всем нам.
             </p>
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Button
                 onClick={() => navigate('/register')}
                 size="lg"
                 className="bg-farmer-green hover:bg-farmer-green-dark text-white"
               >
                 Присоединиться к движению
+              </Button>
+              <Button
+                onClick={() => navigate('/test')}
+                size="lg"
+                variant="outline"
+                className="border-farmer-orange text-farmer-orange hover:bg-farmer-orange hover:text-white"
+              >
+                <Icon name="Play" size={18} className="mr-2" />
+                Демо кабинетов
               </Button>
             </div>
           </Card>
