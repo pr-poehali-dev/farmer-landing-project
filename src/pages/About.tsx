@@ -98,7 +98,7 @@ const About = () => {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               <div className="flex-shrink-0">
                 <img 
-                  src="https://cdn.poehali.dev/files/794f1db9-3b72-4372-be5b-f5a726df6fca.JPG" 
+                  src="https://cdn.poehali.dev/files/b238e6c3-93b0-4dcb-8146-d2a0b1d6cfed.JPG" 
                   alt="Илья Краснопеев с медом КФХ Там где рассвет"
                   className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-2xl shadow-lg"
                 />
