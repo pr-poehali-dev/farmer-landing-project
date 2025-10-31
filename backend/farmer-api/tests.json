@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "Сохранение диагностики хозяйства",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "action": "save_diagnosis",
+        "cows_count": 10,
+        "cows_type": "молочное",
+        "fields_hectares": 50,
+        "crops": ["пшеница", "кукуруза"],
+        "other_assets": "Трактор, сарай"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": "boolean",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение диагностики",
+      "method": "GET",
+      "path": "/?action=get_diagnosis",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "diagnosis": "object"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

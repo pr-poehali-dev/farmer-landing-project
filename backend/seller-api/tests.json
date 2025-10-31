@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Получение списка товаров",
+      "method": "GET",
+      "path": "/?action=get_products",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "products": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
