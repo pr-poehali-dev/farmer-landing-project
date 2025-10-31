@@ -16,15 +16,15 @@ const Home = () => {
               <h1 className="text-2xl font-bold text-farmer-green">ФАРМЕР</h1>
             </div>
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#about" className="text-sm font-medium text-gray-700 hover:text-farmer-green transition-colors">
+              <Button onClick={() => navigate('/about')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
                 О нас
-              </a>
-              <a href="#faq" className="text-sm font-medium text-gray-700 hover:text-farmer-green transition-colors">
+              </Button>
+              <Button onClick={() => navigate('/faq')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
                 FAQ
-              </a>
-              <a href="#contacts" className="text-sm font-medium text-gray-700 hover:text-farmer-green transition-colors">
+              </Button>
+              <Button onClick={() => navigate('/contacts')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
                 Контакты
-              </a>
+              </Button>
               <Button onClick={() => navigate('/login')} variant="ghost" className="text-farmer-green">
                 Войти
               </Button>
@@ -170,12 +170,15 @@ const Home = () => {
             Где настоящее побеждает суету. Присоединяйся к тем, кто выбирает жизнь.
           </p>
           <div className="flex justify-center gap-6 mb-6">
-            <a href="#contacts" className="text-gray-400 hover:text-white transition-colors">
+            <button onClick={() => navigate('/about')} className="text-gray-400 hover:text-white transition-colors">
+              О нас
+            </button>
+            <button onClick={() => navigate('/faq')} className="text-gray-400 hover:text-white transition-colors">
+              FAQ
+            </button>
+            <button onClick={() => navigate('/contacts')} className="text-gray-400 hover:text-white transition-colors">
               Контакты
-            </a>
-            <a href="/policy" className="text-gray-400 hover:text-white transition-colors">
-              Политика конфиденциальности
-            </a>
+            </button>
           </div>
           <p className="text-gray-500 text-sm">
             © 2025 Фармер. Все права защищены.
