@@ -1,0 +1,59 @@
+{
+  "tests": [
+    {
+      "name": "Регистрация нового фермера",
+      "method": "POST",
+      "body": {
+        "action": "register",
+        "email": "test_farmer@example.com",
+        "password": "password123",
+        "role": "farmer",
+        "name": "Иван Фермеров"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "token": "string",
+        "user": {
+          "id": "number",
+          "email": "string",
+          "role": "string",
+          "name": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Вход существующего пользователя",
+      "method": "POST",
+      "body": {
+        "action": "login",
+        "email": "test_farmer@example.com",
+        "password": "password123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "token": "string",
+        "user": {
+          "email": "string",
+          "role": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Ошибка при пустом email",
+      "method": "POST",
+      "body": {
+        "action": "register",
+        "email": "",
+        "password": "password123",
+        "role": "farmer"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

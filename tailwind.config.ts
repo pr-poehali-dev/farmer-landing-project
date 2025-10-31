@@ -32,6 +32,12 @@ export default {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
 				},
+				farmer: {
+					green: '#4CAF50',
+					orange: '#FF9800',
+					'green-dark': '#388E3C',
+					'orange-dark': '#F57C00'
+				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
