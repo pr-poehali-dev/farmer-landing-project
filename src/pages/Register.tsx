@@ -64,6 +64,15 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-farmer-green/5 to-farmer-orange/5 flex items-center justify-center px-4 py-12">
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-farmer-green hover:bg-farmer-green/10"
+      >
+        <Icon name="Home" size={20} className="mr-2" />
+        На главную
+      </Button>
+      
       <Card className="w-full max-w-md p-8">
         <div className="flex items-center justify-center mb-6">
           <Icon name="Sprout" size={40} className="text-farmer-green mr-3" />
