@@ -94,20 +94,33 @@ const About = () => {
           </Card>
 
           <Card className="p-8 mb-8">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-farmer-green/10 rounded-full flex items-center justify-center flex-shrink-0">
-                <Icon name="User" size={24} className="text-farmer-green" />
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">Автор проекта</h2>
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+              <div className="flex-shrink-0">
+                <img 
+                  src="https://cdn.poehali.dev/files/794f1db9-3b72-4372-be5b-f5a726df6fca.JPG" 
+                  alt="Илья Краснопеев с медом КФХ Там где рассвет"
+                  className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-2xl shadow-lg"
+                />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold mb-3 text-gray-900">Автор проекта</h2>
-                <p className="text-gray-700 leading-relaxed mb-2">
-                  <strong>Илья Краснопеев</strong> — основатель проекта "Фармер"
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  Проект создан с верой в то, что настоящее не должно умирать в суете городов. 
-                  Каждая ферма — это источник жизни, и мы помогаем этим источникам расцвести, 
-                  соединяя людей через общую ценность — живую землю.
-                </p>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-farmer-green mb-4">Илья Краснопеев</h3>
+                <div className="space-y-3 text-gray-700">
+                  <p className="leading-relaxed">
+                    <strong className="text-farmer-orange">Автор и главный герой</strong> агросериала <strong>"Илюхина ферма"</strong> — реалити-шоу о жизни фермера, которое показывает настоящую работу на земле без прикрас.
+                  </p>
+                  <p className="leading-relaxed">
+                    <strong className="text-farmer-green">Владелец туристической фермы</strong> КФХ "Там где рассвет" — места, где каждый может прикоснуться к настоящей фермерской жизни, увидеть производство изнутри и почувствовать связь с землёй.
+                  </p>
+                  <p className="leading-relaxed">
+                    <strong className="text-farmer-orange">Сельхозпроизводитель натурального меда</strong> под брендом <strong>"Илюхина ферма"</strong> — продукция, которая создаётся с любовью к природе и заботой о качестве.
+                  </p>
+                  <p className="leading-relaxed mt-4 text-gray-900 font-medium">
+                    Проект "Фармер" создан с верой в то, что настоящее не должно умирать в суете городов. 
+                    Каждая ферма — это источник жизни, и мы помогаем этим источникам расцвести, 
+                    соединяя людей через общую ценность — живую землю.
+                  </p>
+                </div>
               </div>
             </div>
           </Card>
