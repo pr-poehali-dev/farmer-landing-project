@@ -145,7 +145,7 @@ const Contacts = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">info@farmer-platform.ru</p>
+                    <a href="mailto:iliakrasnopeev@yandex.ru" className="text-farmer-green hover:underline">iliakrasnopeev@yandex.ru</a>
                     <p className="text-sm text-gray-500 mt-1">Ответим в течение 24 часов</p>
                   </div>
                 </div>
@@ -158,7 +158,7 @@ const Contacts = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Telegram</h3>
-                    <p className="text-gray-600">@farmer_support</p>
+                    <a href="https://t.me/Ilia_Krasnopeev" target="_blank" rel="noopener noreferrer" className="text-farmer-orange hover:underline">@Ilia_Krasnopeev</a>
                     <p className="text-sm text-gray-500 mt-1">Быстрая поддержка в мессенджере</p>
                   </div>
                 </div>
@@ -171,8 +171,8 @@ const Contacts = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Телефон</h3>
-                    <p className="text-gray-600">+7 (999) 123-45-67</p>
-                    <p className="text-sm text-gray-500 mt-1">Пн-Пт: 9:00 - 18:00 (МСК)</p>
+                    <a href="tel:+79688566102" className="text-farmer-green hover:underline">+7 (968) 856-61-02</a>
+                    <p className="text-sm text-gray-500 mt-1">Улан-Удэ</p>
                   </div>
                 </div>
               </Card>
@@ -180,11 +180,10 @@ const Contacts = () => {
               <Card className="p-6 bg-gradient-to-r from-farmer-green/5 to-farmer-orange/5">
                 <h3 className="font-semibold text-gray-900 mb-3">Сообщество</h3>
                 <p className="text-gray-700 text-sm mb-4">
-                  Присоединяйтесь к нашему сообществу в Telegram, где фермеры, инвесторы и продавцы 
-                  обмениваются опытом и поддерживают друг друга.
+                  Присоединяйтесь к сообществу фермы "Там где рассвет", где вы можете узнать больше о фермерской жизни, агротуризме и натуральных продуктах.
                 </p>
                 <Button 
-                  onClick={() => window.open('https://t.me/+QgiLIa1gFRY4Y2Iy', '_blank')}
+                  onClick={() => window.open('https://t.me/tam_gde_rassvet_farm', '_blank')}
                   variant="outline" 
                   className="w-full border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white"
                 >
