@@ -88,6 +88,45 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'proposals': proposals})
                 }
             
+            elif action == 'get_all_proposals':
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(f"""
+                    SELECT p.id, p.photo_url, p.description, p.price, p.shares,
+                           p.product_type, p.asset_type, p.asset_details, 
+                           p.expected_product, p.update_frequency,
+                           fd.farm_name, fd.region, fd.vk_link,
+                           (SELECT COUNT(*) FROM {schema}.investments i WHERE i.proposal_id = p.id) as investors_count
+                    FROM {schema}.proposals p
+                    LEFT JOIN {schema}.farmer_data fd ON p.user_id = fd.user_id
+                    WHERE p.status = 'active' AND p.product_type IS NOT NULL
+                    ORDER BY p.created_at DESC
+                """)
+                
+                proposals = []
+                for row in cur.fetchall():
+                    proposals.append({
+                        'id': row[0],
+                        'photo_url': row[1] or '',
+                        'description': row[2],
+                        'price': float(row[3]),
+                        'shares': row[4],
+                        'product_type': row[5],
+                        'asset_type': row[6] or '',
+                        'asset_details': row[7] or '',
+                        'expected_product': row[8],
+                        'update_frequency': row[9],
+                        'farm_name': row[10] or 'Ферма',
+                        'region': row[11] or 'Регион не указан',
+                        'vk_link': row[12],
+                        'investors_count': row[13]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'proposals': proposals})
+                }
+            
             elif action == 'get_portfolio':
                 cur.execute(
                     """SELECT i.id, i.proposal_id, i.amount, i.date, 
@@ -152,6 +191,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'investment_id': investment_id})
+                }
+            
+            elif action == 'invest_virtual':
+                proposal_id = body_data.get('proposal_id')
+                product_type = body_data.get('product_type', 'income')
+                
+                if not proposal_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректные данные'})
+                    }
+                
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(
+                    f"SELECT price, expected_product FROM {schema}.proposals WHERE id = %s AND status = 'active'",
+                    (proposal_id,)
+                )
+                proposal_data = cur.fetchone()
+                
+                if not proposal_data:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Предложение не найдено'})
+                    }
+                
+                amount = float(proposal_data[0])
+                expected_product = proposal_data[1]
+                
+                cur.execute(
+                    f"INSERT INTO {schema}.investments (user_id, proposal_id, amount) VALUES (%s, %s, %s) RETURNING id",
+                    (user_id, proposal_id, amount)
+                )
+                investment_id = cur.fetchone()[0]
+                conn.commit()
+                
+                simulation = expected_product or 'Урожай для здоровья'
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'investment_id': investment_id,
+                        'simulation': simulation
+                    })
                 }
         
         return {

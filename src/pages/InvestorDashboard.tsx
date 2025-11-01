@@ -9,6 +9,7 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import ProposalsViewer from '@/components/ProposalsViewer';
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
@@ -89,6 +90,39 @@ const InvestorDashboard = () => {
     }
   };
 
+  const handleInvestInProposal = async (proposalId: number, productType: string) => {
+    try {
+      const response = await fetch(INVESTOR_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user!.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'invest_virtual',
+          proposal_id: proposalId,
+          product_type: productType
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const messages = {
+          income: `Виртуальная инвестиция принята! Теперь ты совладелец — отслеживай свой доход от земли.`,
+          product: `Отлично! Твоя инвестиция даст урожай: ${data.simulation || 'свежие продукты для здоровья'}.`,
+          patronage: `Ты стал покровителем! Следи за фермой — скоро получишь первые видеообновления.`
+        };
+        toast.success(messages[productType as keyof typeof messages] || 'Инвестиция создана!');
+        loadData();
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Ошибка инвестирования');
+      }
+    } catch (error) {
+      toast.error('Ошибка соединения');
+    }
+  };
+
   const filteredProposals = filterType === 'all' 
     ? proposals 
     : proposals.filter(p => p.type === filterType);
@@ -126,76 +160,13 @@ const InvestorDashboard = () => {
             Доступные предложения
           </h2>
           
-          <div className="flex gap-2 mb-4">
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все предложения</SelectItem>
-                <SelectItem value="products">Продукты</SelectItem>
-                <SelectItem value="income">Доход</SelectItem>
-                <SelectItem value="patronage">Патронаж</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {filteredProposals.length === 0 ? (
-            <Card className="p-8">
-              <p className="text-gray-500 text-center">Пока нет доступных предложений</p>
-            </Card>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProposals.map((proposal) => (
-                <Card key={proposal.id} className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="mb-3">
-                    <span className="inline-block px-2 py-1 bg-farmer-green/10 text-farmer-green text-xs font-medium rounded">
-                      {proposal.type === 'products' ? 'Продукты' : proposal.type === 'income' ? 'Доход' : 'Патронаж'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-3 line-clamp-3">{proposal.description}</p>
-                  <div className="space-y-1 text-sm text-gray-600 mb-4">
-                    <p className="font-semibold text-lg text-gray-900">{proposal.price} ₽</p>
-                    <p>Долей: {proposal.shares}</p>
-                    <p className="text-xs">От: {proposal.farmer_name}</p>
-                  </div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        className="w-full bg-farmer-orange hover:bg-farmer-orange-dark"
-                        onClick={() => {
-                          setSelectedProposal(proposal);
-                          setInvestAmount(proposal.price);
-                        }}
-                      >
-                        Инвестировать
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Инвестировать в предложение</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm text-gray-600 mb-2">{selectedProposal?.description}</p>
-                          <p className="text-sm text-gray-600">Фермер: {selectedProposal?.farmer_name}</p>
-                        </div>
-                        <div>
-                          <Label htmlFor="amount">Сумма инвестиции (₽)</Label>
-                          <Input
-                            id="amount"
-                            type="number"
-                            value={investAmount || ''}
-                            onChange={(e) => setInvestAmount(parseFloat(e.target.value) || 0)}
-                            placeholder="Введите сумму"
-                          />
-                        </div>
-                        <Button 
-                          onClick={handleInvest} 
-                          disabled={investing}
-                          className="w-full bg-farmer-green hover:bg-farmer-green-dark"
-                        >
-                          {investing ? (
+          <ProposalsViewer 
+            userId={user!.id} 
+            onInvest={(proposalId, productType) => {
+              handleInvestInProposal(proposalId, productType);
+            }}
+          />
+        </div>
                             <>
                               <Icon name="Loader2" className="animate-spin mr-2" size={18} />
                               Обработка...

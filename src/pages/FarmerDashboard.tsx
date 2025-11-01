@@ -5,10 +5,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import ProposalForm from '@/components/ProposalForm';
 
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
@@ -298,76 +300,41 @@ const FarmerDashboard = () => {
         </Card>
 
         {diagnosisCompleted && (
-          <Card className="p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900 flex items-center gap-2">
               <Icon name="Plus" className="text-farmer-orange" />
               Создать предложение
             </h2>
             
-            <form onSubmit={createProposal} className="space-y-4">
-              <div>
-                <Label htmlFor="description">Описание предложения *</Label>
-                <Textarea
-                  id="description"
-                  value={newProposal.description}
-                  onChange={(e) => setNewProposal({ ...newProposal, description: e.target.value })}
-                  placeholder="Подробно опишите ваше предложение..."
-                  rows={4}
-                  required
-                />
-              </div>
+            <Tabs defaultValue="income" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="income">
+                  <Icon name="TrendingUp" size={16} className="mr-2" />
+                  Для дохода
+                </TabsTrigger>
+                <TabsTrigger value="product">
+                  <Icon name="ShoppingBag" size={16} className="mr-2" />
+                  Продукт
+                </TabsTrigger>
+                <TabsTrigger value="patronage">
+                  <Icon name="Eye" size={16} className="mr-2" />
+                  Патронаж
+                </TabsTrigger>
+              </TabsList>
               
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="price">Цена (руб.) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={newProposal.price || ''}
-                    onChange={(e) => setNewProposal({ ...newProposal, price: parseFloat(e.target.value) || 0 })}
-                    placeholder="10000"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="shares">Количество долей</Label>
-                  <Input
-                    id="shares"
-                    type="number"
-                    value={newProposal.shares}
-                    onChange={(e) => setNewProposal({ ...newProposal, shares: parseInt(e.target.value) || 1 })}
-                    placeholder="1"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="type">Тип предложения</Label>
-                  <Select value={newProposal.type} onValueChange={(value) => setNewProposal({ ...newProposal, type: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="products">Продукты</SelectItem>
-                      <SelectItem value="income">Доход</SelectItem>
-                      <SelectItem value="patronage">Патронаж</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <TabsContent value="income">
+                <ProposalForm productType="income" userId={user!.id} onSuccess={loadData} />
+              </TabsContent>
               
-              <Button type="submit" disabled={creatingProposal} className="bg-farmer-orange hover:bg-farmer-orange-dark">
-                {creatingProposal ? (
-                  <>
-                    <Icon name="Loader2" className="animate-spin mr-2" size={18} />
-                    Создание...
-                  </>
-                ) : (
-                  'Опубликовать предложение'
-                )}
-              </Button>
-            </form>
-          </Card>
+              <TabsContent value="product">
+                <ProposalForm productType="product" userId={user!.id} onSuccess={loadData} />
+              </TabsContent>
+              
+              <TabsContent value="patronage">
+                <ProposalForm productType="patronage" userId={user!.id} onSuccess={loadData} />
+              </TabsContent>
+            </Tabs>
+          </div>
         )}
 
         <Card className="p-6">

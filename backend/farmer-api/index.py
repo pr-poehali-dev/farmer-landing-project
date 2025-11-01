@@ -121,6 +121,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'proposal_id': proposal_id})
                 }
+            
+            elif action == 'create_proposal_v2':
+                product_type = body_data.get('product_type', 'income')
+                asset_type = body_data.get('asset_type', '')
+                asset_details = body_data.get('asset_details', '')
+                description = body_data.get('description', '')
+                price = body_data.get('price', 0)
+                shares = body_data.get('shares', 1)
+                photo_url = body_data.get('photo_url', '')
+                expected_product = body_data.get('expected_product', '')
+                update_frequency = body_data.get('update_frequency', 'weekly')
+                
+                if not description or price <= 0 or not asset_type or not asset_details:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заполните обязательные поля'})
+                    }
+                
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(
+                    f"""INSERT INTO {schema}.proposals 
+                       (user_id, photo_url, description, price, shares, type, status, 
+                        product_type, asset_type, asset_details, expected_product, update_frequency)
+                       VALUES (%s, %s, %s, %s, %s, %s, 'active', %s, %s, %s, %s, %s) RETURNING id""",
+                    (user_id, photo_url, description, price, shares, product_type, 
+                     product_type, asset_type, asset_details, expected_product, update_frequency)
+                )
+                proposal_id = cur.fetchone()[0]
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'proposal_id': proposal_id})
+                }
         
         elif method == 'GET':
             params = event.get('queryStringParameters', {}) or {}
