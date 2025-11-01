@@ -75,11 +75,11 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-6">
-            <InvestmentProposals />
+            <InvestmentProposals userId={user?.id || ''} onProposalCreated={() => setPoints(p => p + 10)} />
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">
-            <OwnerProfile />
+            <OwnerProfile userId={user?.id || ''} />
           </TabsContent>
 
           <TabsContent value="marketplace" className="mt-6">
