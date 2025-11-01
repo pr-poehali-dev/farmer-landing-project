@@ -11,7 +11,7 @@ export interface Asset {
 
 export interface Proposal {
   id: number;
-  type: 'income' | 'product' | 'patronage';
+  type: 'income' | 'products' | 'patronage';
   asset: Asset;
   price: number;
   shares: number;
@@ -33,7 +33,7 @@ export const PROPOSAL_TYPES = [
     hint: 'Дай инвесторам долю в росте — пусть они почувствуют энергию твоих полей'
   },
   { 
-    value: 'product', 
+    value: 'products', 
     label: 'Продукт', 
     icon: 'Package',
     description: 'Инвестор получает долю физического продукта',

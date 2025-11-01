@@ -16,7 +16,7 @@ interface Props {
 }
 
 const ProposalForm = ({ userId, onSuccess }: Props) => {
-  const [proposalType, setProposalType] = useState<'income' | 'product' | 'patronage'>('income');
+  const [proposalType, setProposalType] = useState<'income' | 'products' | 'patronage'>('income');
   const [assetType, setAssetType] = useState<'animal' | 'crop' | 'beehive'>('animal');
   const [assetName, setAssetName] = useState<string>('');
   const [assetCount, setAssetCount] = useState<string>('');
@@ -31,7 +31,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const getMinPrice = () => {
     switch (proposalType) {
       case 'income': return 5000;
-      case 'product': return 3000;
+      case 'products': return 3000;
       case 'patronage': return 1000;
       default: return 1000;
     }
@@ -65,7 +65,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       return;
     }
 
-    if (proposalType === 'product' && !expectedProduct.trim()) {
+    if (proposalType === 'products' && !expectedProduct.trim()) {
       toast.error('Укажите ожидаемый продукт');
       return;
     }
@@ -95,7 +95,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           price: priceNum,
           shares: sharesNum,
           description: description.trim(),
-          expected_product: proposalType === 'product' ? expectedProduct.trim() : undefined,
+          expected_product: proposalType === 'products' ? expectedProduct.trim() : undefined,
           update_frequency: proposalType === 'patronage' ? updateFrequency : undefined
         })
       });
@@ -266,7 +266,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           </div>
         </div>
 
-        {proposalType === 'product' && (
+        {proposalType === 'products' && (
           <div className="space-y-2">
             <Label htmlFor="expected_product">Ожидаемый продукт на долю</Label>
             <Input
