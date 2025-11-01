@@ -6,15 +6,35 @@ import { useEffect, useState } from 'react';
 
 const STATS_API = 'https://functions.poehali.dev/dde2cfb3-048c-41f8-b40d-cc6a53590929';
 
+interface Proposal {
+  id: number;
+  description: string;
+  price: number;
+  shares: number;
+  type: string;
+  photo_url: string;
+  farmer_name: string;
+  farm_name: string;
+  region: string;
+  vk_link: string;
+  investors_count: number;
+}
+
 const Home = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ farmers: 0, investors: 0, sellers: 0, total: 0 });
+  const [proposals, setProposals] = useState<Proposal[]>([]);
 
   useEffect(() => {
     fetch(`${STATS_API}?action=public`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Failed to load stats:', err));
+    
+    fetch(`${STATS_API}?action=proposals`)
+      .then(res => res.json())
+      .then(data => setProposals(data.proposals || []))
+      .catch(err => console.error('Failed to load proposals:', err));
   }, []);
 
   return (
@@ -160,6 +180,99 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {proposals.length > 0 && (
+        <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
+              Активные предложения фермеров
+            </h2>
+            <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+              Стань инвестором реальных ферм и получай свежие продукты
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+              {proposals.slice(0, 6).map(proposal => (
+                <Card key={proposal.id} className="p-6 hover:shadow-xl transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-900 mb-1">
+                        {proposal.farm_name || proposal.farmer_name}
+                      </h3>
+                      {proposal.region && (
+                        <p className="text-sm text-gray-600 flex items-center gap-1">
+                          <Icon name="MapPin" size={14} />
+                          {proposal.region}
+                        </p>
+                      )}
+                    </div>
+                    <div className="px-3 py-1 bg-farmer-green/10 rounded-full">
+                      <span className="text-xs font-medium text-farmer-green">
+                        {proposal.type === 'products' ? 'Продукты' : 
+                         proposal.type === 'animals' ? 'Животные' : 'Техника'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-700 mb-4 line-clamp-3">
+                    {proposal.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Icon name="Users" size={16} />
+                      <span>{proposal.investors_count} инвесторов</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Icon name="Coins" size={16} />
+                      <span>{proposal.shares} долей</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div>
+                      <p className="text-sm text-gray-600">Цена доли</p>
+                      <p className="text-2xl font-bold text-farmer-orange">
+                        {proposal.price.toLocaleString('ru-RU')} ₽
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => navigate('/register?role=investor')}
+                      className="bg-farmer-green hover:bg-farmer-green-dark text-white"
+                    >
+                      Инвестировать
+                    </Button>
+                  </div>
+                  
+                  {proposal.vk_link && (
+                    <a
+                      href={proposal.vk_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 flex items-center gap-2 text-sm text-farmer-green hover:underline"
+                    >
+                      <Icon name="ExternalLink" size={14} />
+                      Страница фермы в ВК
+                    </a>
+                  )}
+                </Card>
+              ))}
+            </div>
+            
+            {proposals.length > 6 && (
+              <div className="text-center mt-8">
+                <Button
+                  onClick={() => navigate('/register?role=investor')}
+                  variant="outline"
+                  className="border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white"
+                >
+                  Посмотреть все предложения
+                  <Icon name="ArrowRight" size={18} className="ml-2" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="py-16 px-4 bg-white">
         <div className="container mx-auto max-w-4xl">

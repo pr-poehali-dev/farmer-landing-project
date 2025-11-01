@@ -55,25 +55,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'admin':
-            headers = event.get('headers', {})
-            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
-            
-            if not user_id:
-                return {
-                    'statusCode': 401,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется авторизация'})
-                }
-            
-            cur.execute("SELECT role FROM users WHERE id = %s", (user_id,))
-            user_role = cur.fetchone()
-            
-            if not user_role or user_role[0] != 'admin':
-                return {
-                    'statusCode': 403,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Доступ запрещён'})
-                }
             
             cur.execute("SELECT role, COUNT(*) FROM users GROUP BY role")
             users_by_role = {row[0]: row[1] for row in cur.fetchall()}
@@ -159,6 +140,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'proposals': proposals,
                     'regions': regions
                 })
+            }
+        
+        elif action == 'proposals':
+            cur.execute("""
+                SELECT p.id, p.description, p.price, p.shares, p.type, p.photo_url,
+                       u.name as farmer_name, u.email as farmer_email,
+                       fd.farm_name, fd.region, fd.vk_link,
+                       (SELECT COUNT(*) FROM investments WHERE proposal_id = p.id) as investors_count
+                FROM proposals p
+                JOIN users u ON p.user_id = u.id
+                LEFT JOIN farmer_data fd ON u.id = fd.user_id
+                WHERE p.status = 'active'
+                ORDER BY p.created_at DESC
+                LIMIT 20
+            """)
+            
+            proposals = []
+            for row in cur.fetchall():
+                proposals.append({
+                    'id': row[0],
+                    'description': row[1],
+                    'price': float(row[2]),
+                    'shares': row[3],
+                    'type': row[4],
+                    'photo_url': row[5] or '',
+                    'farmer_name': row[6],
+                    'farmer_email': row[7],
+                    'farm_name': row[8] or '',
+                    'region': row[9] or '',
+                    'vk_link': row[10] or '',
+                    'investors_count': row[11]
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'proposals': proposals})
             }
         
         return {
