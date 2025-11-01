@@ -140,7 +140,7 @@ export default function FarmDiagnostics() {
   };
 
   const handleAiAnalysis = () => {
-    toast.info('ИИ-анализ доступен скоро. Заполни все поля для персональных рекомендаций.');
+    toast.info('ИИ-анализ доступен по платной подписке. Функция в разработке — скоро запуск!');
   };
 
   const animalCount = Object.values(animals).reduce((sum, count) => sum + count, 0);
@@ -319,20 +319,26 @@ export default function FarmDiagnostics() {
         <Button 
           variant="outline" 
           onClick={handleAiAnalysis}
-          disabled={progress < 100}
+          className="relative"
         >
-          <Icon name="Sparkles" size={18} className="mr-2" />
-          Анализировать (ИИ)
+          <Icon name="Lock" size={18} className="mr-2" />
+          ИИ-анализ (PRO)
         </Button>
       </div>
 
-      {progress < 100 && (
-        <Card className="p-4 bg-blue-50 border-blue-200">
-          <p className="text-sm text-blue-800">
-            💡 Заполни все разделы для активации ИИ-анализа с персональными рекомендациями
-          </p>
-        </Card>
-      )}
+      <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <div className="flex items-start gap-3">
+          <Icon name="Info" size={20} className="text-purple-600 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-purple-900 mb-1">
+              ИИ-анализ доступен по платной подписке
+            </p>
+            <p className="text-xs text-purple-700">
+              Функция в разработке. Скоро запустим персональные рекомендации на основе данных вашей фермы с помощью искусственного интеллекта!
+            </p>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
