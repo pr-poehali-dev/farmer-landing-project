@@ -128,6 +128,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'get_farmers':
+                schema = 't_p53065890_farmer_landing_proje'
                 region = params.get('region', '')
                 asset_types_str = params.get('asset_types', '')
                 product_types_str = params.get('product_types', '')
@@ -135,35 +136,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 asset_types = [t.strip() for t in asset_types_str.split(',') if t.strip()] if asset_types_str else []
                 product_types = [t.strip() for t in product_types_str.split(',') if t.strip()] if product_types_str else []
                 
-                query = """
-                    SELECT DISTINCT
+                query = f"""
+                    SELECT 
                         u.id as user_id,
                         u.first_name,
                         u.last_name,
                         u.farm_name,
                         fd.country,
                         fd.region,
-                        COALESCE(
-                            json_agg(
-                                json_build_object(
-                                    'id', p.id,
-                                    'photo_url', p.photo_url,
-                                    'description', p.description,
-                                    'price', p.price,
-                                    'shares', p.shares,
-                                    'product_type', p.product_type,
-                                    'asset_type', p.asset_type,
-                                    'asset_details', p.asset_details,
-                                    'expected_product', p.expected_product,
-                                    'update_frequency', p.update_frequency,
-                                    'created_at', p.created_at
-                                ) ORDER BY p.created_at DESC
-                            ) FILTER (WHERE p.id IS NOT NULL),
-                            '[]'::json
-                        ) as proposals
-                    FROM users u
-                    LEFT JOIN farmer_data fd ON fd.user_id = u.id
-                    LEFT JOIN proposals p ON p.user_id = u.id AND p.status = 'active'
+                        u.bio,
+                        u.photo_url
+                    FROM {schema}.users u
+                    LEFT JOIN {schema}.farmer_data fd ON fd.user_id = u.id
                     WHERE u.role = 'farmer'
                 """
                 
@@ -183,13 +167,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if conditions:
                     query += " AND " + " AND ".join(conditions)
                 
-                query += " GROUP BY u.id, u.first_name, u.last_name, u.farm_name, fd.country, fd.region ORDER BY u.id"
+                query += " ORDER BY u.id"
                 
                 cur.execute(query)
                 rows = cur.fetchall()
                 
                 farmers = []
                 for row in rows:
+                    user_id = row[0]
+                    
+                    cur.execute(f"""
+                        SELECT 
+                            p.id, p.photo_url, p.description, p.price, p.shares,
+                            p.product_type, p.asset_type, p.asset_details,
+                            p.expected_product, p.update_frequency, p.created_at
+                        FROM {schema}.proposals p
+                        WHERE p.user_id = {user_id}
+                        ORDER BY p.created_at DESC
+                    """)
+                    
+                    proposals = []
+                    for p_row in cur.fetchall():
+                        proposals.append({
+                            'id': p_row[0],
+                            'photo_url': p_row[1] or '',
+                            'description': p_row[2] or '',
+                            'price': float(p_row[3]) if p_row[3] else 0,
+                            'shares': p_row[4] or 0,
+                            'product_type': p_row[5] or '',
+                            'asset_type': p_row[6] or '',
+                            'asset_details': p_row[7] or '',
+                            'expected_product': p_row[8] or '',
+                            'update_frequency': p_row[9] or '',
+                            'created_at': p_row[10].isoformat() if p_row[10] else None
+                        })
+                    
                     farmer = {
                         'user_id': str(row[0]),
                         'first_name': row[1] or '',
@@ -197,7 +209,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'farm_name': row[3] or '',
                         'country': row[4] or 'Россия',
                         'region': row[5] or '',
-                        'proposals': row[6] if row[6] else []
+                        'bio': row[6] or '',
+                        'photo_url': row[7] or '',
+                        'proposals': proposals
                     }
                     farmers.append(farmer)
                 

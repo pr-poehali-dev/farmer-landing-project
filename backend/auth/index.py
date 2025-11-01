@@ -10,7 +10,7 @@ ADMIN_SECRET = "farmer_admin_2025_secret_key"
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Аутентификация пользователей (регистрация, логин, проверка токена) и админ-функции
+    Business: Аутентификация пользователей (регистрация, логин, проверка токена), админ-функции и статистика
     Args: event - dict с httpMethod, body, queryStringParameters, headers
           context - объект с request_id, function_name
     Returns: HTTP response с токеном или ошибкой
@@ -315,6 +315,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'users': users_list})
+                }
+        
+        elif method == 'GET':
+            query_params = event.get('queryStringParameters', {})
+            action = query_params.get('action', '')
+            
+            if action == 'stats':
+                cur.execute("""
+                    SELECT 
+                        role,
+                        COUNT(*) as count
+                    FROM t_p53065890_farmer_landing_proje.users
+                    GROUP BY role
+                """)
+                
+                results = cur.fetchall()
+                
+                stats = {
+                    'farmers': 0,
+                    'investors': 0,
+                    'sellers': 0,
+                    'total': 0
+                }
+                
+                for role, count in results:
+                    if role == 'farmer':
+                        stats['farmers'] = count
+                    elif role == 'investor':
+                        stats['investors'] = count
+                    elif role == 'seller':
+                        stats['sellers'] = count
+                    stats['total'] += count
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'isBase64Encoded': False,
+                    'body': json.dumps(stats)
                 }
         
         return {
