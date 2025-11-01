@@ -7,18 +7,22 @@ import { toast } from 'sonner';
 
 interface Proposal {
   id: number;
-  photo_url: string;
   description: string;
   price: number;
   shares: number;
-  product_type: string;
-  asset_type: string;
-  asset_details: string;
+  type: string;
+  asset: {
+    id?: string;
+    name: string;
+    type: string;
+    count?: number;
+    details?: string;
+  };
   expected_product?: string;
   update_frequency?: string;
+  farmer_name: string;
   farm_name: string;
   region: string;
-  vk_link?: string;
   investors_count: number;
 }
 
@@ -27,7 +31,7 @@ interface ProposalsViewerProps {
   onInvest: (proposalId: number, productType: string) => void;
 }
 
-const INVESTOR_API = 'https://functions.poehali.dev/4d6a1b60-ca41-4e77-ac8d-8be91d8d30e9';
+const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
 const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const [loading, setLoading] = useState(true);
@@ -54,7 +58,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
 
   const filteredProposals = filter === 'all' 
     ? proposals 
-    : proposals.filter(p => p.product_type === filter);
+    : proposals.filter(p => p.type === filter);
 
   const getTypeIcon = (type: string) => {
     switch(type) {
@@ -132,37 +136,24 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProposals.map((proposal) => (
             <Card key={proposal.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              {proposal.photo_url && (
-                <div className="h-48 bg-gray-200">
-                  <img 
-                    src={proposal.photo_url} 
-                    alt={proposal.asset_type}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
-              
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Icon 
-                    name={getTypeIcon(proposal.product_type)} 
+                    name={getTypeIcon(proposal.type)} 
                     size={16} 
                     className="text-farmer-orange" 
                   />
                   <span className="text-xs font-medium text-farmer-orange uppercase">
-                    {getTypeLabel(proposal.product_type)}
+                    {getTypeLabel(proposal.type)}
                   </span>
                 </div>
 
                 <h3 className="font-bold text-lg mb-1">
-                  {proposal.asset_type} • {proposal.asset_details}
+                  {proposal.asset.name}
                 </h3>
                 
                 <p className="text-sm text-gray-600 mb-1">
-                  {proposal.farm_name} • {proposal.region}
+                  {proposal.farmer_name} • {proposal.region}
                 </p>
 
                 <p className="text-gray-700 mb-4 line-clamp-3">
@@ -193,7 +184,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                       {proposal.price.toLocaleString()} ₽
                     </div>
                     <div className="text-xs text-gray-500">
-                      {proposal.product_type === 'patronage' ? 'в месяц' : 'за долю'}
+                      {proposal.type === 'patronage' ? 'в месяц' : 'за долю'}
                     </div>
                   </div>
                   <div className="text-right">
@@ -207,26 +198,14 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 </div>
 
                 <Button
-                  onClick={() => onInvest(proposal.id, proposal.product_type)}
+                  onClick={() => onInvest(proposal.id, proposal.type)}
                   className="w-full bg-farmer-green hover:bg-farmer-green-dark"
                 >
                   <Icon name="Heart" size={16} className="mr-2" />
-                  {proposal.product_type === 'patronage' 
+                  {proposal.type === 'patronage' 
                     ? 'Стать покровителем' 
                     : 'Инвестировать виртуально'}
                 </Button>
-
-                {proposal.vk_link && (
-                  <a
-                    href={proposal.vk_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block mt-2 text-center text-sm text-blue-600 hover:underline"
-                  >
-                    <Icon name="ExternalLink" size={14} className="inline mr-1" />
-                    Страница фермы
-                  </a>
-                )}
               </div>
             </Card>
           ))}

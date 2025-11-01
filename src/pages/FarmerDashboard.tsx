@@ -6,7 +6,7 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import ProposalForm from '@/components/ProposalForm';
+import InvestmentProposals from '@/components/farmer/InvestmentProposals';
 import RegionSelector from '@/components/farmer/RegionSelector';
 import AssetsSelector from '@/components/farmer/AssetsSelector';
 import ProfileEditor from '@/components/farmer/ProfileEditor';
@@ -307,31 +307,11 @@ const FarmerDashboard = () => {
           </TabsContent>
 
           <TabsContent value="proposals">
-            <Card className="p-6 mb-8">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                <Icon name="Plus" className="text-farmer-green" />
-                Создать предложение
-              </h2>
-              <ProposalForm onSuccess={loadData} />
-            </Card>
-
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">Мои предложения</h2>
-              {proposals.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-400" />
-                  <p>У вас пока нет предложений</p>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {proposals.map((proposal) => (
-                    <Card key={proposal.id} className="p-4 bg-gray-50">
-                      <h3 className="font-bold text-lg mb-2">{proposal.description}</h3>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Icon name="DollarSign" size={16} className="text-farmer-green" />
-                          <span>Цена: {proposal.price} ₽</span>
-                        </div>
+            <InvestmentProposals 
+              assets={diagnosis.assets}
+              userId={user!.id.toString()}
+              onProposalCreated={loadData}
+            />
                         <div className="flex items-center gap-2">
                           <Icon name="Share2" size={16} className="text-farmer-green" />
                           <span>Долей: {proposal.shares}</span>

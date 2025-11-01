@@ -92,51 +92,71 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'create_proposal':
-                product_type = body_data.get('product_type', 'income')
-                asset_type = body_data.get('asset_type', '')
-                asset_details = body_data.get('asset_details', '')
+                proposal_type = body_data.get('type', 'income')
+                asset = body_data.get('asset', {})
                 description = body_data.get('description', '')
                 price = body_data.get('price', 0)
                 shares = body_data.get('shares', 1)
-                photo_url = body_data.get('photo_url', '')
                 expected_product = body_data.get('expected_product', '')
                 update_frequency = body_data.get('update_frequency', 'weekly')
                 
-                cur.execute(
-                    f"""SELECT first_name, last_name, phone, bio, farm_name FROM {schema}.users WHERE id = %s""",
-                    (user_id,)
-                )
-                profile = cur.fetchone()
-                
-                if not profile or not all([profile[0], profile[1], profile[2], profile[3], profile[4]]):
-                    return {
-                        'statusCode': 400,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Заполните профиль на 100% перед созданием предложения'})
-                    }
-                
-                if not description or price <= 0 or not asset_type or not asset_details:
+                if not asset or not description or price <= 0:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Заполните обязательные поля предложения'})
                     }
                 
+                asset_json = json.dumps(asset)
+                asset_name = asset.get('name', '')
+                asset_type_val = asset.get('type', '')
+                
                 cur.execute(
                     f"""INSERT INTO {schema}.proposals 
-                       (user_id, photo_url, description, price, shares, type, status, 
-                        product_type, asset_type, asset_details, expected_product, update_frequency)
-                       VALUES (%s, %s, %s, %s, %s, %s, 'active', %s, %s, %s, %s, %s) RETURNING id""",
-                    (user_id, photo_url, description, price, shares, product_type, 
-                     product_type, asset_type, asset_details, expected_product, update_frequency)
+                       (user_id, description, price, shares, type, status, 
+                        asset, asset_type, asset_details, expected_product, update_frequency)
+                       VALUES (%s, %s, %s, %s, %s, 'active', %s::jsonb, %s, %s, %s, %s) RETURNING id""",
+                    (user_id, description, price, shares, proposal_type, 
+                     asset_json, asset_type_val, asset_name, expected_product, update_frequency)
                 )
                 proposal_id = cur.fetchone()[0]
+                
+                cur.execute(
+                    f"""UPDATE {schema}.farmer_data 
+                       SET gamification_points = COALESCE(gamification_points, 0) + 30 
+                       WHERE user_id = %s""",
+                    (user_id,)
+                )
+                
                 conn.commit()
                 
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'proposal_id': proposal_id})
+                }
+            
+            elif action == 'delete_proposal':
+                proposal_id = body_data.get('proposal_id')
+                
+                if not proposal_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется proposal_id'})
+                    }
+                
+                cur.execute(
+                    f"""DELETE FROM {schema}.proposals 
+                       WHERE id = %s AND user_id = %s""",
+                    (proposal_id, user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
                 }
         
         elif method == 'GET':
@@ -188,9 +208,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'get_proposals':
                 cur.execute(
-                    f"""SELECT id, photo_url, description, price, shares, type, product_type, 
-                              asset_type, asset_details, expected_product, update_frequency, 
-                              status, created_at
+                    f"""SELECT id, description, price, shares, type, asset, 
+                              expected_product, update_frequency, status, created_at
                        FROM {schema}.proposals WHERE user_id = %s ORDER BY created_at DESC""",
                     (user_id,)
                 )
@@ -198,18 +217,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 for row in cur.fetchall():
                     proposals.append({
                         'id': row[0],
-                        'photo_url': row[1] or '',
-                        'description': row[2],
-                        'price': float(row[3]),
-                        'shares': row[4],
-                        'type': row[5],
-                        'product_type': row[6],
-                        'asset_type': row[7],
-                        'asset_details': row[8],
-                        'expected_product': row[9],
-                        'update_frequency': row[10],
-                        'status': row[11],
-                        'created_at': row[12].isoformat() if row[12] else None
+                        'description': row[1],
+                        'price': float(row[2]),
+                        'shares': row[3],
+                        'type': row[4],
+                        'asset': row[5] if row[5] else {},
+                        'expected_product': row[6],
+                        'update_frequency': row[7],
+                        'status': row[8],
+                        'created_at': row[9].isoformat() if row[9] else None
                     })
                 
                 return {

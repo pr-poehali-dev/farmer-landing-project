@@ -90,35 +90,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'get_all_proposals':
                 schema = 't_p53065890_farmer_landing_proje'
-                cur.execute(f"""
-                    SELECT p.id, p.photo_url, p.description, p.price, p.shares,
-                           p.product_type, p.asset_type, p.asset_details, 
-                           p.expected_product, p.update_frequency,
-                           fd.farm_name, fd.region, fd.vk_link,
+                proposal_type = params.get('type', '')
+                
+                query = f"""
+                    SELECT p.id, p.description, p.price, p.shares, p.type,
+                           p.asset, p.expected_product, p.update_frequency,
+                           u.first_name, u.last_name, u.farm_name, fd.region,
                            (SELECT COUNT(*) FROM {schema}.investments i WHERE i.proposal_id = p.id) as investors_count
                     FROM {schema}.proposals p
+                    LEFT JOIN {schema}.users u ON p.user_id = u.id
                     LEFT JOIN {schema}.farmer_data fd ON p.user_id = fd.user_id
-                    WHERE p.status = 'active' AND p.product_type IS NOT NULL
-                    ORDER BY p.created_at DESC
-                """)
+                    WHERE p.status = 'active'
+                """
+                
+                if proposal_type:
+                    query += f" AND p.type = '{proposal_type}'"
+                
+                query += " ORDER BY p.created_at DESC"
+                
+                cur.execute(query)
                 
                 proposals = []
                 for row in cur.fetchall():
                     proposals.append({
                         'id': row[0],
-                        'photo_url': row[1] or '',
-                        'description': row[2],
-                        'price': float(row[3]),
-                        'shares': row[4],
-                        'product_type': row[5],
-                        'asset_type': row[6] or '',
-                        'asset_details': row[7] or '',
-                        'expected_product': row[8],
-                        'update_frequency': row[9],
+                        'description': row[1],
+                        'price': float(row[2]),
+                        'shares': row[3],
+                        'type': row[4],
+                        'asset': row[5] if row[5] else {},
+                        'expected_product': row[6],
+                        'update_frequency': row[7],
+                        'farmer_name': f"{row[8] or ''} {row[9] or ''}".strip() or row[10] or 'Фермер',
                         'farm_name': row[10] or 'Ферма',
                         'region': row[11] or 'Регион не указан',
-                        'vk_link': row[12],
-                        'investors_count': row[13]
+                        'investors_count': row[12]
                     })
                 
                 return {
