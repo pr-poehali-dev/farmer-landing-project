@@ -1,15 +1,36 @@
 {
   "tests": [
     {
-      "name": "Получение списка товаров",
+      "name": "Получение профиля продавца",
       "method": "GET",
-      "path": "/?action=get_products",
+      "path": "/?action=get_profile",
       "headers": {
-        "X-User-Id": "1"
+        "X-User-Id": "3"
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "products": "array"
+        "profile": {
+          "id": "number"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Обновление профиля",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "action": "update_profile",
+        "company_name": "Тестовая компания",
+        "description": "Описание компании"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
       },
       "bodyMatcher": "partial"
     }
