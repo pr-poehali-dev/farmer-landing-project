@@ -61,10 +61,12 @@ const FarmerDashboard = () => {
 
   const loadData = async () => {
     try {
+      console.log('Loading data for user:', user!.id);
       const diagnosisRes = await fetch(`${FARMER_API}?action=get_diagnosis`, {
         headers: { 'X-User-Id': user!.id.toString() }
       });
       const diagnosisData = await diagnosisRes.json();
+      console.log('Diagnosis data:', diagnosisData);
       
       if (diagnosisData.diagnosis) {
         setDiagnosis({
@@ -72,13 +74,15 @@ const FarmerDashboard = () => {
           region: diagnosisData.diagnosis.region || '',
           assets: diagnosisData.diagnosis.assets || []
         });
-        setDiagnosisCompleted(true);
+        setDiagnosisCompleted(diagnosisData.diagnosis.assets.length > 0);
+        console.log('Set diagnosis:', diagnosisData.diagnosis);
       }
       
       const proposalsRes = await fetch(`${FARMER_API}?action=get_proposals`, {
         headers: { 'X-User-Id': user!.id.toString() }
       });
       const proposalsData = await proposalsRes.json();
+      console.log('Proposals data:', proposalsData);
       setProposals(proposalsData.proposals || []);
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
