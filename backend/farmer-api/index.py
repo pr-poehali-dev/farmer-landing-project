@@ -52,15 +52,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = body_data.get('action')
             
             if action == 'save_diagnosis':
-                farm_info = body_data.get('farm_info', {})
-                farm_info_json = json.dumps(farm_info)
+                country = body_data.get('country', 'Россия')
+                region = body_data.get('region', '')
+                assets = body_data.get('assets', [])
+                assets_json = json.dumps(assets)
                 
                 cur.execute(
-                    f"""UPDATE {schema}.users 
-                       SET farm_info = %s::jsonb, analyzable = true
-                       WHERE id = %s""",
-                    (farm_info_json, user_id)
+                    f"""SELECT id FROM {schema}.farmer_data WHERE user_id = %s""",
+                    (user_id,)
                 )
+                existing = cur.fetchone()
+                
+                if existing:
+                    cur.execute(
+                        f"""UPDATE {schema}.farmer_data 
+                           SET country = %s, region = %s, assets = %s::jsonb
+                           WHERE user_id = %s""",
+                        (country, region, assets_json, user_id)
+                    )
+                else:
+                    cur.execute(
+                        f"""INSERT INTO {schema}.farmer_data (user_id, country, region, assets)
+                           VALUES (%s, %s, %s, %s::jsonb)""",
+                        (user_id, country, region, assets_json)
+                    )
+                
                 conn.commit()
                 
                 return {
@@ -165,15 +181,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'get_diagnosis':
                 cur.execute(
-                    f"""SELECT farm_info, analyzable FROM {schema}.users WHERE id = %s""",
+                    f"""SELECT fd.country, fd.region, fd.assets 
+                       FROM {schema}.farmer_data fd 
+                       WHERE fd.user_id = %s""",
                     (user_id,)
                 )
                 result = cur.fetchone()
                 
-                data = {
-                    'farm_info': result[0] if result and result[0] else {},
-                    'analyzable': result[1] if result else False
-                }
+                if result:
+                    data = {
+                        'country': result[0] or 'Россия',
+                        'region': result[1] or '',
+                        'assets': result[2] if result[2] else []
+                    }
+                else:
+                    data = {
+                        'country': 'Россия',
+                        'region': '',
+                        'assets': []
+                    }
                 
                 return {
                     'statusCode': 200,
