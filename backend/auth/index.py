@@ -289,6 +289,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'message': 'Пароль успешно изменен'})
                 }
+            
+            elif action == 'list_users':
+                headers = event.get('headers', {})
+                admin_secret = headers.get('x-admin-secret') or headers.get('X-Admin-Secret')
+                
+                if admin_secret != ADMIN_SECRET:
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Доступ запрещен'})
+                    }
+                
+                cur.execute("SELECT id, email, role, created_at FROM t_p53065890_farmer_landing_proje.users ORDER BY id")
+                users = cur.fetchall()
+                
+                users_list = [{
+                    'id': u[0],
+                    'email': u[1],
+                    'role': u[2],
+                    'created_at': u[3].isoformat() if u[3] else None
+                } for u in users]
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'users': users_list})
+                }
         
         return {
             'statusCode': 405,

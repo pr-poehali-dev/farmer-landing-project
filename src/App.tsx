@@ -11,6 +11,7 @@ import FarmerDashboard from "./pages/FarmerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUserDelete from "./pages/AdminUserDelete";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/dashboard/investor" element={<InvestorDashboard />} />
           <Route path="/dashboard/seller" element={<SellerDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/delete-users" element={<AdminUserDelete />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
+const AUTH_API = 'https://functions.poehali.dev/0a0119c5-f173-40c2-bc49-c845a420422f';
 const DELETE_API = 'https://functions.poehali.dev/68b32d82-8055-4ae6-b41c-28ff4dad404b';
 const ADMIN_SECRET = 'farmer_admin_2025_secret_key';
 
@@ -28,13 +29,24 @@ const AdminUserDelete = () => {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const mockUsers: User[] = [
-        { id: 5, email: 'iliakrasnopeev@yandex.ru', role: 'investor', created_at: '2025-10-31' },
-        { id: 6, email: 'Iliakrasnopeev@yandex.ru', role: 'farmer', created_at: '2025-10-31' }
-      ];
-      setUsers(mockUsers);
-    } catch (error) {
-      toast.error('Ошибка загрузки пользователей');
+      const response = await fetch(AUTH_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Secret': ADMIN_SECRET
+        },
+        body: JSON.stringify({ action: 'list_users' })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка загрузки');
+      }
+
+      setUsers(data.users || []);
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка загрузки пользователей');
     } finally {
       setLoading(false);
     }

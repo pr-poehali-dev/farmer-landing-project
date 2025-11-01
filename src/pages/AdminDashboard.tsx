@@ -171,6 +171,10 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-gray-900">Панель Администратора</h1>
             </div>
             <div className="flex items-center gap-4">
+              <Button onClick={() => navigate('/admin/delete-users')} variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+                <Icon name="UserX" size={18} className="mr-2" />
+                Удалить пользователей
+              </Button>
               <span className="text-gray-700">Администратор</span>
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <Icon name="LogOut" size={18} className="mr-2" />
