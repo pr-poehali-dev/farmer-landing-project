@@ -1,0 +1,4 @@
+ALTER TABLE t_p53065890_farmer_landing_proje.users 
+ADD COLUMN IF NOT EXISTS farm_info JSONB DEFAULT '{}'::jsonb,
+ADD COLUMN IF NOT EXISTS analyzable BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS gamification_points INTEGER DEFAULT 0;
