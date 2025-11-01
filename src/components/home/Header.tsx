@@ -12,7 +12,7 @@ const Header = () => {
           <div className="flex items-center gap-2">
             <span className="text-3xl">🐄</span>
             <h1 className="text-2xl font-bold text-farmer-green">ФАРМЕР</h1>
-            <span className="text-3xl">🐴</span>
+            <span className="text-3xl">🌾</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Button onClick={() => navigate('/about')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
