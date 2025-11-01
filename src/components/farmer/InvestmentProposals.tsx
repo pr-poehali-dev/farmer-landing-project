@@ -34,7 +34,6 @@ interface Proposal {
 }
 
 interface Props {
-  assets: Asset[];
   userId: string;
   onProposalCreated: () => void;
 }
@@ -71,9 +70,12 @@ const UPDATE_FREQUENCIES = [
   { value: 'monthly', label: 'Ежемесячно' }
 ];
 
-const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
+const InvestmentProposals = ({ userId, onProposalCreated }: Props) => {
   const [proposalType, setProposalType] = useState<'income' | 'product' | 'patronage'>('income');
-  const [selectedAssetId, setSelectedAssetId] = useState<string>('');
+  const [assetType, setAssetType] = useState<'animal' | 'crop' | 'beehive'>('animal');
+  const [assetName, setAssetName] = useState<string>('');
+  const [assetCount, setAssetCount] = useState<string>('');
+  const [assetDetails, setAssetDetails] = useState<string>('');
   const [price, setPrice] = useState<string>('');
   const [shares, setShares] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -82,8 +84,6 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const selectedAsset = assets.find(a => a.id === selectedAssetId);
 
   const getMinPrice = () => {
     switch (proposalType) {
@@ -116,13 +116,14 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedAsset) {
-      toast.error('Выберите актив из диагностики');
+    if (!assetName.trim()) {
+      toast.error('Укажите название актива');
       return;
     }
 
     const priceNum = parseFloat(price);
     const sharesNum = parseInt(shares);
+    const countNum = parseInt(assetCount) || 0;
     const minPrice = getMinPrice();
 
     if (priceNum < minPrice) {
@@ -147,6 +148,15 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
 
     setSubmitting(true);
 
+    const asset: Asset = {
+      id: Date.now().toString(),
+      type: assetType,
+      name: assetName,
+      count: countNum,
+      details: assetDetails,
+      investment_types: [proposalType]
+    };
+
     try {
       const response = await fetch(FARMER_API, {
         method: 'POST',
@@ -157,7 +167,7 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
         body: JSON.stringify({
           action: 'create_proposal',
           type: proposalType,
-          asset: selectedAsset,
+          asset,
           price: priceNum,
           shares: sharesNum,
           description: description.trim(),
@@ -168,7 +178,9 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
 
       if (response.ok) {
         toast.success('Предложение создано! +30 баллов 🎉');
-        setSelectedAssetId('');
+        setAssetName('');
+        setAssetCount('');
+        setAssetDetails('');
         setPrice('');
         setShares('');
         setDescription('');
@@ -213,22 +225,6 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
       toast.error('Ошибка соединения');
     }
   };
-
-  if (assets.length === 0) {
-    return (
-      <Card className="p-8 bg-orange-50 border-orange-200">
-        <div className="flex items-start gap-3">
-          <Icon name="AlertCircle" className="text-orange-600" size={24} />
-          <div>
-            <h3 className="font-bold text-orange-900 mb-1">Сначала заполни диагностику!</h3>
-            <p className="text-sm text-orange-700">
-              Чтобы создавать предложения, нужно добавить активы в разделе "Диагностика"
-            </p>
-          </div>
-        </div>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -275,32 +271,72 @@ const InvestmentProposals = ({ assets, userId, onProposalCreated }: Props) => {
             </RadioGroup>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="asset">Выбери актив из диагностики</Label>
-            <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выбери актив..." />
-              </SelectTrigger>
-              <SelectContent>
-                {assets.map(asset => (
-                  <SelectItem key={asset.id} value={asset.id}>
-                    <div className="flex items-center gap-2">
-                      <Icon 
-                        name={asset.type === 'crop' ? 'Wheat' : asset.type === 'animal' ? 'Beef' : 'Flower2'} 
-                        size={16} 
-                      />
-                      <span>
-                        {asset.name} 
-                        {asset.count > 0 && ` (${asset.count} ${asset.type === 'crop' ? 'га' : asset.type === 'beehive' ? 'ульев' : 'гол.'})`}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedAsset && (
-              <p className="text-xs text-gray-500">{selectedAsset.details}</p>
-            )}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Тип актива</Label>
+              <RadioGroup value={assetType} onValueChange={(v: any) => setAssetType(v)}>
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="animal" id="animal" />
+                    <Label htmlFor="animal" className="cursor-pointer flex items-center gap-1">
+                      <Icon name="Beef" size={16} />
+                      Животноводство
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="crop" id="crop" />
+                    <Label htmlFor="crop" className="cursor-pointer flex items-center gap-1">
+                      <Icon name="Wheat" size={16} />
+                      Растениеводство
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="beehive" id="beehive" />
+                    <Label htmlFor="beehive" className="cursor-pointer flex items-center gap-1">
+                      <Icon name="Flower2" size={16} />
+                      Пчеловодство
+                    </Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="assetName">Название актива *</Label>
+                <Input
+                  id="assetName"
+                  value={assetName}
+                  onChange={(e) => setAssetName(e.target.value)}
+                  placeholder={assetType === 'animal' ? 'Коровы' : assetType === 'crop' ? 'Пшеница' : 'Пчелы'}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="assetCount">
+                  Количество ({assetType === 'crop' ? 'га' : assetType === 'beehive' ? 'ульев' : 'голов'})
+                </Label>
+                <Input
+                  id="assetCount"
+                  type="number"
+                  min="0"
+                  value={assetCount}
+                  onChange={(e) => setAssetCount(e.target.value)}
+                  placeholder="10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="assetDetails">Детали актива (порода, сорт, возраст...)</Label>
+              <Input
+                id="assetDetails"
+                value={assetDetails}
+                onChange={(e) => setAssetDetails(e.target.value)}
+                placeholder={assetType === 'animal' ? 'Например: Голштинская порода' : 'Например: Озимая пшеница'}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

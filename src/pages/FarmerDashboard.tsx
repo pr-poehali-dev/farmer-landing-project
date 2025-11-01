@@ -312,7 +312,6 @@ const FarmerDashboard = () => {
 
           <TabsContent value="proposals">
             <InvestmentProposals 
-              assets={diagnosis.assets}
               userId={user!.id.toString()}
               onProposalCreated={loadData}
             />
