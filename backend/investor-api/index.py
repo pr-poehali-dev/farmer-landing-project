@@ -127,6 +127,86 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'proposals': proposals})
                 }
             
+            elif action == 'get_farmers':
+                region = params.get('region', '')
+                asset_types_str = params.get('asset_types', '')
+                product_types_str = params.get('product_types', '')
+                
+                asset_types = [t.strip() for t in asset_types_str.split(',') if t.strip()] if asset_types_str else []
+                product_types = [t.strip() for t in product_types_str.split(',') if t.strip()] if product_types_str else []
+                
+                query = """
+                    SELECT DISTINCT
+                        u.id as user_id,
+                        u.first_name,
+                        u.last_name,
+                        u.farm_name,
+                        fd.country,
+                        fd.region,
+                        COALESCE(
+                            json_agg(
+                                json_build_object(
+                                    'id', p.id,
+                                    'photo_url', p.photo_url,
+                                    'description', p.description,
+                                    'price', p.price,
+                                    'shares', p.shares,
+                                    'product_type', p.product_type,
+                                    'asset_type', p.asset_type,
+                                    'asset_details', p.asset_details,
+                                    'expected_product', p.expected_product,
+                                    'update_frequency', p.update_frequency,
+                                    'created_at', p.created_at
+                                ) ORDER BY p.created_at DESC
+                            ) FILTER (WHERE p.id IS NOT NULL),
+                            '[]'::json
+                        ) as proposals
+                    FROM users u
+                    LEFT JOIN farmer_data fd ON fd.user_id = u.id
+                    LEFT JOIN proposals p ON p.user_id = u.id AND p.status = 'active'
+                    WHERE u.role = 'farmer'
+                """
+                
+                conditions = []
+                
+                if region:
+                    conditions.append(f"fd.region = '{region}'")
+                
+                if asset_types:
+                    asset_conditions = " OR ".join([f"p.asset_type = '{at}'" for at in asset_types])
+                    conditions.append(f"({asset_conditions})")
+                
+                if product_types:
+                    product_conditions = " OR ".join([f"p.product_type = '{pt}'" for pt in product_types])
+                    conditions.append(f"({product_conditions})")
+                
+                if conditions:
+                    query += " AND " + " AND ".join(conditions)
+                
+                query += " GROUP BY u.id, u.first_name, u.last_name, u.farm_name, fd.country, fd.region ORDER BY u.id"
+                
+                cur.execute(query)
+                rows = cur.fetchall()
+                
+                farmers = []
+                for row in rows:
+                    farmer = {
+                        'user_id': str(row[0]),
+                        'first_name': row[1] or '',
+                        'last_name': row[2] or '',
+                        'farm_name': row[3] or '',
+                        'country': row[4] or 'Россия',
+                        'region': row[5] or '',
+                        'proposals': row[6] if row[6] else []
+                    }
+                    farmers.append(farmer)
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'farmers': farmers})
+                }
+            
             elif action == 'get_portfolio':
                 cur.execute(
                     """SELECT i.id, i.proposal_id, i.amount, i.date, 

@@ -12,6 +12,32 @@
         "proposals": "array"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение списка фермеров",
+      "method": "GET",
+      "path": "/?action=get_farmers",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "farmers": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение фермеров с фильтром по региону",
+      "method": "GET",
+      "path": "/?action=get_farmers&region=Республика Бурятия",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "farmers": "array"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }

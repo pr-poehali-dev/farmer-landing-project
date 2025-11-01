@@ -16,7 +16,8 @@ const ProfileEditor = () => {
     first_name: '',
     last_name: '',
     phone: '',
-    email: user?.email || ''
+    email: user?.email || '',
+    farm_name: ''
   });
 
   useEffect(() => {
@@ -34,7 +35,8 @@ const ProfileEditor = () => {
           first_name: data.profile.first_name || '',
           last_name: data.profile.last_name || '',
           phone: data.profile.phone || '',
-          email: data.profile.email || user?.email || ''
+          email: data.profile.email || user?.email || '',
+          farm_name: data.profile.farm_name || ''
         });
       }
     } catch (error) {
@@ -143,6 +145,18 @@ const ProfileEditor = () => {
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="farm_name">
+            Название фермы
+          </Label>
+          <Input
+            id="farm_name"
+            value={profile.farm_name}
+            onChange={(e) => setProfile({ ...profile, farm_name: e.target.value })}
+            placeholder="Например: Ферма 'Зелёный луг'"
+          />
+        </div>
+        
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="first_name">
