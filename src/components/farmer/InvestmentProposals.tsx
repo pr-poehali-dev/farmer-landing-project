@@ -422,7 +422,7 @@ const InvestmentProposals = ({ userId, onProposalCreated }: Props) => {
 
           <Button 
             type="submit" 
-            disabled={submitting || !selectedAsset}
+            disabled={submitting || !assetName.trim()}
             className="w-full bg-farmer-green hover:bg-green-700"
           >
             {submitting ? (
