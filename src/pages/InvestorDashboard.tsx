@@ -167,22 +167,6 @@ const InvestorDashboard = () => {
             }}
           />
         </div>
-                            <>
-                              <Icon name="Loader2" className="animate-spin mr-2" size={18} />
-                              Обработка...
-                            </>
-                          ) : (
-                            'Подтвердить инвестицию'
-                          )}
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
 
         <Card className="p-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
