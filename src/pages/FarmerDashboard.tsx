@@ -312,20 +312,6 @@ const FarmerDashboard = () => {
               userId={user!.id.toString()}
               onProposalCreated={loadData}
             />
-                        <div className="flex items-center gap-2">
-                          <Icon name="Share2" size={16} className="text-farmer-green" />
-                          <span>Долей: {proposal.shares}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Icon name="Tag" size={16} className="text-farmer-green" />
-                          <span>Тип: {proposal.type}</span>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </Card>
           </TabsContent>
 
           <TabsContent value="garage">
