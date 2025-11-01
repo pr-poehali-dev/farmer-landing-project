@@ -44,7 +44,7 @@ const Home = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Icon name="Sprout" size={32} className="text-farmer-green" />
-              <h1 className="text-2xl font-bold text-farmer-green">ФАРМЕР</h1>
+              <h1 className="text-2xl font-bold text-farmer-green">ФЕРМА.LIFE</h1>
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Button onClick={() => navigate('/about')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
