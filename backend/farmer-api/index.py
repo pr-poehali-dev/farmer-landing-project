@@ -113,8 +113,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 description = body_data.get('description', '')
                 price = body_data.get('price', 0)
                 shares = body_data.get('shares', 1)
-                expected_product = body_data.get('expected_product', '')
-                update_frequency = body_data.get('update_frequency', 'weekly')
+                expected_product = body_data.get('expected_product') or None
+                update_frequency = body_data.get('update_frequency') or 'weekly'
                 
                 if not asset or not description or price <= 0:
                     return {
