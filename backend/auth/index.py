@@ -384,7 +384,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         COALESCE(p.count, 0) as proposals_count,
                         COALESCE(i.count, 0) as investments_count
                     FROM t_p53065890_farmer_landing_proje.users u
-                    LEFT JOIN (SELECT farmer_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.proposals GROUP BY farmer_id) p ON u.id = p.farmer_id
+                    LEFT JOIN (SELECT user_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.proposals GROUP BY user_id) p ON u.id = p.user_id
                     LEFT JOIN (SELECT investor_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY investor_id) i ON u.id = i.investor_id
                     ORDER BY u.created_at DESC
                 """)
@@ -407,7 +407,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         u.name as farmer_name, u.email as farmer_email,
                         COALESCE(i.count, 0) as investors_count
                     FROM t_p53065890_farmer_landing_proje.proposals p
-                    JOIN t_p53065890_farmer_landing_proje.users u ON p.farmer_id = u.id
+                    JOIN t_p53065890_farmer_landing_proje.users u ON p.user_id = u.id
                     LEFT JOIN (SELECT proposal_id, COUNT(DISTINCT investor_id) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY proposal_id) i ON p.id = i.proposal_id
                     ORDER BY p.created_at DESC
                 """)
