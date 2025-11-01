@@ -1,18 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import ProposalForm from '@/components/ProposalForm';
+import RegionSelector from '@/components/farmer/RegionSelector';
+import AssetsSelector from '@/components/farmer/AssetsSelector';
+import ProfileEditor from '@/components/farmer/ProfileEditor';
 
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
+
+interface Asset {
+  id: string;
+  type: 'animal' | 'crop' | 'beehive';
+  name: string;
+  count: number;
+  direction?: string;
+  hectares?: number;
+  details: string;
+  investment_types: string[];
+}
 
 const FarmerDashboard = () => {
   const { user, logout, loading: authLoading } = useAuth();
@@ -22,27 +32,13 @@ const FarmerDashboard = () => {
   const [loadingData, setLoadingData] = useState(true);
   
   const [diagnosis, setDiagnosis] = useState({
-    cows_count: 0,
-    cows_type: '',
-    fields_hectares: 0,
-    crops: [] as string[],
-    other_assets: '',
-    farm_name: '',
+    country: 'Россия',
     region: '',
-    vk_link: ''
-  });
-  
-  const [newProposal, setNewProposal] = useState({
-    description: '',
-    price: 0,
-    shares: 1,
-    type: 'products',
-    photo_url: ''
+    assets: [] as Asset[]
   });
   
   const [proposals, setProposals] = useState<any[]>([]);
   const [savingDiagnosis, setSavingDiagnosis] = useState(false);
-  const [creatingProposal, setCreatingProposal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'farmer')) {
@@ -60,7 +56,11 @@ const FarmerDashboard = () => {
       const diagnosisData = await diagnosisRes.json();
       
       if (diagnosisData.diagnosis) {
-        setDiagnosis(diagnosisData.diagnosis);
+        setDiagnosis({
+          country: diagnosisData.diagnosis.country || 'Россия',
+          region: diagnosisData.diagnosis.region || '',
+          assets: diagnosisData.diagnosis.assets || []
+        });
         setDiagnosisCompleted(true);
       }
       
@@ -78,6 +78,22 @@ const FarmerDashboard = () => {
 
   const saveDiagnosis = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!diagnosis.country) {
+      toast.error('Выберите страну');
+      return;
+    }
+    
+    if (!diagnosis.region) {
+      toast.error('Выберите регион');
+      return;
+    }
+    
+    if (diagnosis.assets.length === 0) {
+      toast.error('Добавьте хотя бы один актив');
+      return;
+    }
+    
     setSavingDiagnosis(true);
     
     try {
@@ -107,44 +123,6 @@ const FarmerDashboard = () => {
     }
   };
 
-  const createProposal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCreatingProposal(true);
-    
-    try {
-      const response = await fetch(FARMER_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user!.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'create_proposal',
-          ...newProposal
-        })
-      });
-      
-      if (response.ok) {
-        toast.success('Предложение создано!');
-        setNewProposal({
-          description: '',
-          price: 0,
-          shares: 1,
-          type: 'products',
-          photo_url: ''
-        });
-        loadData();
-      } else {
-        const error = await response.json();
-        toast.error(error.error || 'Ошибка создания');
-      }
-    } catch (error) {
-      toast.error('Ошибка соединения');
-    } finally {
-      setCreatingProposal(false);
-    }
-  };
-
   if (authLoading || loadingData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -171,204 +149,131 @@ const FarmerDashboard = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {!diagnosisCompleted && (
-          <Card className="p-6 mb-8 border-2 border-farmer-orange">
-            <div className="flex items-start gap-3 mb-4">
+          <Card className="p-6 mb-8 border-2 border-farmer-orange bg-orange-50">
+            <div className="flex items-start gap-3">
               <Icon name="AlertCircle" className="text-farmer-orange" size={24} />
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Обязательная диагностика</h2>
-                <p className="text-gray-600">Заполните данные о вашем хозяйстве для продолжения</p>
+                <p className="text-gray-600">Заполните данные о вашем хозяйстве для продолжения работы</p>
               </div>
             </div>
           </Card>
         )}
 
-        <Card className="p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-            <Icon name="FileText" className="text-farmer-green" />
-            Диагностика хозяйства
-          </h2>
-          
-          <form onSubmit={saveDiagnosis} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="cows_count">Количество коров</Label>
-                <Input
-                  id="cows_count"
-                  type="number"
-                  value={diagnosis.cows_count || ''}
-                  onChange={(e) => setDiagnosis({ ...diagnosis, cows_count: parseInt(e.target.value) || 0 })}
-                  placeholder="0"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="cows_type">Направление</Label>
-                <Select value={diagnosis.cows_type} onValueChange={(value) => setDiagnosis({ ...diagnosis, cows_type: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите направление" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="мясное">Мясное</SelectItem>
-                    <SelectItem value="молочное">Молочное</SelectItem>
-                    <SelectItem value="смешанное">Смешанное</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="fields_hectares">Площадь полей (гектары)</Label>
-              <Input
-                id="fields_hectares"
-                type="number"
-                value={diagnosis.fields_hectares || ''}
-                onChange={(e) => setDiagnosis({ ...diagnosis, fields_hectares: parseInt(e.target.value) || 0 })}
-                placeholder="0"
-              />
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="farm_name">Название фермы</Label>
-                <Input
-                  id="farm_name"
-                  value={diagnosis.farm_name}
-                  onChange={(e) => setDiagnosis({ ...diagnosis, farm_name: e.target.value })}
-                  placeholder="Например: Ферма 'Зеленые поля'"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="region">Регион</Label>
-                <Select value={diagnosis.region} onValueChange={(value) => setDiagnosis({ ...diagnosis, region: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите регион" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Московская область">Московская область</SelectItem>
-                    <SelectItem value="Ленинградская область">Ленинградская область</SelectItem>
-                    <SelectItem value="Краснодарский край">Краснодарский край</SelectItem>
-                    <SelectItem value="Ростовская область">Ростовская область</SelectItem>
-                    <SelectItem value="Свердловская область">Свердловская область</SelectItem>
-                    <SelectItem value="Татарстан">Республика Татарстан</SelectItem>
-                    <SelectItem value="Башкортостан">Республика Башкортостан</SelectItem>
-                    <SelectItem value="Новосибирская область">Новосибирская область</SelectItem>
-                    <SelectItem value="Воронежская область">Воронежская область</SelectItem>
-                    <SelectItem value="Другой">Другой регион</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="vk_link">Ссылка на ВКонтакте</Label>
-              <Input
-                id="vk_link"
-                value={diagnosis.vk_link}
-                onChange={(e) => setDiagnosis({ ...diagnosis, vk_link: e.target.value })}
-                placeholder="https://vk.com/your_farm"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="other_assets">Другие активы</Label>
-              <Textarea
-                id="other_assets"
-                value={diagnosis.other_assets}
-                onChange={(e) => setDiagnosis({ ...diagnosis, other_assets: e.target.value })}
-                placeholder="Опишите технику, постройки и другие активы..."
-                rows={3}
-              />
-            </div>
-            
-            <Button type="submit" disabled={savingDiagnosis} className="bg-farmer-green hover:bg-farmer-green-dark">
-              {savingDiagnosis ? (
-                <>
-                  <Icon name="Loader2" className="animate-spin mr-2" size={18} />
-                  Сохранение...
-                </>
-              ) : (
-                <>
-                  <Icon name="Save" size={18} className="mr-2" />
-                  Сохранить диагностику
-                </>
-              )}
-            </Button>
-          </form>
-        </Card>
+        <Tabs defaultValue="diagnosis" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="diagnosis" className="flex items-center gap-2">
+              <Icon name="FileText" size={18} />
+              Диагностика
+            </TabsTrigger>
+            <TabsTrigger value="proposals" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
+              <Icon name="Package" size={18} />
+              Предложения
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <Icon name="User" size={18} />
+              Профиль
+            </TabsTrigger>
+          </TabsList>
 
-        {diagnosisCompleted && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 flex items-center gap-2">
-              <Icon name="Plus" className="text-farmer-orange" />
-              Создать предложение
-            </h2>
-            
-            <Tabs defaultValue="income" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="income">
-                  <Icon name="TrendingUp" size={16} className="mr-2" />
-                  Для дохода
-                </TabsTrigger>
-                <TabsTrigger value="product">
-                  <Icon name="ShoppingBag" size={16} className="mr-2" />
-                  Продукт
-                </TabsTrigger>
-                <TabsTrigger value="patronage">
-                  <Icon name="Eye" size={16} className="mr-2" />
-                  Патронаж
-                </TabsTrigger>
-              </TabsList>
+          <TabsContent value="diagnosis">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <Icon name="FileText" className="text-farmer-green" />
+                Диагностика хозяйства
+              </h2>
               
-              <TabsContent value="income">
-                <ProposalForm productType="income" userId={user!.id} onSuccess={loadData} />
-              </TabsContent>
-              
-              <TabsContent value="product">
-                <ProposalForm productType="product" userId={user!.id} onSuccess={loadData} />
-              </TabsContent>
-              
-              <TabsContent value="patronage">
-                <ProposalForm productType="patronage" userId={user!.id} onSuccess={loadData} />
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
-
-        <Card className="p-6">
-          <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-            <Icon name="List" className="text-farmer-green" />
-            Мои предложения
-          </h2>
-          
-          {proposals.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">Пока нет предложений</p>
-          ) : (
-            <div className="space-y-4">
-              {proposals.map((proposal) => (
-                <Card key={proposal.id} className="p-4 border">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{proposal.description}</p>
-                      <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                        <span>Цена: {proposal.price} ₽</span>
-                        <span>Долей: {proposal.shares}</span>
-                        <span>Тип: {proposal.type}</span>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      proposal.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {proposal.status}
-                    </span>
+              <form onSubmit={saveDiagnosis} className="space-y-8">
+                <div className="space-y-6">
+                  <div className="border-b pb-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Местоположение</h3>
+                    <RegionSelector
+                      country={diagnosis.country}
+                      region={diagnosis.region}
+                      onCountryChange={(value) => setDiagnosis({ ...diagnosis, country: value, region: '' })}
+                      onRegionChange={(value) => setDiagnosis({ ...diagnosis, region: value })}
+                    />
                   </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </Card>
+
+                  <div className="border-b pb-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Ваши владения</h3>
+                    <AssetsSelector
+                      assets={diagnosis.assets}
+                      onChange={(assets) => setDiagnosis({ ...diagnosis, assets })}
+                    />
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={savingDiagnosis}
+                  className="w-full bg-farmer-green hover:bg-farmer-green-dark"
+                  size="lg"
+                >
+                  {savingDiagnosis ? (
+                    <>
+                      <Icon name="Loader2" className="animate-spin mr-2" size={20} />
+                      Сохранение...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Save" className="mr-2" size={20} />
+                      Сохранить диагностику
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="proposals">
+            <Card className="p-6 mb-8">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <Icon name="Plus" className="text-farmer-green" />
+                Создать предложение
+              </h2>
+              <ProposalForm onSuccess={loadData} />
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">Мои предложения</h2>
+              {proposals.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-400" />
+                  <p>У вас пока нет предложений</p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {proposals.map((proposal) => (
+                    <Card key={proposal.id} className="p-4 bg-gray-50">
+                      <h3 className="font-bold text-lg mb-2">{proposal.description}</h3>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <Icon name="DollarSign" size={16} className="text-farmer-green" />
+                          <span>Цена: {proposal.price} ₽</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Icon name="Share2" size={16} className="text-farmer-green" />
+                          <span>Долей: {proposal.shares}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Icon name="Tag" size={16} className="text-farmer-green" />
+                          <span>Тип: {proposal.type}</span>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <ProfileEditor />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

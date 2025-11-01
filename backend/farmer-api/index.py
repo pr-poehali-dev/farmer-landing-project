@@ -51,14 +51,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = body_data.get('action')
             
             if action == 'save_diagnosis':
-                cows_count = body_data.get('cows_count')
-                cows_type = body_data.get('cows_type', '')
-                fields_hectares = body_data.get('fields_hectares')
-                crops = body_data.get('crops', [])
-                other_assets = body_data.get('other_assets', '')
-                farm_name = body_data.get('farm_name', '')
+                country = body_data.get('country', 'Россия')
                 region = body_data.get('region', '')
-                vk_link = body_data.get('vk_link', '')
+                assets = body_data.get('assets', [])
+                
+                if not region:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Регион обязателен'})
+                    }
+                
+                if len(assets) == 0:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Добавьте хотя бы один актив'})
+                    }
                 
                 cur.execute(
                     "SELECT id FROM farmer_data WHERE user_id = %s",
@@ -66,23 +75,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 )
                 existing = cur.fetchone()
                 
-                crops_json = json.dumps(crops)
+                assets_json = json.dumps(assets)
                 
                 if existing:
                     cur.execute(
                         """UPDATE farmer_data 
-                           SET cows_count = %s, cows_type = %s, fields_hectares = %s, 
-                               crops = %s::jsonb, other_assets = %s, farm_name = %s, region = %s, vk_link = %s,
-                               updated_at = CURRENT_TIMESTAMP
+                           SET country = %s, region = %s, assets = %s::jsonb, updated_at = CURRENT_TIMESTAMP
                            WHERE user_id = %s""",
-                        (cows_count, cows_type, fields_hectares, crops_json, other_assets, farm_name, region, vk_link, user_id)
+                        (country, region, assets_json, user_id)
                     )
                 else:
                     cur.execute(
                         """INSERT INTO farmer_data 
-                           (user_id, cows_count, cows_type, fields_hectares, crops, other_assets, farm_name, region, vk_link)
-                           VALUES (%s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s)""",
-                        (user_id, cows_count, cows_type, fields_hectares, crops_json, other_assets, farm_name, region, vk_link)
+                           (user_id, country, region, assets)
+                           VALUES (%s, %s, %s, %s::jsonb)""",
+                        (user_id, country, region, assets_json)
                     )
                 
                 conn.commit()
@@ -122,6 +129,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'success': True, 'proposal_id': proposal_id})
                 }
             
+            elif action == 'update_profile':
+                first_name = body_data.get('first_name', '')
+                last_name = body_data.get('last_name', '')
+                phone = body_data.get('phone', '')
+                email = body_data.get('email', '')
+                
+                if not first_name or not last_name or not phone or not email:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Все поля обязательны'})
+                    }
+                
+                cur.execute(
+                    """UPDATE users 
+                       SET first_name = %s, last_name = %s, phone = %s, email = %s
+                       WHERE id = %s""",
+                    (first_name, last_name, phone, email, user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'message': 'Профиль обновлен'})
+                }
+            
             elif action == 'create_proposal_v2':
                 product_type = body_data.get('product_type', 'income')
                 asset_type = body_data.get('asset_type', '')
@@ -157,6 +191,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'proposal_id': proposal_id})
                 }
+            
+            elif action == 'update_profile':
+                first_name = body_data.get('first_name', '')
+                last_name = body_data.get('last_name', '')
+                phone = body_data.get('phone', '')
+                email = body_data.get('email', '')
+                
+                if not first_name or not last_name or not phone or not email:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Все поля обязательны'})
+                    }
+                
+                cur.execute(
+                    """UPDATE users 
+                       SET first_name = %s, last_name = %s, phone = %s, email = %s
+                       WHERE id = %s""",
+                    (first_name, last_name, phone, email, user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'message': 'Профиль обновлен'})
+                }
         
         elif method == 'GET':
             params = event.get('queryStringParameters', {}) or {}
@@ -164,22 +225,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'get_diagnosis':
                 cur.execute(
-                    """SELECT cows_count, cows_type, fields_hectares, crops, other_assets, farm_name, region, vk_link
-                       FROM farmer_data WHERE user_id = %s""",
+                    """SELECT country, region, assets FROM farmer_data WHERE user_id = %s""",
                     (user_id,)
                 )
                 result = cur.fetchone()
                 
                 if result:
                     data = {
-                        'cows_count': result[0],
-                        'cows_type': result[1],
-                        'fields_hectares': result[2],
-                        'crops': result[3] if result[3] else [],
-                        'other_assets': result[4],
-                        'farm_name': result[5] or '',
-                        'region': result[6] or '',
-                        'vk_link': result[7] or ''
+                        'country': result[0] or 'Россия',
+                        'region': result[1] or '',
+                        'assets': result[2] if result[2] else []
                     }
                 else:
                     data = None
@@ -213,6 +268,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'proposals': proposals})
+                }
+            
+            elif action == 'get_profile':
+                cur.execute(
+                    """SELECT first_name, last_name, phone, email FROM users WHERE id = %s""",
+                    (user_id,)
+                )
+                result = cur.fetchone()
+                
+                if result:
+                    profile = {
+                        'first_name': result[0] or '',
+                        'last_name': result[1] or '',
+                        'phone': result[2] or '',
+                        'email': result[3] or ''
+                    }
+                else:
+                    profile = None
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'profile': profile})
                 }
         
         return {

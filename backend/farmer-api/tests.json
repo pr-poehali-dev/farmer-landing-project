@@ -8,11 +8,19 @@
       },
       "body": {
         "action": "save_diagnosis",
-        "cows_count": 10,
-        "cows_type": "молочное",
-        "fields_hectares": 50,
-        "crops": ["пшеница", "кукуруза"],
-        "other_assets": "Трактор, сарай"
+        "country": "Россия",
+        "region": "Республика Бурятия",
+        "assets": [
+          {
+            "id": "1",
+            "type": "animal",
+            "name": "Коровы",
+            "count": 10,
+            "direction": "Молочное",
+            "details": "Голштинская порода",
+            "investment_types": ["income", "products"]
+          }
+        ]
       },
       "expectedStatus": 200,
       "expectedBody": {
@@ -30,16 +38,49 @@
       "expectedStatus": 200,
       "expectedBody": {
         "diagnosis": {
-          "cows_count": 10,
-          "cows_type": "молочное",
-          "fields_hectares": 50,
-          "crops": ["пшеница", "кукуруза"],
-          "other_assets": "Трактор, сарай",
-          "farm_name": "",
-          "region": "",
-          "vk_link": ""
+          "country": "string",
+          "region": "string",
+          "assets": "array"
         }
-      }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Обновление профиля",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "action": "update_profile",
+        "first_name": "Иван",
+        "last_name": "Иванов",
+        "phone": "+7 (999) 123-45-67",
+        "email": "ivan@example.com"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение профиля",
+      "method": "GET",
+      "path": "/?action=get_profile",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "profile": {
+          "first_name": "string",
+          "last_name": "string",
+          "phone": "string",
+          "email": "string"
+        }
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }
