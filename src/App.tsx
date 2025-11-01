@@ -11,6 +11,7 @@ import FarmerDashboard from "./pages/FarmerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminPanel from "./pages/AdminPanel";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Contacts from "./pages/Contacts";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/dashboard/investor" element={<InvestorDashboard />} />
           <Route path="/dashboard/seller" element={<SellerDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/panel" element={<AdminPanel />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contacts" element={<Contacts />} />

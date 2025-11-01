@@ -6,10 +6,12 @@ import jwt
 from datetime import datetime, timedelta
 from typing import Dict, Any
 
+ADMIN_SECRET = "farmer_admin_2025_secret_key"
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Аутентификация пользователей (регистрация, логин, проверка токена)
-    Args: event - dict с httpMethod, body, queryStringParameters
+    Business: Аутентификация пользователей (регистрация, логин, проверка токена) и админ-функции
+    Args: event - dict с httpMethod, body, queryStringParameters, headers
           context - объект с request_id, function_name
     Returns: HTTP response с токеном или ошибкой
     '''
@@ -20,8 +22,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, X-Admin-Secret',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
@@ -41,7 +43,49 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     try:
-        if method == 'POST':
+        if method == 'DELETE':
+            headers = event.get('headers', {})
+            admin_secret = headers.get('x-admin-secret') or headers.get('X-Admin-Secret')
+            
+            if admin_secret != ADMIN_SECRET:
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Доступ запрещен'})
+                }
+            
+            body_data = json.loads(event.get('body', '{}'))
+            emails = body_data.get('emails', [])
+            
+            if not emails:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Список emails пуст'})
+                }
+            
+            emails_lower = [email.strip().lower() for email in emails]
+            placeholders = ','.join(['%s'] * len(emails_lower))
+            
+            cur.execute(
+                f"DELETE FROM t_p53065890_farmer_landing_proje.users WHERE LOWER(email) IN ({placeholders}) RETURNING id, email",
+                emails_lower
+            )
+            
+            deleted_users = cur.fetchall()
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': f'Удалено пользователей: {len(deleted_users)}',
+                    'deleted': [{'id': u[0], 'email': u[1]} for u in deleted_users]
+                })
+            }
+        
+        elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
             action = body_data.get('action')
             
