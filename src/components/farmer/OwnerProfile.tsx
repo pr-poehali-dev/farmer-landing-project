@@ -19,6 +19,7 @@ export default function OwnerProfile() {
     email: '',
     bio: '',
     farm_name: '',
+    region: '',
   });
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -48,6 +49,7 @@ export default function OwnerProfile() {
           email: data.profile.email || user.email,
           bio: data.profile.bio || '',
           farm_name: data.profile.farm_name || '',
+          region: data.profile.region || '',
         });
       } else {
         setProfile({ ...profile, email: user.email });
@@ -62,7 +64,7 @@ export default function OwnerProfile() {
   const handleSave = async () => {
     if (!user) return;
 
-    if (!profile.first_name || !profile.last_name || !profile.phone || !profile.bio || !profile.farm_name) {
+    if (!profile.first_name || !profile.last_name || !profile.phone || !profile.bio || !profile.farm_name || !profile.region) {
       toast.error('Заполни все обязательные поля для 100% профиля');
       return;
     }
@@ -94,14 +96,15 @@ export default function OwnerProfile() {
     }
   };
 
-  const isComplete = profile.first_name && profile.last_name && profile.phone && profile.bio && profile.farm_name;
-  const completionPercent = [
+  const isComplete = profile.first_name && profile.last_name && profile.phone && profile.bio && profile.farm_name && profile.region;
+  const completionPercent = Math.round([
     profile.first_name,
     profile.last_name,
     profile.phone,
     profile.bio,
-    profile.farm_name
-  ].filter(Boolean).length * 20;
+    profile.farm_name,
+    profile.region
+  ].filter(Boolean).length * 100 / 6);
 
   if (authLoading || loadingData) {
     return (
@@ -166,6 +169,10 @@ export default function OwnerProfile() {
             <Input type="email" value={profile.email} onChange={(e) => setProfile({...profile, email: e.target.value})} />
           </div>
           <div>
+            <Label>Регион *</Label>
+            <Input value={profile.region} onChange={(e) => setProfile({...profile, region: e.target.value})} placeholder="Например: Бурятия, Алтайский край" />
+          </div>
+          <div>
             <Label>О себе *</Label>
             <Textarea 
               value={profile.bio} 
@@ -200,6 +207,10 @@ export default function OwnerProfile() {
               <div className="flex items-center gap-2">
                 <Icon name="Mail" size={16} className="text-gray-400" />
                 <span>{profile.email || 'Не указан'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Icon name="MapPin" size={16} className="text-gray-400" />
+                <span>{profile.region || 'Не указан'}</span>
               </div>
               {profile.bio && (
                 <div className="mt-4 pt-4 border-t">

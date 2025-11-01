@@ -92,6 +92,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 email = body_data.get('email', '')
                 bio = body_data.get('bio', '')
                 farm_name = body_data.get('farm_name', '')
+                region = body_data.get('region', '')
                 
                 cur.execute(
                     f"""UPDATE {schema}.users 
@@ -99,6 +100,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        WHERE id = %s""",
                     (first_name, last_name, phone, email, bio, farm_name, user_id)
                 )
+                
+                cur.execute(
+                    f"""SELECT id FROM {schema}.farmer_data WHERE user_id = %s""",
+                    (user_id,)
+                )
+                fd_exists = cur.fetchone()
+                
+                if fd_exists:
+                    cur.execute(
+                        f"""UPDATE {schema}.farmer_data SET region = %s WHERE user_id = %s""",
+                        (region, user_id)
+                    )
+                else:
+                    cur.execute(
+                        f"""INSERT INTO {schema}.farmer_data (user_id, region) VALUES (%s, %s)""",
+                        (user_id, region)
+                    )
+                
                 conn.commit()
                 
                 return {
@@ -217,7 +236,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'get_profile':
                 cur.execute(
-                    f"""SELECT first_name, last_name, phone, email, bio, farm_name FROM {schema}.users WHERE id = %s""",
+                    f"""SELECT u.first_name, u.last_name, u.phone, u.email, u.bio, u.farm_name, fd.region 
+                       FROM {schema}.users u
+                       LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
+                       WHERE u.id = %s""",
                     (user_id,)
                 )
                 result = cur.fetchone()
@@ -229,7 +251,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'phone': result[2] or '',
                         'email': result[3] or '',
                         'bio': result[4] or '',
-                        'farm_name': result[5] or ''
+                        'farm_name': result[5] or '',
+                        'region': result[6] or ''
                     }
                 else:
                     profile = {}
