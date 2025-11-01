@@ -20,9 +20,7 @@ const Footer = () => {
             <Icon name="Send" size={24} />
           </a>
         </div>
-        <p className="text-sm text-gray-400">
-          © 2024 ФЕРМА.LIFE. Все права защищены.
-        </p>
+        <p className="text-sm text-gray-400">© 2025 ФАРМЕР Все права защищены.</p>
       </div>
     </footer>
   );
