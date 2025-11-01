@@ -28,10 +28,7 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
           </p>
 
 
-          <p className="text-lg text-gray-700 italic animate-[fadeIn_2s_ease-in]">
-            Без тебя это чудо растворится в искусственном мире — не оставайся в стороне, 
-            стань частью этого величия прямо сейчас!
-          </p>
+
         </div>
         <div className="flex justify-center gap-8 mb-8">
           <div className="text-center">
