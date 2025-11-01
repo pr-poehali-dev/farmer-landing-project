@@ -10,6 +10,10 @@ import ProposalForm from '@/components/ProposalForm';
 import RegionSelector from '@/components/farmer/RegionSelector';
 import AssetsSelector from '@/components/farmer/AssetsSelector';
 import ProfileEditor from '@/components/farmer/ProfileEditor';
+import GarageItemForm, { GarageItem } from '@/components/garage/GarageItemForm';
+import GarageList from '@/components/garage/GarageList';
+import TechScoreCard from '@/components/garage/TechScoreCard';
+import LeaderboardCard from '@/components/garage/LeaderboardCard';
 
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
@@ -39,6 +43,13 @@ const FarmerDashboard = () => {
   
   const [proposals, setProposals] = useState<any[]>([]);
   const [savingDiagnosis, setSavingDiagnosis] = useState(false);
+  
+  const [garageItems, setGarageItems] = useState<GarageItem[]>([]);
+  const [techScore, setTechScore] = useState(0);
+  const [badges, setBadges] = useState<string[]>([]);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [currentUserRank, setCurrentUserRank] = useState<number>();
+  const [allowAccess, setAllowAccess] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'farmer')) {
@@ -73,6 +84,69 @@ const FarmerDashboard = () => {
       console.error('Ошибка загрузки данных:', error);
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const calculateTechScore = (items: GarageItem[]) => {
+    let score = 0;
+    const newBadges: string[] = [];
+    
+    items.forEach(item => {
+      if (item.category === 'machinery') score += 10;
+      if (item.category === 'equipment') score += 5;
+      if (item.category === 'fertilizer') score += 5;
+    });
+    
+    if (score >= 10) newBadges.push('tech_novice');
+    if (score >= 100) newBadges.push('tech_master');
+    if (score >= 150) newBadges.push('innovator');
+    if (score >= 200) newBadges.push('tech_guru');
+    
+    return { score, badges: newBadges };
+  };
+
+  const handleAddGarageItem = async (item: Omit<GarageItem, 'id'>) => {
+    const newItem: GarageItem = {
+      ...item,
+      id: Date.now().toString()
+    };
+    
+    const updatedItems = [...garageItems, newItem];
+    setGarageItems(updatedItems);
+    
+    await handleSaveGarage(updatedItems, allowAccess);
+    toast.success('Добавлено в гараж!');
+  };
+
+  const handleRemoveGarageItem = async (id: string) => {
+    const updatedItems = garageItems.filter(item => item.id !== id);
+    setGarageItems(updatedItems);
+    await handleSaveGarage(updatedItems, allowAccess);
+    toast.success('Удалено из гаража');
+  };
+
+  const handleSaveGarage = async (items: GarageItem[], access: boolean) => {
+    const { score, badges: newBadges } = calculateTechScore(items);
+    setTechScore(score);
+    setBadges(newBadges);
+    
+    try {
+      await fetch(FARMER_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user!.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'save_garage',
+          items,
+          tech_score: score,
+          badges: newBadges,
+          allow_access: access
+        })
+      });
+    } catch (error) {
+      console.error('Ошибка сохранения гаража:', error);
     }
   };
 
@@ -163,7 +237,7 @@ const FarmerDashboard = () => {
         )}
 
         <Tabs defaultValue="diagnosis" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="diagnosis" className="flex items-center gap-2">
               <Icon name="FileText" size={18} />
               Диагностика
@@ -171,6 +245,10 @@ const FarmerDashboard = () => {
             <TabsTrigger value="proposals" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
               <Icon name="Package" size={18} />
               Предложения
+            </TabsTrigger>
+            <TabsTrigger value="garage" className="flex items-center gap-2">
+              <Icon name="Truck" size={18} />
+              Мой гараж
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <Icon name="User" size={18} />
@@ -268,6 +346,51 @@ const FarmerDashboard = () => {
                 </div>
               )}
             </Card>
+          </TabsContent>
+
+          <TabsContent value="garage">
+            <div className="space-y-6">
+              <Card className="p-6 bg-gradient-to-r from-farmer-green/5 to-farmer-orange/5">
+                <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
+                  <Icon name="Truck" className="text-farmer-green" />
+                  Мой гараж — твое технологичное царство
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Добавь свою технику и удобрения — поднимись в рейтинге и стань легендой! 
+                  Чем больше деталей, тем выше баллы.
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="allowAccess"
+                    checked={allowAccess}
+                    onChange={(e) => {
+                      setAllowAccess(e.target.checked);
+                      handleSaveGarage(garageItems, e.target.checked);
+                    }}
+                    className="rounded border-gray-300"
+                  />
+                  <label htmlFor="allowAccess" className="text-sm text-gray-700 cursor-pointer">
+                    Разрешить доступ продавцам (для премиум-подписчиков)
+                  </label>
+                </div>
+              </Card>
+
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <GarageItemForm onAdd={handleAddGarageItem} />
+                  <GarageList items={garageItems} onRemove={handleRemoveGarageItem} />
+                </div>
+                <div className="space-y-6">
+                  <TechScoreCard score={techScore} badges={badges} />
+                  <LeaderboardCard 
+                    entries={leaderboard} 
+                    currentUserScore={techScore}
+                    currentUserRank={currentUserRank}
+                  />
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="profile">
