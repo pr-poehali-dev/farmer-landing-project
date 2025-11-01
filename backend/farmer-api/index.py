@@ -116,6 +116,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 expected_product = body_data.get('expected_product') or None
                 update_frequency = body_data.get('update_frequency') or 'weekly'
                 
+                print(f"DEBUG create_proposal: user_id={user_id} type={type(user_id)}, price={price} type={type(price)}, shares={shares} type={type(shares)}")
+                print(f"DEBUG values: proposal_type={proposal_type}, asset={asset}, description={description}")
+                
                 if not asset or not description or price <= 0:
                     return {
                         'statusCode': 400,
@@ -127,14 +130,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 asset_name = asset.get('name', '')
                 asset_type_val = asset.get('type', '')
                 
-                cur.execute(
-                    f"""INSERT INTO {schema}.proposals 
-                       (user_id, description, price, shares, type, status, 
-                        asset, asset_type, asset_details, expected_product, update_frequency)
-                       VALUES (%s, %s, %s, %s, %s, 'active', %s::jsonb, %s, %s, %s, %s) RETURNING id""",
-                    (user_id, description, price, shares, proposal_type, 
-                     asset_json, asset_type_val, asset_name, expected_product, update_frequency)
-                )
+                try:
+                    cur.execute(
+                        f"""INSERT INTO {schema}.proposals 
+                           (user_id, description, price, shares, type, status, 
+                            asset, asset_type, asset_details, expected_product, update_frequency)
+                           VALUES (%s, %s, %s, %s, %s, 'active', %s::jsonb, %s, %s, %s, %s) RETURNING id""",
+                        (user_id, description, price, shares, proposal_type, 
+                         asset_json, asset_type_val, asset_name, expected_product, update_frequency)
+                    )
+                except Exception as e:
+                    print(f"ERROR inserting proposal: {str(e)}")
+                    print(f"ERROR details: user_id={user_id}, description={description}, price={price}, shares={shares}")
+                    raise
                 proposal_id = cur.fetchone()[0]
                 
                 cur.execute(
