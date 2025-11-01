@@ -4,9 +4,10 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto text-center">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <Icon name="Sprout" size={28} className="text-farmer-green" />
-          <h3 className="text-2xl font-bold">ФЕРМА.LIFE</h3>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <span className="text-3xl">🐄</span>
+          <h3 className="text-2xl font-bold">ФЕРМЕР</h3>
+          <span className="text-3xl">🐴</span>
         </div>
         <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
           Где настоящее побеждает суету. Присоединяйся к тем, кто выбирает жизнь.
