@@ -60,7 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     f"""SELECT u.id, u.email, u.name, u.first_name, u.last_name, u.phone, 
                               u.photo_url, u.subscription_tier, u.subscription_expires_at,
                               sd.company_name, sd.description, sd.website, sd.vk_link, 
-                              sd.telegram_link, sd.products, sd.ads
+                              sd.telegram_link, sd.products, sd.ads, sd.region, sd.city
                        FROM {schema}.users u
                        LEFT JOIN {schema}.seller_data sd ON sd.user_id = u.id
                        WHERE u.id = %s AND u.role = 'seller'""",
@@ -92,7 +92,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'vk_link': row[12],
                     'telegram_link': row[13],
                     'products': row[14] or [],
-                    'ads': row[15] or []
+                    'ads': row[15] or [],
+                    'region': row[16],
+                    'city': row[17]
                 }
                 
                 return {
@@ -102,7 +104,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            elif action == 'get_farm_stats':
+            elif action == 'get_farmers':
                 cur.execute(
                     f"""SELECT subscription_tier FROM {schema}.users WHERE id = %s""",
                     (user_id,)
@@ -110,80 +112,89 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tier_row = cur.fetchone()
                 tier = tier_row[0] if tier_row else 'none'
                 
-                if tier == 'none':
-                    return {
-                        'statusCode': 403,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Требуется подписка', 'tier': 'none'}),
-                        'isBase64Encoded': False
-                    }
-                
                 region_filter = params.get('region', '')
+                occupation_filter = params.get('occupation', '')
                 
-                if tier == 'basic':
-                    query = f"""
-                        SELECT fd.region, fd.assets, COUNT(*) as farm_count
-                        FROM {schema}.farmer_data fd
-                        WHERE fd.assets IS NOT NULL
-                    """
-                    if region_filter:
-                        query += f" AND fd.region = '{region_filter}'"
-                    query += " GROUP BY fd.region, fd.assets"
+                query = f"""
+                    SELECT u.id, u.first_name, u.last_name, u.farm_name, 
+                           fd.region, fd.country, fd.assets
+                """
+                
+                if tier == 'premium':
+                    query += f""", u.email, u.phone, fd.gamification_points"""
+                
+                query += f"""
+                    FROM {schema}.users u
+                    LEFT JOIN {schema}.farmer_data fd ON fd.user_id = u.id
+                    WHERE u.role = 'farmer'
+                """
+                
+                if region_filter:
+                    query += f" AND fd.region = '{region_filter}'"
+                
+                query += " ORDER BY u.id"
+                
+                cur.execute(query)
+                rows = cur.fetchall()
+                
+                farmers = []
+                for row in rows:
+                    assets = row[6] or []
                     
-                    cur.execute(query)
-                    rows = cur.fetchall()
-                    
-                    stats = []
-                    for row in rows:
-                        assets = row[1] or []
+                    if occupation_filter:
+                        has_occupation = False
                         for asset in assets:
-                            stats.append({
-                                'region': row[0],
-                                'asset_type': asset.get('type', 'unknown'),
-                                'asset_name': asset.get('name', 'unknown'),
-                                'farm_count': row[2]
-                            })
+                            asset_type = asset.get('type', '')
+                            if occupation_filter == 'animal' and asset_type == 'animal':
+                                has_occupation = True
+                                break
+                            elif occupation_filter == 'crop' and asset_type == 'crop':
+                                has_occupation = True
+                                break
+                            elif occupation_filter == 'beehive' and asset_type == 'beehive':
+                                has_occupation = True
+                                break
+                        
+                        if not has_occupation:
+                            continue
                     
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'stats': stats, 'tier': 'basic'}),
-                        'isBase64Encoded': False
+                    farmer = {
+                        'id': row[0],
+                        'farmer_name': f"{row[1] or ''} {row[2] or ''}".strip() or 'Фермер',
+                        'farm_name': row[3] or 'Ферма',
+                        'region': row[4] or 'Не указан',
+                        'country': row[5] or 'Не указана',
+                        'occupation': 'Неизвестно'
                     }
+                    
+                    if assets and len(assets) > 0:
+                        occupations = []
+                        for asset in assets:
+                            asset_type = asset.get('type', '')
+                            if asset_type == 'animal':
+                                occupations.append('Животноводство')
+                            elif asset_type == 'crop':
+                                occupations.append('Растениеводство')
+                            elif asset_type == 'beehive':
+                                occupations.append('Пчеловодство')
+                        
+                        if occupations:
+                            farmer['occupation'] = ', '.join(list(set(occupations)))
+                    
+                    if tier == 'premium':
+                        farmer['email'] = row[7]
+                        farmer['phone'] = row[8]
+                        farmer['assets'] = assets
+                        farmer['gamification_points'] = row[9] or 0
+                    
+                    farmers.append(farmer)
                 
-                elif tier == 'premium':
-                    query = f"""
-                        SELECT u.id, u.first_name, u.last_name, u.farm_name, u.email, u.phone,
-                               fd.region, fd.country, fd.assets
-                        FROM {schema}.users u
-                        LEFT JOIN {schema}.farmer_data fd ON fd.user_id = u.id
-                        WHERE u.role = 'farmer' AND fd.analyzable = true
-                    """
-                    if region_filter:
-                        query += f" AND fd.region = '{region_filter}'"
-                    
-                    cur.execute(query)
-                    rows = cur.fetchall()
-                    
-                    farms = []
-                    for row in rows:
-                        farms.append({
-                            'id': row[0],
-                            'farmer_name': f"{row[1] or ''} {row[2] or ''}".strip() or 'Фермер',
-                            'farm_name': row[3] or 'Ферма',
-                            'email': row[4],
-                            'phone': row[5],
-                            'region': row[6],
-                            'country': row[7],
-                            'assets': row[8] or []
-                        })
-                    
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'farms': farms, 'tier': 'premium'}),
-                        'isBase64Encoded': False
-                    }
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'farmers': farmers, 'tier': tier}),
+                    'isBase64Encoded': False
+                }
             
             elif action == 'get_analytics':
                 cur.execute(
@@ -228,6 +239,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 last_name = body_data.get('last_name', '')
                 phone = body_data.get('phone', '')
                 photo_url = body_data.get('photo_url', '')
+                region = body_data.get('region', '')
+                city = body_data.get('city', '')
                 
                 cur.execute(
                     f"""UPDATE {schema}.users 
@@ -246,16 +259,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     cur.execute(
                         f"""UPDATE {schema}.seller_data 
                            SET company_name = %s, description = %s, website = %s, 
-                               vk_link = %s, telegram_link = %s, updated_at = CURRENT_TIMESTAMP
+                               vk_link = %s, telegram_link = %s, region = %s, city = %s, updated_at = CURRENT_TIMESTAMP
                            WHERE user_id = %s""",
-                        (company_name, description, website, vk_link, telegram_link, user_id)
+                        (company_name, description, website, vk_link, telegram_link, region, city, user_id)
                     )
                 else:
                     cur.execute(
                         f"""INSERT INTO {schema}.seller_data 
-                           (user_id, company_name, description, website, vk_link, telegram_link)
-                           VALUES (%s, %s, %s, %s, %s, %s)""",
-                        (user_id, company_name, description, website, vk_link, telegram_link)
+                           (user_id, company_name, description, website, vk_link, telegram_link, region, city)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                        (user_id, company_name, description, website, vk_link, telegram_link, region, city)
                     )
                 
                 conn.commit()

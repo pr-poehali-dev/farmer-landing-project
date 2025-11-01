@@ -48,7 +48,9 @@ const SellerDashboard = () => {
     telegram_link: '',
     first_name: '',
     last_name: '',
-    phone: ''
+    phone: '',
+    region: '',
+    city: ''
   });
   
   const [productForm, setProductForm] = useState({
@@ -68,7 +70,9 @@ const SellerDashboard = () => {
     target_audience: ''
   });
   
-  const [farmStats, setFarmStats] = useState<any[]>([]);
+  const [farmers, setFarmers] = useState<any[]>([]);
+  const [regionFilter, setRegionFilter] = useState('');
+  const [occupationFilter, setOccupationFilter] = useState('');
   const [analytics, setAnalytics] = useState({ product_views: 0, farm_requests: 0, commission_revenue: 0 });
 
   useEffect(() => {
@@ -95,7 +99,9 @@ const SellerDashboard = () => {
         telegram_link: data.profile.telegram_link || '',
         first_name: data.profile.first_name || '',
         last_name: data.profile.last_name || '',
-        phone: data.profile.phone || ''
+        phone: data.profile.phone || '',
+        region: data.profile.region || '',
+        city: data.profile.city || ''
       });
     } catch (error) {
       toast.error('Ошибка загрузки профиля');
@@ -256,20 +262,21 @@ const SellerDashboard = () => {
     }
   };
 
-  const loadFarmStats = async () => {
+  const loadFarmers = async () => {
     try {
-      const response = await fetch(`${SELLER_API}?action=get_farm_stats`, {
+      const params = new URLSearchParams();
+      params.append('action', 'get_farmers');
+      if (regionFilter) params.append('region', regionFilter);
+      if (occupationFilter) params.append('occupation', occupationFilter);
+      
+      const response = await fetch(`${SELLER_API}?${params.toString()}`, {
         headers: { 'X-User-Id': user!.id.toString() }
       });
       const data = await response.json();
-      
-      if (data.tier === 'basic') {
-        setFarmStats(data.stats || []);
-      } else if (data.tier === 'premium') {
-        setFarmStats(data.farms || []);
-      }
+      setFarmers(data.farmers || []);
     } catch (error) {
-      console.error('Ошибка загрузки статистики ферм');
+      console.error('Ошибка загрузки фермеров');
+      toast.error('Ошибка загрузки фермеров');
     }
   };
 
@@ -338,8 +345,8 @@ const SellerDashboard = () => {
               Реклама
             </TabsTrigger>
             <TabsTrigger value="farms">
-              <Icon name="Database" size={18} className="mr-2" />
-              Данные Ферм
+              <Icon name="Users" size={18} className="mr-2" />
+              Фермеры
             </TabsTrigger>
             <TabsTrigger value="analytics">
               <Icon name="BarChart3" size={18} className="mr-2" />
@@ -402,6 +409,28 @@ const SellerDashboard = () => {
                       type="tel"
                       value={profileForm.phone}
                       onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="region">Регион *</Label>
+                    <Input
+                      id="region"
+                      value={profileForm.region}
+                      onChange={(e) => setProfileForm({ ...profileForm, region: e.target.value })}
+                      placeholder="Москва"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="city">Город *</Label>
+                    <Input
+                      id="city"
+                      value={profileForm.city}
+                      onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
+                      placeholder="Москва"
+                      required
                     />
                   </div>
                   
@@ -695,64 +724,117 @@ const SellerDashboard = () => {
 
           <TabsContent value="farms">
             <Card className="p-6">
-              <h3 className="text-xl font-bold mb-4">Данные о фермах — найди своих клиентов</h3>
+              <h3 className="text-xl font-bold mb-4">Фермеры — найди своих клиентов</h3>
               <p className="text-gray-600 mb-6">
-                Подпишись и получи лаконичные insights — стань партнером в росте
+                Сортируй по региону и занятию. С платной подпиской — полная информация
               </p>
               
-              {tier === 'none' ? (
+              <div className="mb-6 grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Регион</Label>
+                  <Select value={regionFilter} onValueChange={setRegionFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Все регионы" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Все регионы</SelectItem>
+                      <SelectItem value="Республика Бурятия">Республика Бурятия</SelectItem>
+                      <SelectItem value="Московская область">Московская область</SelectItem>
+                      <SelectItem value="Ленинградская область">Ленинградская область</SelectItem>
+                      <SelectItem value="Краснодарский край">Краснодарский край</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label>Занятие</Label>
+                  <Select value={occupationFilter} onValueChange={setOccupationFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Все занятия" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Все занятия</SelectItem>
+                      <SelectItem value="animal">Животноводство</SelectItem>
+                      <SelectItem value="crop">Растениеводство</SelectItem>
+                      <SelectItem value="beehive">Пчеловодство</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-end">
+                  <Button onClick={loadFarmers} className="w-full bg-farmer-green hover:bg-farmer-green-dark">
+                    <Icon name="Search" size={16} className="mr-2" />
+                    Найти
+                  </Button>
+                </div>
+              </div>
+              
+              {farmers.length === 0 ? (
                 <div className="text-center py-12">
-                  <Icon name="Lock" size={48} className="mx-auto mb-4 text-gray-400" />
-                  <p className="text-gray-600 mb-6">Подпишись за доступ к статистике!</p>
-                  <div className="flex gap-4 justify-center">
-                    <Button className="bg-farmer-green hover:bg-farmer-green-dark">
-                      Базовая (500 руб/мес)
-                    </Button>
-                    <Button className="bg-farmer-orange hover:bg-farmer-orange-dark">
-                      Премиум (1000 руб/мес)
-                    </Button>
-                  </div>
+                  <Icon name="Users" size={48} className="mx-auto mb-4 text-gray-400" />
+                  <p className="text-gray-500">Нажмите "Найти" для поиска фермеров</p>
                 </div>
               ) : (
-                <div>
-                  <Button onClick={loadFarmStats} className="mb-4 bg-farmer-green hover:bg-farmer-green-dark">
-                    <Icon name="RefreshCw" size={16} className="mr-2" />
-                    Загрузить данные
-                  </Button>
-                  
-                  {farmStats.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">Нажмите "Загрузить данные"</p>
-                  ) : tier === 'basic' ? (
-                    <div className="space-y-3">
-                      <h4 className="font-semibold">Агрегированная статистика</h4>
-                      {farmStats.map((stat, idx) => (
-                        <Card key={idx} className="p-4">
-                          <p className="text-sm">
-                            <strong>{stat.region}</strong>: {stat.asset_name} ({stat.asset_type}) — {stat.farm_count} ферм
+                <div className="space-y-3">
+                  {farmers.map((farmer: any) => (
+                    <Card key={farmer.id} className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h5 className="font-semibold text-lg">{farmer.farm_name}</h5>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {farmer.farmer_name} • {farmer.region}
                           </p>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <h4 className="font-semibold">Карточки ферм (Premium)</h4>
-                      {farmStats.map((farm: any) => (
-                        <Card key={farm.id} className="p-4">
-                          <h5 className="font-semibold">{farm.farm_name}</h5>
-                          <p className="text-sm text-gray-600">{farm.farmer_name} • {farm.region}</p>
-                          <p className="text-sm mt-2">
-                            Email: {farm.email} • Телефон: {farm.phone || 'Не указан'}
-                          </p>
-                          <div className="mt-2">
-                            <Button size="sm" variant="outline">
-                              <Icon name="Mail" size={14} className="mr-2" />
-                              Связаться
-                            </Button>
+                          <div className="flex gap-2 mt-2">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                              {farmer.occupation}
+                            </span>
                           </div>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
+                          
+                          {tier === 'premium' && (
+                            <div className="mt-3 p-3 bg-gray-50 rounded">
+                              <div className="grid md:grid-cols-2 gap-2 text-sm">
+                                <div>
+                                  <span className="font-medium">Email:</span> {farmer.email}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Телефон:</span> {farmer.phone || 'Не указан'}
+                                </div>
+                              </div>
+                              
+                              {farmer.assets && farmer.assets.length > 0 && (
+                                <div className="mt-3">
+                                  <p className="font-medium text-sm mb-2">Активы фермы:</p>
+                                  <div className="space-y-2">
+                                    {farmer.assets.map((asset: any, idx: number) => (
+                                      <div key={idx} className="text-xs p-2 bg-white rounded border">
+                                        <span className="font-medium">{asset.name || 'Актив'}</span>
+                                        {asset.count && <span className="ml-2 text-gray-600">({asset.count} ед.)</span>}
+                                        {asset.details && <p className="text-gray-600 mt-1">{asset.details}</p>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              <div className="mt-3">
+                                <Button size="sm" variant="outline">
+                                  <Icon name="Mail" size={14} className="mr-2" />
+                                  Связаться
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {tier !== 'premium' && (
+                            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                              <Icon name="Lock" size={14} className="inline mr-1" />
+                              Подпишись на Premium для доступа к контактам и полной информации
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
               )}
             </Card>
