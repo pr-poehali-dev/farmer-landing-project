@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto text-center">
         <div className="flex items-center justify-center gap-2 mb-6">
           <span className="text-3xl">🐄</span>
-          <h3 className="text-2xl font-bold">ФЕРМЕР</h3>
+          <h3 className="text-2xl font-bold">ФАРМЕР</h3>
           <span className="text-3xl">🐴</span>
         </div>
         <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
