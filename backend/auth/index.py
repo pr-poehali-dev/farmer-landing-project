@@ -65,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Неверная роль'})
                     }
                 
-                cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+                cur.execute("SELECT id FROM t_p53065890_farmer_landing_proje.users WHERE email = %s", (email,))
                 if cur.fetchone():
                     return {
                         'statusCode': 400,
@@ -76,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 
                 cur.execute(
-                    "INSERT INTO users (email, password_hash, role, name) VALUES (%s, %s, %s, %s) RETURNING id",
+                    "INSERT INTO t_p53065890_farmer_landing_proje.users (email, password_hash, role, name) VALUES (%s, %s, %s, %s) RETURNING id",
                     (email, password_hash, role, name)
                 )
                 user_id = cur.fetchone()[0]
@@ -109,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Заполните все поля'})
                     }
                 
-                cur.execute("SELECT id, password_hash, role, name FROM users WHERE email = %s", (email,))
+                cur.execute("SELECT id, password_hash, role, name FROM t_p53065890_farmer_landing_proje.users WHERE email = %s", (email,))
                 user = cur.fetchone()
                 
                 if not user:
@@ -157,7 +157,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
                 user_id = payload['user_id']
                 
-                cur.execute("SELECT id, email, role, name FROM users WHERE id = %s", (user_id,))
+                cur.execute("SELECT id, email, role, name FROM t_p53065890_farmer_landing_proje.users WHERE id = %s", (user_id,))
                 user = cur.fetchone()
                 
                 if not user:

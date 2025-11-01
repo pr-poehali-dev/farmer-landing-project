@@ -47,7 +47,28 @@ export const useAuth = () => {
     localStorage.setItem('token', data.token);
     setUser(data.user);
     
-    return data.user;
+    return data;
+  };
+
+  const register = async (email: string, password: string, role: string, name: string) => {
+    const response = await fetch(AUTH_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'register', email, password, role, name })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка регистрации');
+    }
+
+    const data = await response.json();
+    
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
+    
+    return data;
   };
 
   const logout = () => {
@@ -57,5 +78,5 @@ export const useAuth = () => {
     navigate('/');
   };
 
-  return { user, loading, login, logout };
+  return { user, loading, login, register, logout };
 };

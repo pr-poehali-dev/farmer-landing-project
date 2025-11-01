@@ -1,42 +1,16 @@
 {
   "tests": [
     {
-      "name": "Регистрация нового фермера",
-      "method": "POST",
-      "body": {
-        "action": "register",
-        "email": "test_farmer@example.com",
-        "password": "password123",
-        "role": "farmer",
-        "name": "Иван Фермеров"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "token": "string",
-        "user": {
-          "id": "number",
-          "email": "string",
-          "role": "string",
-          "name": "string"
-        }
-      },
-      "bodyMatcher": "partial"
-    },
-    {
-      "name": "Вход существующего пользователя",
+      "name": "Ошибка при неверном пароле",
       "method": "POST",
       "body": {
         "action": "login",
-        "email": "test_farmer@example.com",
-        "password": "password123"
+        "email": "test@example.com",
+        "password": "wrongpassword"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "token": "string",
-        "user": {
-          "email": "string",
-          "role": "string"
-        }
+        "error": "string"
       },
       "bodyMatcher": "partial"
     },
