@@ -18,17 +18,28 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
   return (
     <section className="pt-24 pb-16 px-4 bg-gradient-to-br from-farmer-green/10 via-white to-farmer-orange/10 min-h-screen flex items-center">
       <div className="container mx-auto text-center">
-        <p className="text-lg text-gray-600 mb-4">Вернись к корням — почувствуй пульс настоящей жизни</p>
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-          В суете города мы забыли вкус земли...
+          Вернись к корням — почувствуй <span className="text-farmer-green animate-pulse">пульс</span> настоящей жизни
         </h1>
-        <p className="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto mb-8 leading-relaxed">
-          Но без ферм — только тени еды, лишенные души и силы. Представь: свежий мед, что несет энергию солнца; 
-          молоко от коровы, которую ты "усыновил" и видишь в видео; мясо, выросшее на вольных полях.
-        </p>
-        <p className="text-xl md:text-2xl text-gray-800 max-w-3xl mx-auto mb-10 font-medium">
-          Это не инвестиции — это связь с настоящим. Без фермеров мы питаемся искусственным, теряя здоровье и радость.
-        </p>
+        <div className="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto mb-8 leading-relaxed space-y-4">
+          <p className="animate-[fadeIn_0.8s_ease-in]">
+            Городская суета стерла вкус настоящей земли... Без ферм — лишь бледные тени еды, лишенные силы, 
+            и это сокровище может кануть в небытие.
+          </p>
+          <p className="animate-[fadeIn_1.2s_ease-in]">
+            А теперь представь: мед, полный солнечной энергии, который ты собираешь виртуально; поле кукурузы, 
+            где ты становишься хранителем и ощущаешь рост; гектар чеснока, который ты сажаешь и убираешь, 
+            как на тракторе через экран.
+          </p>
+          <p className="text-xl md:text-2xl text-gray-800 font-medium animate-[fadeIn_1.6s_ease-in]">
+            Это не инвестиции — это твое великое соучастие в таинстве природы: через экран ты сеешь пшеницу, 
+            чувствуешь ветер полей, собираешь урожай, что дарит здоровье и радость.
+          </p>
+          <p className="text-lg text-gray-700 italic animate-[fadeIn_2s_ease-in]">
+            Без тебя это чудо растворится в искусственном мире — не оставайся в стороне, 
+            стань частью этого величия прямо сейчас!
+          </p>
+        </div>
         <div className="flex justify-center gap-8 mb-8">
           <div className="text-center">
             <div className="text-4xl font-bold text-farmer-green mb-1">{stats.farmers}</div>
