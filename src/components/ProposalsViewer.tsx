@@ -36,7 +36,7 @@ const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2
 const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const [loading, setLoading] = useState(true);
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [filter, setFilter] = useState<'all' | 'income' | 'product' | 'patronage'>('all');
+  const [filter, setFilter] = useState<'all' | 'income' | 'products' | 'patronage'>('all');
 
   useEffect(() => {
     loadProposals();
@@ -63,7 +63,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const getTypeIcon = (type: string) => {
     switch(type) {
       case 'income': return 'TrendingUp';
-      case 'product': return 'ShoppingBag';
+      case 'products': return 'ShoppingBag';
       case 'patronage': return 'Eye';
       default: return 'Circle';
     }
@@ -72,7 +72,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const getTypeLabel = (type: string) => {
     switch(type) {
       case 'income': return 'Доход';
-      case 'product': return 'Продукт';
+      case 'products': return 'Продукт';
       case 'patronage': return 'Патронаж';
       default: return type;
     }
@@ -82,7 +82,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
     switch(type) {
       case 'income':
         return 'Стань совладельцем земли — твои вложения растут как урожай, возвращая здоровье через настоящую еду.';
-      case 'product':
+      case 'products':
         return 'Вложи в живое — и получи назад вкус земли. Без искусственного, только дар природы.';
       case 'patronage':
         return 'Стань покровителем — следи за фермой в видео, почувствуй связь с настоящим.';
@@ -108,7 +108,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
             <Icon name="TrendingUp" size={16} className="mr-2" />
             Доход
           </TabsTrigger>
-          <TabsTrigger value="product">
+          <TabsTrigger value="products">
             <Icon name="ShoppingBag" size={16} className="mr-2" />
             Продукт
           </TabsTrigger>
