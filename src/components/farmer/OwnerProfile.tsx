@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
 export default function OwnerProfile() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState({
     first_name: '',
     last_name: '',
@@ -24,8 +24,12 @@ export default function OwnerProfile() {
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    if (!authLoading && user) {
+      loadProfile();
+    } else if (!authLoading && !user) {
+      setLoadingData(false);
+    }
+  }, [authLoading, user]);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -99,7 +103,7 @@ export default function OwnerProfile() {
     profile.farm_name
   ].filter(Boolean).length * 20;
 
-  if (loadingData) {
+  if (authLoading || loadingData) {
     return (
       <div className="flex items-center justify-center py-12">
         <Icon name="Loader2" className="animate-spin text-gray-400" size={32} />

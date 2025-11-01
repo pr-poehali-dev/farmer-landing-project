@@ -8,13 +8,17 @@ import { useAuth } from '@/hooks/useAuth';
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
 export default function InvestmentProposals() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profileComplete, setProfileComplete] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkProfile();
-  }, []);
+    if (!authLoading && user) {
+      checkProfile();
+    } else if (!authLoading && !user) {
+      setLoading(false);
+    }
+  }, [authLoading, user]);
 
   const checkProfile = async () => {
     if (!user) return;
@@ -42,7 +46,7 @@ export default function InvestmentProposals() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Icon name="Loader2" className="animate-spin text-gray-400" size={32} />

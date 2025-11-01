@@ -43,7 +43,7 @@ interface Crop {
 }
 
 export default function FarmDiagnostics() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   
@@ -53,8 +53,12 @@ export default function FarmDiagnostics() {
   const [crops, setCrops] = useState<Crop[]>([]);
 
   useEffect(() => {
-    loadDiagnostics();
-  }, []);
+    if (!authLoading && user) {
+      loadDiagnostics();
+    } else if (!authLoading && !user) {
+      setLoadingData(false);
+    }
+  }, [authLoading, user]);
 
   const loadDiagnostics = async () => {
     if (!user) return;
@@ -147,7 +151,7 @@ export default function FarmDiagnostics() {
     (crops.length > 0 ? 25 : 0)
   ));
 
-  if (loadingData) {
+  if (authLoading || loadingData) {
     return (
       <div className="flex items-center justify-center py-12">
         <Icon name="Loader2" className="animate-spin text-gray-400" size={32} />
