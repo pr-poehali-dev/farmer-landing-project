@@ -117,7 +117,7 @@ const Login = () => {
           <Button
             variant="link"
             className="text-sm text-farmer-green"
-            onClick={() => toast.info('Функция восстановления пароля будет доступна скоро')}
+            onClick={() => navigate('/reset-password')}
           >
             Забыли пароль?
           </Button>

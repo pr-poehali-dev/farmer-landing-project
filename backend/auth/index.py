@@ -109,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Неверная роль'})
                     }
                 
-                cur.execute("SELECT id FROM t_p53065890_farmer_landing_proje.users WHERE email = %s", (email,))
+                cur.execute("SELECT id FROM t_p53065890_farmer_landing_proje.users WHERE LOWER(email) = %s", (email,))
                 if cur.fetchone():
                     return {
                         'statusCode': 400,
@@ -153,7 +153,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Заполните все поля'})
                     }
                 
-                cur.execute("SELECT id, password_hash, role, name FROM t_p53065890_farmer_landing_proje.users WHERE email = %s", (email,))
+                cur.execute("SELECT id, password_hash, role, name FROM t_p53065890_farmer_landing_proje.users WHERE LOWER(email) = %s", (email,))
                 user = cur.fetchone()
                 
                 if not user:
@@ -217,6 +217,77 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({
                         'user': {'id': user[0], 'email': user[1], 'role': user[2], 'name': user[3]}
                     })
+                }
+            
+            elif action == 'reset_password_request':
+                email = body_data.get('email', '').strip().lower()
+                
+                if not email:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Введите email'})
+                    }
+                
+                cur.execute("SELECT id FROM t_p53065890_farmer_landing_proje.users WHERE LOWER(email) = %s", (email,))
+                user = cur.fetchone()
+                
+                if not user:
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'message': 'Если email существует, инструкции отправлены'})
+                    }
+                
+                reset_token = jwt.encode({
+                    'user_id': user[0],
+                    'email': email,
+                    'type': 'reset',
+                    'exp': datetime.utcnow() + timedelta(hours=1)
+                }, jwt_secret, algorithm='HS256')
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'message': 'Токен сброса создан',
+                        'reset_token': reset_token
+                    })
+                }
+            
+            elif action == 'reset_password':
+                reset_token = body_data.get('reset_token', '')
+                new_password = body_data.get('new_password', '')
+                
+                if not reset_token or not new_password:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Токен и новый пароль обязательны'})
+                    }
+                
+                payload = jwt.decode(reset_token, jwt_secret, algorithms=['HS256'])
+                
+                if payload.get('type') != 'reset':
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Неверный токен'})
+                    }
+                
+                user_id = payload['user_id']
+                password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                
+                cur.execute(
+                    "UPDATE t_p53065890_farmer_landing_proje.users SET password_hash = %s WHERE id = %s",
+                    (password_hash, user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'message': 'Пароль успешно изменен'})
                 }
         
         return {
