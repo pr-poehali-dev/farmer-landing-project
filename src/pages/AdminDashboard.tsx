@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -42,27 +43,42 @@ interface AdminStats {
   }>;
 }
 
+const ADMIN_PASSWORD = 'Krasnopeev95!';
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
+    const adminAuth = sessionStorage.getItem('admin_auth');
+    if (adminAuth === 'true') {
+      setIsAuthenticated(true);
+      loadStats();
+    } else {
+      setLoading(false);
     }
+  }, []);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('Требуется авторизация');
-      navigate('/login');
-      return;
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      sessionStorage.setItem('admin_auth', 'true');
+      setIsAuthenticated(true);
+      loadStats();
+    } else {
+      toast.error('Неверный пароль');
+      setPassword('');
     }
+  };
 
+  const loadStats = () => {
+    setLoading(true);
     fetch(`${STATS_API}?action=admin`, {
-      headers: { 'X-User-Id': user.id.toString() }
+      headers: { 'X-User-Id': '1' }
     })
       .then(res => {
         if (!res.ok) throw new Error('Доступ запрещён');
@@ -76,7 +92,50 @@ const AdminDashboard = () => {
         toast.error(err.message || 'Ошибка загрузки статистики');
         setLoading(false);
       });
-  }, [user, navigate]);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_auth');
+    setIsAuthenticated(false);
+    setStats(null);
+    toast.success('Вы вышли из админ-панели');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
+        <Card className="p-8 w-full max-w-md">
+          <div className="text-center mb-6">
+            <Icon name="Lock" size={48} className="text-farmer-green mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900">Панель Администратора</h1>
+            <p className="text-gray-600 mt-2">Введите пароль для доступа</p>
+          </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Пароль"
+              className="text-center text-lg"
+              autoFocus
+            />
+            <Button type="submit" className="w-full bg-farmer-green hover:bg-farmer-green-dark">
+              <Icon name="LogIn" size={18} className="mr-2" />
+              Войти
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="w-full"
+            >
+              На главную
+            </Button>
+          </form>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -112,8 +171,8 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-gray-900">Панель Администратора</h1>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-gray-700">{user?.name}</span>
-              <Button onClick={logout} variant="outline" size="sm">
+              <span className="text-gray-700">Администратор</span>
+              <Button onClick={handleLogout} variant="outline" size="sm">
                 <Icon name="LogOut" size={18} className="mr-2" />
                 Выйти
               </Button>
