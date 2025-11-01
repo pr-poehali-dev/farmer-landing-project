@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
-const STATS_API = 'https://functions.poehali.dev/dde2cfb3-048c-41f8-b40d-cc6a53590929';
+const STATS_API = 'https://functions.poehali.dev/0a0119c5-f173-40c2-bc49-c845a420422f';
 
 interface AdminStats {
   overview: {

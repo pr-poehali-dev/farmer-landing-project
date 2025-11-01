@@ -357,6 +357,107 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False,
                     'body': json.dumps(stats)
                 }
+            
+            elif action == 'admin':
+                # Admin statistics - comprehensive data for admin panel
+                cur.execute("SELECT role, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.users GROUP BY role")
+                users_by_role_results = cur.fetchall()
+                users_by_role = {}
+                for role, count in users_by_role_results:
+                    users_by_role[role] = count
+                
+                cur.execute("SELECT COUNT(*) FROM t_p53065890_farmer_landing_proje.proposals")
+                total_proposals = cur.fetchone()[0]
+                
+                cur.execute("SELECT COUNT(*) FROM t_p53065890_farmer_landing_proje.proposals WHERE status = 'active'")
+                active_proposals = cur.fetchone()[0]
+                
+                cur.execute("SELECT COUNT(*) FROM t_p53065890_farmer_landing_proje.investments")
+                total_investments = cur.fetchone()[0]
+                
+                cur.execute("SELECT COALESCE(SUM(amount), 0) FROM t_p53065890_farmer_landing_proje.investments")
+                total_invested = float(cur.fetchone()[0])
+                
+                cur.execute("""
+                    SELECT 
+                        u.id, u.email, u.name, u.role, u.created_at,
+                        COALESCE(p.count, 0) as proposals_count,
+                        COALESCE(i.count, 0) as investments_count
+                    FROM t_p53065890_farmer_landing_proje.users u
+                    LEFT JOIN (SELECT farmer_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.proposals GROUP BY farmer_id) p ON u.id = p.farmer_id
+                    LEFT JOIN (SELECT investor_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY investor_id) i ON u.id = i.investor_id
+                    ORDER BY u.created_at DESC
+                """)
+                users_results = cur.fetchall()
+                users = []
+                for u in users_results:
+                    users.append({
+                        'id': u[0],
+                        'email': u[1],
+                        'name': u[2],
+                        'role': u[3],
+                        'created_at': u[4].isoformat() if u[4] else None,
+                        'proposals_count': u[5],
+                        'investments_count': u[6]
+                    })
+                
+                cur.execute("""
+                    SELECT 
+                        p.id, p.description, p.price, p.shares, p.type, p.status,
+                        u.name as farmer_name, u.email as farmer_email,
+                        COALESCE(i.count, 0) as investors_count
+                    FROM t_p53065890_farmer_landing_proje.proposals p
+                    JOIN t_p53065890_farmer_landing_proje.users u ON p.farmer_id = u.id
+                    LEFT JOIN (SELECT proposal_id, COUNT(DISTINCT investor_id) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY proposal_id) i ON p.id = i.proposal_id
+                    ORDER BY p.created_at DESC
+                """)
+                proposals_results = cur.fetchall()
+                proposals = []
+                for p in proposals_results:
+                    proposals.append({
+                        'id': p[0],
+                        'description': p[1],
+                        'price': float(p[2]) if p[2] else 0,
+                        'shares': p[3],
+                        'type': p[4],
+                        'status': p[5],
+                        'farmer_name': p[6],
+                        'farmer_email': p[7],
+                        'investors_count': p[8]
+                    })
+                
+                cur.execute("""
+                    SELECT region, COUNT(*) as count 
+                    FROM t_p53065890_farmer_landing_proje.farmer_profiles 
+                    WHERE region IS NOT NULL 
+                    GROUP BY region 
+                    ORDER BY count DESC
+                """)
+                regions_results = cur.fetchall()
+                regions = [{'name': r[0], 'count': r[1]} for r in regions_results]
+                
+                admin_stats = {
+                    'overview': {
+                        'users_by_role': users_by_role,
+                        'total_proposals': total_proposals,
+                        'active_proposals': active_proposals,
+                        'total_investments': total_investments,
+                        'total_invested': total_invested
+                    },
+                    'users': users,
+                    'proposals': proposals,
+                    'regions': regions
+                }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'isBase64Encoded': False,
+                    'body': json.dumps(admin_stats)
+                }
         
         return {
             'statusCode': 405,
