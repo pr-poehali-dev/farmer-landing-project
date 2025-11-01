@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import Header from '@/components/home/Header';
 import HeroSection from '@/components/home/HeroSection';
 import InvestmentTypesSection from '@/components/home/InvestmentTypesSection';
+import FarmersSection from '@/components/home/FarmersSection';
+import SellersSection from '@/components/home/SellersSection';
 import CallToActionSection from '@/components/home/CallToActionSection';
 import Footer from '@/components/home/Footer';
 
@@ -22,6 +24,8 @@ const Home = () => {
       <Header />
       <HeroSection stats={stats} />
       <InvestmentTypesSection />
+      <FarmersSection />
+      <SellersSection />
       <CallToActionSection />
       <Footer />
     </div>
