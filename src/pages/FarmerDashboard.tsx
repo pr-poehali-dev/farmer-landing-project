@@ -24,7 +24,10 @@ const FarmerDashboard = () => {
     cows_type: '',
     fields_hectares: 0,
     crops: [] as string[],
-    other_assets: ''
+    other_assets: '',
+    farm_name: '',
+    region: '',
+    vk_link: ''
   });
   
   const [newProposal, setNewProposal] = useState({
@@ -221,6 +224,49 @@ const FarmerDashboard = () => {
                 value={diagnosis.fields_hectares || ''}
                 onChange={(e) => setDiagnosis({ ...diagnosis, fields_hectares: parseInt(e.target.value) || 0 })}
                 placeholder="0"
+              />
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="farm_name">Название фермы</Label>
+                <Input
+                  id="farm_name"
+                  value={diagnosis.farm_name}
+                  onChange={(e) => setDiagnosis({ ...diagnosis, farm_name: e.target.value })}
+                  placeholder="Например: Ферма 'Зеленые поля'"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="region">Регион</Label>
+                <Select value={diagnosis.region} onValueChange={(value) => setDiagnosis({ ...diagnosis, region: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите регион" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Московская область">Московская область</SelectItem>
+                    <SelectItem value="Ленинградская область">Ленинградская область</SelectItem>
+                    <SelectItem value="Краснодарский край">Краснодарский край</SelectItem>
+                    <SelectItem value="Ростовская область">Ростовская область</SelectItem>
+                    <SelectItem value="Свердловская область">Свердловская область</SelectItem>
+                    <SelectItem value="Татарстан">Республика Татарстан</SelectItem>
+                    <SelectItem value="Башкортостан">Республика Башкортостан</SelectItem>
+                    <SelectItem value="Новосибирская область">Новосибирская область</SelectItem>
+                    <SelectItem value="Воронежская область">Воронежская область</SelectItem>
+                    <SelectItem value="Другой">Другой регион</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="vk_link">Ссылка на ВКонтакте</Label>
+              <Input
+                id="vk_link"
+                value={diagnosis.vk_link}
+                onChange={(e) => setDiagnosis({ ...diagnosis, vk_link: e.target.value })}
+                placeholder="https://vk.com/your_farm"
               />
             </div>
             

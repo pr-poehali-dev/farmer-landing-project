@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Получение публичной статистики",
+      "method": "GET",
+      "path": "/?action=public",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "farmers": 2,
+        "investors": 3,
+        "sellers": 1,
+        "total": 6
+      }
+    }
+  ]
+}

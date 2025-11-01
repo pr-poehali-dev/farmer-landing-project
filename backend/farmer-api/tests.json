@@ -16,10 +16,9 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "success": "boolean",
-        "message": "string"
-      },
-      "bodyMatcher": "partial"
+        "success": true,
+        "message": "Диагностика сохранена"
+      }
     },
     {
       "name": "Получение диагностики",
@@ -30,9 +29,17 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "diagnosis": "object"
-      },
-      "bodyMatcher": "partial"
+        "diagnosis": {
+          "cows_count": 10,
+          "cows_type": "молочное",
+          "fields_hectares": 50,
+          "crops": ["пшеница", "кукуруза"],
+          "other_assets": "Трактор, сарай",
+          "farm_name": "",
+          "region": "",
+          "vk_link": ""
+        }
+      }
     }
   ]
 }

@@ -54,8 +54,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cows_count = body_data.get('cows_count')
                 cows_type = body_data.get('cows_type', '')
                 fields_hectares = body_data.get('fields_hectares')
-                crops = json.dumps(body_data.get('crops', []))
+                crops = body_data.get('crops', [])
                 other_assets = body_data.get('other_assets', '')
+                farm_name = body_data.get('farm_name', '')
+                region = body_data.get('region', '')
+                vk_link = body_data.get('vk_link', '')
                 
                 cur.execute(
                     "SELECT id FROM farmer_data WHERE user_id = %s",
@@ -63,20 +66,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 )
                 existing = cur.fetchone()
                 
+                crops_json = json.dumps(crops)
+                
                 if existing:
                     cur.execute(
                         """UPDATE farmer_data 
                            SET cows_count = %s, cows_type = %s, fields_hectares = %s, 
-                               crops = %s, other_assets = %s, updated_at = CURRENT_TIMESTAMP
+                               crops = %s::jsonb, other_assets = %s, farm_name = %s, region = %s, vk_link = %s,
+                               updated_at = CURRENT_TIMESTAMP
                            WHERE user_id = %s""",
-                        (cows_count, cows_type, fields_hectares, crops, other_assets, user_id)
+                        (cows_count, cows_type, fields_hectares, crops_json, other_assets, farm_name, region, vk_link, user_id)
                     )
                 else:
                     cur.execute(
                         """INSERT INTO farmer_data 
-                           (user_id, cows_count, cows_type, fields_hectares, crops, other_assets)
-                           VALUES (%s, %s, %s, %s, %s, %s)""",
-                        (user_id, cows_count, cows_type, fields_hectares, crops, other_assets)
+                           (user_id, cows_count, cows_type, fields_hectares, crops, other_assets, farm_name, region, vk_link)
+                           VALUES (%s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s)""",
+                        (user_id, cows_count, cows_type, fields_hectares, crops_json, other_assets, farm_name, region, vk_link)
                     )
                 
                 conn.commit()
@@ -122,7 +128,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'get_diagnosis':
                 cur.execute(
-                    """SELECT cows_count, cows_type, fields_hectares, crops, other_assets
+                    """SELECT cows_count, cows_type, fields_hectares, crops, other_assets, farm_name, region, vk_link
                        FROM farmer_data WHERE user_id = %s""",
                     (user_id,)
                 )
@@ -133,8 +139,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'cows_count': result[0],
                         'cows_type': result[1],
                         'fields_hectares': result[2],
-                        'crops': json.loads(result[3]) if result[3] else [],
-                        'other_assets': result[4]
+                        'crops': result[3] if result[3] else [],
+                        'other_assets': result[4],
+                        'farm_name': result[5] or '',
+                        'region': result[6] or '',
+                        'vk_link': result[7] or ''
                     }
                 else:
                     data = None

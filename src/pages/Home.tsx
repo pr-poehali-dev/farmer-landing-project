@@ -2,9 +2,20 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+const STATS_API = 'https://functions.poehali.dev/dde2cfb3-048c-41f8-b40d-cc6a53590929';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({ farmers: 0, investors: 0, sellers: 0, total: 0 });
+
+  useEffect(() => {
+    fetch(`${STATS_API}?action=public`)
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => console.error('Failed to load stats:', err));
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -49,6 +60,20 @@ const Home = () => {
           <p className="text-xl md:text-2xl text-gray-800 max-w-3xl mx-auto mb-10 font-medium">
             Это не инвестиции — это связь с настоящим. Без фермеров мы питаемся искусственным, теряя здоровье и радость.
           </p>
+          <div className="flex justify-center gap-8 mb-8">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-farmer-green mb-1">{stats.farmers}</div>
+              <div className="text-sm text-gray-600">Фермеров</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-farmer-orange mb-1">{stats.investors}</div>
+              <div className="text-sm text-gray-600">Инвесторов</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-farmer-green mb-1">{stats.sellers}</div>
+              <div className="text-sm text-gray-600">Продавцов</div>
+            </div>
+          </div>
           <Button
             onClick={() => navigate('/register')}
             size="lg"
