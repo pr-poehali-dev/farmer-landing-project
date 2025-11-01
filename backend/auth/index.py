@@ -428,7 +428,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cur.execute("""
                     SELECT region, COUNT(*) as count 
-                    FROM t_p53065890_farmer_landing_proje.farmer_profiles 
+                    FROM t_p53065890_farmer_landing_proje.farmer_data 
                     WHERE region IS NOT NULL 
                     GROUP BY region 
                     ORDER BY count DESC
