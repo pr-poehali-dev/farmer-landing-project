@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Ошибка без admin secret",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "user_ids": [999]
+      },
+      "expectedStatus": 403,
+      "expectedBody": {
+        "error": "Доступ запрещен"
+      }
+    },
+    {
+      "name": "Ошибка с пустым списком",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-Admin-Secret": "farmer_admin_2025_secret_key"
+      },
+      "body": {
+        "user_ids": []
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Список user_ids пуст"
+      }
+    }
+  ]
+}
