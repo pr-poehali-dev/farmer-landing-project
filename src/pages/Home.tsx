@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Header from '@/components/home/Header';
 import HeroSection from '@/components/home/HeroSection';
-import RolesSection from '@/components/home/RolesSection';
 import InvestmentTypesSection from '@/components/home/InvestmentTypesSection';
 import CallToActionSection from '@/components/home/CallToActionSection';
 import Footer from '@/components/home/Footer';
@@ -22,7 +21,6 @@ const Home = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <HeroSection stats={stats} />
-      <RolesSection />
       <InvestmentTypesSection />
       <CallToActionSection />
       <Footer />
