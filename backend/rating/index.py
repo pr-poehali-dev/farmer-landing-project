@@ -222,6 +222,7 @@ def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
                 fs.user_id,
                 fd.full_name,
                 fd.farm_name,
+                fd.region,
                 fs.{score_column} as score,
                 fs.level,
                 ROW_NUMBER() OVER (ORDER BY fs.{score_column} DESC) as rank

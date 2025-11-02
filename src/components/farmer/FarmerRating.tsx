@@ -47,6 +47,7 @@ interface LeaderboardEntry {
   user_id: string;
   full_name: string | null;
   farm_name: string | null;
+  region: string | null;
   score: number;
   level: number;
   rank: number;
@@ -426,28 +427,27 @@ export default function FarmerRating({ userId }: Props) {
                 return (
                   <Card 
                     key={entry.user_id}
-                    className={`p-4 ${isCurrentUser ? 'bg-blue-50 border-2 border-blue-300' : 'bg-white'}`}
+                    className={`p-3 ${isCurrentUser ? 'bg-blue-50 border-2 border-blue-300' : 'bg-white'}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`text-2xl font-bold ${
-                        entry.rank === 1 ? 'text-yellow-500' :
-                        entry.rank === 2 ? 'text-gray-400' :
-                        entry.rank === 3 ? 'text-orange-600' :
-                        'text-gray-600'
-                      }`}>
-                        {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-bold text-gray-900">
-                          {entry.farm_name || entry.full_name || `Фермер ${entry.user_id.slice(0, 8)}`}
-                          {isCurrentUser && <span className="ml-2 text-sm text-blue-600">(Вы)</span>}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`text-lg font-bold ${
+                          entry.rank === 1 ? 'text-yellow-500' :
+                          entry.rank === 2 ? 'text-gray-400' :
+                          entry.rank === 3 ? 'text-orange-600' :
+                          'text-gray-600'
+                        }`}>
+                          {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
                         </div>
-                        <div className="text-sm text-gray-600">Уровень {entry.level}</div>
+                        <div>
+                          <div className="font-semibold text-gray-900">
+                            {entry.farm_name || `Ферма №${entry.user_id}`}
+                            {isCurrentUser && <span className="ml-2 text-xs text-blue-600">(Вы)</span>}
+                          </div>
+                          <div className="text-xs text-gray-500">{entry.region || 'Регион не указан'}</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">{entry.score}</div>
-                        <div className="text-xs text-gray-600">баллов</div>
-                      </div>
+                      <div className="text-lg font-bold text-gray-900">{entry.score}</div>
                     </div>
                   </Card>
                 );
