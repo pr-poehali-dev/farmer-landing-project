@@ -20,6 +20,11 @@ export default function OwnerProfile() {
     bio: '',
     farm_name: '',
     region: '',
+    address: '',
+    vk_link: '',
+    telegram_link: '',
+    instagram_link: '',
+    youtube_link: '',
   });
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -50,6 +55,11 @@ export default function OwnerProfile() {
           bio: data.profile.bio || '',
           farm_name: data.profile.farm_name || '',
           region: data.profile.region || '',
+          address: data.profile.address || '',
+          vk_link: data.profile.vk_link || '',
+          telegram_link: data.profile.telegram_link || '',
+          instagram_link: data.profile.instagram_link || '',
+          youtube_link: data.profile.youtube_link || '',
         });
       } else {
         setProfile({ ...profile, email: user.email });
@@ -181,6 +191,68 @@ export default function OwnerProfile() {
               placeholder="Фермер из Бурятии, специализируюсь на сое и кукурузе. 20 лет опыта."
             />
           </div>
+          <div>
+            <Label>Адрес хозяйства</Label>
+            <Input 
+              value={profile.address} 
+              onChange={(e) => setProfile({...profile, address: e.target.value})} 
+              placeholder="Например: Бурятия, Баргузинский район, с. Курумкан"
+            />
+          </div>
+          
+          <div className="border-t pt-4">
+            <h4 className="font-semibold mb-3 flex items-center gap-2">
+              <Icon name="Link" size={16} />
+              Социальные сети
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm flex items-center gap-1">
+                  <Icon name="MessageCircle" size={14} />
+                  ВКонтакте
+                </Label>
+                <Input 
+                  value={profile.vk_link} 
+                  onChange={(e) => setProfile({...profile, vk_link: e.target.value})} 
+                  placeholder="https://vk.com/your_page"
+                />
+              </div>
+              <div>
+                <Label className="text-sm flex items-center gap-1">
+                  <Icon name="Send" size={14} />
+                  Telegram
+                </Label>
+                <Input 
+                  value={profile.telegram_link} 
+                  onChange={(e) => setProfile({...profile, telegram_link: e.target.value})} 
+                  placeholder="https://t.me/your_channel"
+                />
+              </div>
+              <div>
+                <Label className="text-sm flex items-center gap-1">
+                  <Icon name="Camera" size={14} />
+                  Instagram
+                </Label>
+                <Input 
+                  value={profile.instagram_link} 
+                  onChange={(e) => setProfile({...profile, instagram_link: e.target.value})} 
+                  placeholder="https://instagram.com/your_profile"
+                />
+              </div>
+              <div>
+                <Label className="text-sm flex items-center gap-1">
+                  <Icon name="Video" size={14} />
+                  YouTube
+                </Label>
+                <Input 
+                  value={profile.youtube_link} 
+                  onChange={(e) => setProfile({...profile, youtube_link: e.target.value})} 
+                  placeholder="https://youtube.com/@your_channel"
+                />
+              </div>
+            </div>
+          </div>
+
           <Button onClick={handleSave} disabled={loading} className="w-full">
             {loading ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : <Icon name="Save" size={16} className="mr-2" />}
             Сохранить профиль
@@ -212,6 +284,39 @@ export default function OwnerProfile() {
                 <Icon name="MapPin" size={16} className="text-gray-400" />
                 <span>{profile.region || 'Не указан'}</span>
               </div>
+              {profile.address && (
+                <div className="flex items-start gap-2">
+                  <Icon name="Home" size={16} className="text-gray-400 mt-0.5" />
+                  <span className="text-xs">{profile.address}</span>
+                </div>
+              )}
+              {(profile.vk_link || profile.telegram_link || profile.instagram_link || profile.youtube_link) && (
+                <div className="flex items-center gap-3 pt-2">
+                  <Icon name="Link" size={16} className="text-gray-400" />
+                  <div className="flex gap-2">
+                    {profile.vk_link && (
+                      <a href={profile.vk_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
+                        <Icon name="MessageCircle" size={18} />
+                      </a>
+                    )}
+                    {profile.telegram_link && (
+                      <a href={profile.telegram_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600">
+                        <Icon name="Send" size={18} />
+                      </a>
+                    )}
+                    {profile.instagram_link && (
+                      <a href={profile.instagram_link} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700">
+                        <Icon name="Camera" size={18} />
+                      </a>
+                    )}
+                    {profile.youtube_link && (
+                      <a href={profile.youtube_link} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700">
+                        <Icon name="Video" size={18} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
               {profile.bio && (
                 <div className="mt-4 pt-4 border-t">
                   <div className="text-gray-600">{profile.bio}</div>
