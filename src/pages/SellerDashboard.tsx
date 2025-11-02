@@ -314,8 +314,6 @@ const SellerDashboard = () => {
     );
   }
 
-  const tier = profile?.subscription_tier || 'none';
-
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b shadow-sm">
