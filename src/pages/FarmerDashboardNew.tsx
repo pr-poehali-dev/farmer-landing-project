@@ -54,7 +54,7 @@ export default function FarmerDashboardNew() {
           <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="diagnostics" className="flex items-center gap-2">
               <Icon name="Home" size={18} />
-              <span className="hidden md:inline">Диагностика</span>
+              <span className="hidden md:inline">Моё хозяйство</span>
             </TabsTrigger>
             <TabsTrigger value="proposals" className="flex items-center gap-2">
               <Icon name="DollarSign" size={18} />
@@ -65,8 +65,8 @@ export default function FarmerDashboardNew() {
               <span className="hidden md:inline">Профиль</span>
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="flex items-center gap-2">
-              <Icon name="Store" size={18} />
-              <span className="hidden md:inline">Продавцы</span>
+              <Icon name="ShoppingCart" size={18} />
+              <span className="hidden md:inline">Товары для фермы</span>
             </TabsTrigger>
           </TabsList>
 

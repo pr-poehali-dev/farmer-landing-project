@@ -252,8 +252,8 @@ const FarmerDashboard = () => {
             <div className="flex items-start gap-3">
               <Icon name="AlertCircle" className="text-farmer-orange" size={24} />
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Обязательная диагностика</h2>
-                <p className="text-gray-600">Заполните данные о вашем хозяйстве для продолжения работы</p>
+                <h2 className="text-lg font-bold text-gray-900">Расскажите о своём хозяйстве</h2>
+                <p className="text-gray-600">Заполните информацию о вашем хозяйстве для продолжения работы</p>
               </div>
             </div>
           </Card>
@@ -262,8 +262,8 @@ const FarmerDashboard = () => {
         <Tabs defaultValue="diagnosis" className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="diagnosis" className="flex items-center gap-2">
-              <Icon name="FileText" size={18} />
-              Диагностика
+              <Icon name="Home" size={18} />
+              Моё хозяйство
             </TabsTrigger>
             <TabsTrigger value="offers" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
               <Icon name="CircleDollarSign" size={18} />
@@ -290,8 +290,8 @@ const FarmerDashboard = () => {
           <TabsContent value="diagnosis">
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                <Icon name="FileText" className="text-farmer-green" />
-                Диагностика хозяйства
+                <Icon name="Home" className="text-farmer-green" />
+                Моё хозяйство
               </h2>
               
               <form onSubmit={saveDiagnosis} className="space-y-8">
