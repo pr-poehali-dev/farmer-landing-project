@@ -8,7 +8,13 @@ interface Props {
   onUpdate: (index: number, field: keyof Animal, value: any) => void;
 }
 
-export default function HivesInput({ animals, onUpdate }: Props) {
+interface HivesInputProps {
+  animals: Animal[];
+  onUpdate: (index: number, field: keyof Animal, value: any) => void;
+  onAnimalsChange: (animals: Animal[]) => void;
+}
+
+export default function HivesInput({ animals, onUpdate, onAnimalsChange }: HivesInputProps) {
   const hivesIndex = animals.findIndex(a => a.type === 'hives');
   const hivesCount = hivesIndex >= 0 ? animals[hivesIndex].count : '';
 
@@ -18,6 +24,8 @@ export default function HivesInput({ animals, onUpdate }: Props) {
     
     if (currentIndex >= 0) {
       onUpdate(currentIndex, 'count', numValue);
+    } else if (numValue > 0) {
+      onAnimalsChange([...animals, { type: 'hives', count: numValue, breed: '' }]);
     }
   };
 

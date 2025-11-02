@@ -205,7 +205,7 @@ export default function FarmDiagnostics() {
               })}
             </div>
 
-            <HivesInput animals={animals} onUpdate={updateAnimal} />
+            <HivesInput animals={animals} onUpdate={updateAnimal} onAnimalsChange={setAnimals} />
           </AccordionContent>
         </AccordionItem>
 
