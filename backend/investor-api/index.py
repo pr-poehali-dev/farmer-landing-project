@@ -364,6 +364,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'balance': balance})
                 }
+            
+            elif action == 'get_my_requests':
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(
+                    f"""SELECT i.id, i.proposal_id, i.amount, i.shares, i.status, i.date,
+                              p.description, p.type, u.first_name, u.last_name, u.farm_name
+                       FROM {schema}.investments i
+                       JOIN {schema}.proposals p ON i.proposal_id = p.id
+                       JOIN {schema}.users u ON p.user_id = u.id
+                       WHERE i.user_id = %s
+                       ORDER BY i.date DESC""",
+                    (user_id,)
+                )
+                
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'proposal_id': row[1],
+                        'amount': float(row[2]),
+                        'shares': row[3],
+                        'status': row[4] or 'pending',
+                        'date': row[5].isoformat() if row[5] else None,
+                        'proposal_description': row[6],
+                        'proposal_type': row[7],
+                        'farmer_name': f"{row[8] or ''} {row[9] or ''}".strip() or row[10] or 'Фермер'
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
+                }
         
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
@@ -437,8 +470,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'invest':
+                schema = 't_p53065890_farmer_landing_proje'
                 proposal_id = body_data.get('proposal_id')
                 amount = body_data.get('amount', 0)
+                shares = body_data.get('shares', 1)
                 
                 if not proposal_id or amount <= 0:
                     return {
@@ -447,19 +482,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Некорректные данные'})
                     }
                 
-                cur.execute("SELECT id FROM proposals WHERE id = %s AND status = 'active'", (proposal_id,))
-                if not cur.fetchone():
+                cur.execute(
+                    f"SELECT id, user_id FROM {schema}.proposals WHERE id = %s AND status = 'active'", 
+                    (proposal_id,)
+                )
+                proposal = cur.fetchone()
+                if not proposal:
                     return {
                         'statusCode': 404,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Предложение не найдено'})
                     }
                 
+                farmer_id = proposal[1]
+                
                 cur.execute(
-                    "INSERT INTO investments (user_id, proposal_id, amount) VALUES (%s, %s, %s) RETURNING id",
-                    (user_id, proposal_id, amount)
+                    f"""INSERT INTO {schema}.investments (user_id, proposal_id, amount, shares, status) 
+                       VALUES (%s, %s, %s, %s, 'pending') 
+                       RETURNING id""",
+                    (user_id, proposal_id, amount, shares)
                 )
                 investment_id = cur.fetchone()[0]
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.notifications (user_id, role, type, payload)
+                       VALUES (%s, 'farmer', 'investment_request', %s::jsonb)""",
+                    (farmer_id, 
+                     json.dumps({'investment_id': investment_id, 'proposal_id': proposal_id, 'investor_id': int(user_id), 'shares': shares}))
+                )
+                
                 conn.commit()
                 
                 return {

@@ -496,6 +496,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'requests': requests})
                 }
             
+            elif action == 'get_proposal_requests':
+                cur.execute(
+                    f"""SELECT i.id, i.user_id, i.proposal_id, i.amount, i.shares, i.status, i.date,
+                              p.description, p.type,
+                              u.first_name, u.last_name, u.email
+                       FROM {schema}.investments i
+                       JOIN {schema}.proposals p ON i.proposal_id = p.id
+                       JOIN {schema}.users u ON i.user_id = u.id
+                       WHERE p.user_id = %s
+                       ORDER BY i.date DESC""",
+                    (user_id,)
+                )
+                
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'investor_id': row[1],
+                        'proposal_id': row[2],
+                        'amount': float(row[3]),
+                        'shares': row[4],
+                        'status': row[5] or 'pending',
+                        'date': row[6].isoformat() if row[6] else None,
+                        'proposal_description': row[7],
+                        'proposal_type': row[8],
+                        'investor_name': f"{row[9] or ''} {row[10] or ''}".strip() or row[11],
+                        'investor_email': row[11]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
+                }
+            
             elif action == 'get_proposals':
                 cur.execute(
                     f"""SELECT id, description, price, shares, type, asset, 

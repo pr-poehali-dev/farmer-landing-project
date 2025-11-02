@@ -65,12 +65,14 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
 
   const loadMyRequests = async () => {
     try {
-      // Временно загружаем из localStorage
-      const requests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
-      const userRequests = requests.filter((r: any) => r.investor_id === userId.toString());
-      setMyRequests(userRequests);
+      const response = await fetch(`${INVESTOR_API}?action=get_my_requests`, {
+        headers: { 'X-User-Id': userId.toString() }
+      });
+      const data = await response.json();
+      setMyRequests(data.requests || []);
     } catch (error) {
-      console.error('Ошибка загрузки заявок');
+      console.error('Ошибка загрузки заявок:', error);
+      toast.error('Ошибка загрузки заявок');
       setMyRequests([]);
     }
   };

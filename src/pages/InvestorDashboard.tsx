@@ -163,11 +163,7 @@ const InvestorDashboard = () => {
 
   const handleInvestInProposal = async (proposalId: number, productType: string, shares = 1, totalAmount?: number) => {
     try {
-      console.log('handleInvestInProposal вызван:', { proposalId, productType, shares, totalAmount, proposals });
-      
-      // Временное решение: сохраняем локально до реализации бэкенда
       const proposal = proposals.find(p => p.id === proposalId);
-      console.log('Найденное предложение:', proposal);
       
       if (!proposal) {
         toast.error('Предложение не найдено');
@@ -176,28 +172,26 @@ const InvestorDashboard = () => {
 
       const finalAmount = totalAmount || (proposal.price * shares);
 
-      const newRequest = {
-        id: Date.now().toString(),
-        investor_id: user!.id.toString(),
-        investor_name: user!.name || user!.email,
-        proposal_id: proposalId.toString(),
-        proposal_description: proposal.description,
-        proposal_type: productType,
-        farmer_name: proposal.farmer_name,
-        amount: finalAmount,
-        shares: shares,
-        status: 'pending',
-        date: new Date().toISOString()
-      };
+      const response = await fetch(INVESTOR_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user!.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'invest',
+          proposal_id: proposalId,
+          amount: finalAmount,
+          shares: shares
+        })
+      });
 
-      console.log('Создана заявка:', newRequest);
+      const data = await response.json();
 
-      // Сохраняем в localStorage
-      const existingRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
-      existingRequests.push(newRequest);
-      localStorage.setItem('investor_requests', JSON.stringify(existingRequests));
-      
-      console.log('Заявка сохранена в localStorage, всего заявок:', existingRequests.length);
+      if (!response.ok) {
+        toast.error(data.error || 'Ошибка отправки заявки');
+        return false;
+      }
 
       return true;
     } catch (error) {
