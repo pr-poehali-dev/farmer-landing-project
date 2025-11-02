@@ -35,6 +35,7 @@ const InvestorDashboard = () => {
   const [investing, setInvesting] = useState(false);
   const [balance, setBalance] = useState(0);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'farm'>('farm');
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'investor')) {
@@ -263,28 +264,49 @@ const InvestorDashboard = () => {
               </Card>
             ) : (
               <div className="space-y-6">
-                <VirtualFarm investments={portfolio} />
-                
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
-                  <div className="space-y-3">
-                    {portfolio.map((investment) => (
-                      <Card key={investment.id} className="p-4 border">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900">{investment.proposal_description}</p>
-                            <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
-                            <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                              <span>Сумма: {investment.amount} ₽</span>
-                              <span>Тип: {investment.proposal_type}</span>
-                              <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    variant={viewMode === 'farm' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('farm')}
+                    className="flex items-center gap-2"
+                  >
+                    <span>🌾</span>
+                    Вид фермы
+                  </Button>
+                  <Button
+                    variant={viewMode === 'table' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('table')}
+                    className="flex items-center gap-2"
+                  >
+                    <Icon name="List" size={18} />
+                    Таблица
+                  </Button>
+                </div>
+
+                {viewMode === 'farm' ? (
+                  <VirtualFarm investments={portfolio} />
+                ) : (
+                  <Card className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
+                    <div className="space-y-3">
+                      {portfolio.map((investment) => (
+                        <Card key={investment.id} className="p-4 border">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">{investment.proposal_description}</p>
+                              <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
+                              <div className="flex gap-4 mt-2 text-sm text-gray-600">
+                                <span>Сумма: {investment.amount} ₽</span>
+                                <span>Тип: {investment.proposal_type}</span>
+                                <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </Card>
+                        </Card>
+                      ))}
+                    </div>
+                  </Card>
+                )}
               </div>
             )}
           </TabsContent>
