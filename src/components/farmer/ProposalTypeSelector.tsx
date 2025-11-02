@@ -22,10 +22,7 @@ export const ProposalTypeSelector = ({ value, onChange }: Props) => {
                 ? 'border-2 border-green-600 bg-green-50' 
                 : 'border hover:border-green-300'
             }`}
-            onClick={(e) => {
-              e.preventDefault();
-              onChange(type.value as 'income' | 'products' | 'patronage');
-            }}
+            onClick={() => onChange(type.value as 'income' | 'products' | 'patronage')}
           >
             <div className="flex items-start gap-3">
               <RadioGroupItem value={type.value} id={type.value} />
