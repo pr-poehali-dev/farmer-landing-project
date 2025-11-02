@@ -75,14 +75,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         deleted_count = 0
         
         for user_id in user_ids:
+            # Удаляем инвестиции пользователя
             cur.execute(f"DELETE FROM {schema}.investments WHERE user_id = %s", (user_id,))
+            
+            # Удаляем инвестиции В предложения этого пользователя
+            cur.execute(f"""
+                DELETE FROM {schema}.investments 
+                WHERE proposal_id IN (
+                    SELECT id FROM {schema}.proposals WHERE user_id = %s
+                )
+            """, (user_id,))
+            
+            # Теперь можно удалить предложения
             cur.execute(f"DELETE FROM {schema}.proposals WHERE user_id = %s", (user_id,))
             cur.execute(f"DELETE FROM {schema}.products WHERE user_id = %s", (user_id,))
             cur.execute(f"DELETE FROM {schema}.ads WHERE user_id = %s", (user_id,))
             cur.execute(f"DELETE FROM {schema}.farmer_data WHERE user_id = %s", (user_id,))
+            cur.execute(f"DELETE FROM {schema}.seller_data WHERE user_id = %s", (user_id,))
             cur.execute(f"DELETE FROM {schema}.garage WHERE user_id = %s", (user_id,))
             cur.execute(f"DELETE FROM {schema}.leaderboard WHERE user_id = %s", (user_id,))
             
+            # Удаляем самого пользователя
             cur.execute(f"DELETE FROM {schema}.users WHERE id = %s", (user_id,))
             if cur.rowcount > 0:
                 deleted_count += 1
