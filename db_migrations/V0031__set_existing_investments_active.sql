@@ -1,0 +1,1 @@
+UPDATE investments SET status = 'active' WHERE status = 'pending' OR status IS NULL;

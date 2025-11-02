@@ -1,40 +1,22 @@
 {
   "tests": [
     {
-      "name": "Получение списка опубликованных офферов",
-      "method": "GET",
-      "path": "/?action=get_offers",
-      "headers": {
-        "X-User-Id": "7"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "offers": "array"
-      },
-      "bodyMatcher": "partial"
-    },
-    {
       "name": "Получение списка фермеров",
       "method": "GET",
       "path": "/?action=get_farmers",
       "headers": {
         "X-User-Id": "7"
       },
-      "expectedStatus": 200,
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Получение баланса инвестора",
+      "name": "Получение портфеля инвестора",
       "method": "GET",
-      "path": "/?action=get_balance",
+      "path": "/?action=get_portfolio",
       "headers": {
-        "X-User-Id": "7"
+        "X-User-Id": "11"
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "balance": "number"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

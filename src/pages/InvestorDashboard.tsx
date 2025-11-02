@@ -45,6 +45,33 @@ const InvestorDashboard = () => {
     }
   }, [authLoading, user, navigate]);
 
+  const cancelInvestment = async (investmentId: number) => {
+    if (!confirm('Вы уверены, что хотите отменить эту сделку?')) return;
+    
+    try {
+      const response = await fetch(INVESTOR_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user!.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'cancel_investment',
+          investment_id: investmentId
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Сделка отменена');
+        loadData();
+      } else {
+        toast.error('Ошибка при отмене сделки');
+      }
+    } catch (error) {
+      toast.error('Ошибка при отмене сделки');
+    }
+  };
+
   const loadData = async () => {
     try {
       const proposalsRes = await fetch(`${INVESTOR_API}?action=get_proposals`, {
@@ -289,21 +316,48 @@ const InvestorDashboard = () => {
                   <Card className="p-6">
                     <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
                     <div className="space-y-3">
-                      {portfolio.map((investment) => (
-                        <Card key={investment.id} className="p-4 border">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">{investment.proposal_description}</p>
-                              <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
-                              <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                                <span>Сумма: {investment.amount} ₽</span>
-                                <span>Тип: {investment.proposal_type}</span>
-                                <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
+                      {portfolio.map((investment) => {
+                        const status = investment.status || 'pending';
+                        const statusText = status === 'pending' ? 'Ждем подтверждение фермера' : 
+                                         status === 'active' ? 'Вы в деле' :
+                                         status === 'rejected' ? 'Отклонено фермером' :
+                                         'Отменено';
+                        const statusColor = status === 'active' ? 'text-green-600' :
+                                          status === 'pending' ? 'text-yellow-600' :
+                                          'text-red-600';
+                        
+                        return (
+                          <Card key={investment.id} className="p-4 border">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <p className="font-medium text-gray-900">{investment.proposal_description}</p>
+                                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor} bg-opacity-10`}>
+                                    {statusText}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
+                                <div className="flex gap-4 mt-2 text-sm text-gray-600">
+                                  <span>Сумма: {investment.amount} ₽</span>
+                                  <span>Тип: {investment.proposal_type}</span>
+                                  <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
+                                </div>
                               </div>
+                              {status === 'pending' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => cancelInvestment(investment.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Icon name="X" size={16} className="mr-1" />
+                                  Отказаться
+                                </Button>
+                              )}
                             </div>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        );
+                      })}
                     </div>
                   </Card>
                 )}

@@ -319,12 +319,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'get_portfolio':
                 cur.execute(
-                    """SELECT i.id, i.proposal_id, i.amount, i.date, 
+                    """SELECT i.id, i.proposal_id, i.amount, i.date, i.status,
                               p.description, p.type, u.name, u.email
                        FROM investments i
                        JOIN proposals p ON i.proposal_id = p.id
                        JOIN users u ON p.user_id = u.id
-                       WHERE i.user_id = %s
+                       WHERE i.user_id = %s AND (i.status IS NULL OR i.status != 'cancelled')
                        ORDER BY i.date DESC""",
                     (user_id,)
                 )
@@ -336,9 +336,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'proposal_id': row[1],
                         'amount': float(row[2]),
                         'date': row[3].isoformat() if row[3] else None,
-                        'proposal_description': row[4],
-                        'proposal_type': row[5],
-                        'farmer_name': row[6] or row[7]
+                        'status': row[4] or 'pending',
+                        'proposal_description': row[5],
+                        'proposal_type': row[6],
+                        'farmer_name': row[7] or row[8]
                     })
                 
                 return {
@@ -463,6 +464,56 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'investment_id': investment_id})
+                }
+            
+            elif action == 'cancel_investment':
+                schema = 't_p53065890_farmer_landing_proje'
+                investment_id = body_data.get('investment_id')
+                
+                if not investment_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется investment_id'})
+                    }
+                
+                cur.execute(
+                    f"SELECT user_id, status FROM {schema}.investments WHERE id = %s",
+                    (investment_id,)
+                )
+                investment = cur.fetchone()
+                
+                if not investment:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Инвестиция не найдена'})
+                    }
+                
+                if str(investment[0]) != str(user_id):
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Нет доступа'})
+                    }
+                
+                if investment[1] != 'pending':
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Можно отменить только ожидающие сделки'})
+                    }
+                
+                cur.execute(
+                    f"UPDATE {schema}.investments SET status = 'cancelled' WHERE id = %s",
+                    (investment_id,)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
                 }
             
             elif action == 'invest_virtual':
