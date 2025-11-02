@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import InvestmentProposals from '@/components/farmer/InvestmentProposals';
+import OffersManagement from '@/components/farmer/OffersManagement';
 import RegionSelector from '@/components/farmer/RegionSelector';
 import AssetsSelector from '@/components/farmer/AssetsSelector';
 import ProfileEditor from '@/components/farmer/ProfileEditor';
@@ -258,14 +259,18 @@ const FarmerDashboard = () => {
         )}
 
         <Tabs defaultValue="diagnosis" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="diagnosis" className="flex items-center gap-2">
               <Icon name="FileText" size={18} />
               Диагностика
             </TabsTrigger>
+            <TabsTrigger value="offers" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
+              <Icon name="CircleDollarSign" size={18} />
+              Офферы
+            </TabsTrigger>
             <TabsTrigger value="proposals" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
               <Icon name="Package" size={18} />
-              Мои предложения
+              Предложения
             </TabsTrigger>
             <TabsTrigger value="garage" className="flex items-center gap-2">
               <Icon name="Truck" size={18} />
@@ -325,6 +330,10 @@ const FarmerDashboard = () => {
                 </Button>
               </form>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="offers">
+            <OffersManagement userId={user!.id.toString()} />
           </TabsContent>
 
           <TabsContent value="proposals">
