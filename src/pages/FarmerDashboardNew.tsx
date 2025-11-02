@@ -69,7 +69,7 @@ export default function FarmerDashboardNew() {
             </TabsTrigger>
             <TabsTrigger value="proposals" className="flex items-center gap-2">
               <Icon name="DollarSign" size={18} />
-              <span className="hidden md:inline">Предложения</span>
+              <span className="hidden md:inline">Мои предложения</span>
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="flex items-center gap-2">
               <Icon name="ShoppingCart" size={18} />
