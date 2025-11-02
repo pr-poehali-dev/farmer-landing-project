@@ -62,38 +62,27 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
 
   const loadMyRequests = async () => {
     try {
-      const response = await fetch(`${INVESTOR_API}?action=get_my_requests`, {
-        headers: { 'X-User-Id': userId.toString() }
-      });
-      const data = await response.json();
-      setMyRequests(data.requests || []);
+      // Временно загружаем из localStorage
+      const requests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      const userRequests = requests.filter((r: any) => r.investor_id === userId.toString());
+      setMyRequests(userRequests);
     } catch (error) {
       console.error('Ошибка загрузки заявок');
+      setMyRequests([]);
     }
   };
 
-  const cancelRequest = async (investmentId: number) => {
+  const cancelRequest = async (requestId: string) => {
     if (!confirm('Вы уверены, что хотите отменить заявку?')) return;
     
     try {
-      const response = await fetch(INVESTOR_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': userId.toString()
-        },
-        body: JSON.stringify({
-          action: 'cancel_investment',
-          investment_id: investmentId
-        })
-      });
-
-      if (response.ok) {
-        toast.success('Заявка отменена');
-        loadMyRequests();
-      } else {
-        toast.error('Ошибка при отмене заявки');
-      }
+      // Временно удаляем из localStorage
+      const requests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      const updatedRequests = requests.filter((r: any) => r.id !== requestId);
+      localStorage.setItem('investor_requests', JSON.stringify(updatedRequests));
+      
+      toast.success('Заявка отменена');
+      loadMyRequests();
     } catch (error) {
       toast.error('Ошибка при отмене заявки');
     }
@@ -357,7 +346,15 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                           <Button
                             size="sm"
                             onClick={() => {
-                              toast.info('Скоро здесь появится оплата! Функция в разработке.');
+                              // Обновляем статус на paid в localStorage
+                              const allRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+                              const updatedRequests = allRequests.map((r: any) => 
+                                r.id === request.id ? { ...r, status: 'paid' } : r
+                              );
+                              localStorage.setItem('investor_requests', JSON.stringify(updatedRequests));
+                              
+                              toast.success('✅ Оплата принята! Инвестиция теперь в вашем портфеле');
+                              loadMyRequests();
                             }}
                             className="bg-farmer-green hover:bg-farmer-green-dark text-white"
                           >

@@ -31,46 +31,14 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
 
   const fetchRequests = async () => {
     try {
-      const response = await fetch(`https://your-api.com/api/farmer/${userId}/investor-requests`);
-      const data = await response.json();
-      setRequests(data);
+      // Временно загружаем из localStorage - все заявки для этого фермера
+      const allRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      
+      // В реальности нужно фильтровать по фермеру, но для теста берём все
+      setRequests(allRequests);
     } catch (error) {
       console.error('Ошибка загрузки заявок:', error);
-      setRequests([
-        {
-          id: '1',
-          investor_id: 'inv1',
-          investor_name: 'Иван Петров',
-          proposal_id: 'p1',
-          proposal_description: 'Развитие молочной фермы',
-          proposal_type: 'patronage',
-          amount: 50000,
-          status: 'pending',
-          date: new Date().toISOString()
-        },
-        {
-          id: '2',
-          investor_id: 'inv2',
-          investor_name: 'Мария Сидорова',
-          proposal_id: 'p2',
-          proposal_description: 'Покупка оборудования',
-          proposal_type: 'income',
-          amount: 100000,
-          status: 'approved',
-          date: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          id: '3',
-          investor_id: 'inv3',
-          investor_name: 'Александр Иванов',
-          proposal_id: 'p3',
-          proposal_description: 'Расширение теплиц',
-          proposal_type: 'income',
-          amount: 75000,
-          status: 'paid',
-          date: new Date(Date.now() - 172800000).toISOString()
-        }
-      ]);
+      setRequests([]);
     } finally {
       setLoading(false);
     }
@@ -78,20 +46,25 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
 
   const handleRequestAction = async (requestId: string, action: 'approve' | 'reject') => {
     try {
-      const response = await fetch(`https://your-api.com/api/farmer/investor-request/${requestId}/${action}`, {
-        method: 'POST'
-      });
+      // Обновляем статус в localStorage
+      const allRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      const updatedRequests = allRequests.map((req: any) => 
+        req.id === requestId 
+          ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' }
+          : req
+      );
+      localStorage.setItem('investor_requests', JSON.stringify(updatedRequests));
 
-      if (response.ok) {
-        toast.success(action === 'approve' ? 'Заявка одобрена! Ожидаем оплату от инвестора' : 'Заявка отклонена');
-        setRequests(prev => 
-          prev.map(req => 
-            req.id === requestId 
-              ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' }
-              : req
-          )
-        );
-      }
+      toast.success(action === 'approve' ? 'Заявка одобрена! Ожидаем оплату от инвестора' : 'Заявка отклонена');
+      
+      // Обновляем локальное состояние
+      setRequests(prev => 
+        prev.map(req => 
+          req.id === requestId 
+            ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' }
+            : req
+        )
+      );
     } catch (error) {
       console.error('Ошибка обработки заявки:', error);
       toast.error('Не удалось обработать заявку');

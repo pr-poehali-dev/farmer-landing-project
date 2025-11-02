@@ -80,11 +80,12 @@ const InvestorDashboard = () => {
       const proposalsData = await proposalsRes.json();
       setProposals(proposalsData.proposals || []);
       
-      const portfolioRes = await fetch(`${INVESTOR_API}?action=get_portfolio`, {
-        headers: { 'X-User-Id': user!.id.toString() }
-      });
-      const portfolioData = await portfolioRes.json();
-      setPortfolio(portfolioData.investments || []);
+      // Загружаем портфель из localStorage - только оплаченные заявки
+      const allRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      const paidRequests = allRequests.filter((r: any) => 
+        r.investor_id === user!.id.toString() && r.status === 'paid'
+      );
+      setPortfolio(paidRequests);
       
       const farmersRes = await fetch(`${INVESTOR_API}?action=get_farmers`, {
         headers: { 'X-User-Id': user!.id.toString() }
@@ -162,30 +163,35 @@ const InvestorDashboard = () => {
 
   const handleInvestInProposal = async (proposalId: number, productType: string) => {
     try {
-      const response = await fetch(INVESTOR_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user!.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'create_request',
-          proposal_id: proposalId,
-          type: productType
-        })
-      });
-      
-      if (response.ok) {
-        await loadData();
-        return true;
-      } else {
-        const error = await response.json();
-        toast.error(error.error || 'Некорректные данные. Попробуйте еще раз.');
+      // Временное решение: сохраняем локально до реализации бэкенда
+      const proposal = proposals.find(p => p.id === proposalId);
+      if (!proposal) {
+        toast.error('Предложение не найдено');
         return false;
       }
+
+      const newRequest = {
+        id: Date.now().toString(),
+        investor_id: user!.id.toString(),
+        investor_name: user!.name || user!.email,
+        proposal_id: proposalId.toString(),
+        proposal_description: proposal.description,
+        proposal_type: productType,
+        farmer_name: proposal.farmer_name,
+        amount: proposal.price,
+        status: 'pending',
+        date: new Date().toISOString()
+      };
+
+      // Сохраняем в localStorage
+      const existingRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      existingRequests.push(newRequest);
+      localStorage.setItem('investor_requests', JSON.stringify(existingRequests));
+
+      return true;
     } catch (error) {
       console.error('Ошибка создания заявки:', error);
-      toast.error('Ошибка соединения с сервером');
+      toast.error('Ошибка создания заявки');
       return false;
     }
   };
