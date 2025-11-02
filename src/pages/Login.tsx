@@ -52,16 +52,17 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-farmer-green/5 to-farmer-orange/5 flex items-center justify-center px-4 py-12">
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/')}
-        className="absolute top-4 left-4 text-farmer-green hover:bg-farmer-green/10"
-      >
-        <Icon name="Home" size={20} className="mr-2" />
-        {t('nav.home')}
-      </Button>
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen bg-gradient-to-br from-farmer-green/5 to-farmer-orange/5 flex items-center justify-center px-4 py-12 relative">
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="text-farmer-green hover:bg-farmer-green/10"
+          size="sm"
+        >
+          <Icon name="Home" size={18} className="sm:mr-2" />
+          <span className="hidden sm:inline">{t('nav.home')}</span>
+        </Button>
         <LanguageSwitcher />
       </div>
       

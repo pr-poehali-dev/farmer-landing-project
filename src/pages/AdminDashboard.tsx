@@ -165,24 +165,33 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Icon name="BarChart3" size={32} className="text-farmer-green" />
-              <h1 className="text-2xl font-bold text-gray-900">Панель Администратора</h1>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Icon name="BarChart3" size={24} className="text-farmer-green sm:w-8 sm:h-8" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 hidden sm:block">Панель Администратора</h1>
+              <h1 className="text-lg font-bold text-gray-900 sm:hidden">Админ</h1>
             </div>
-            <div className="flex items-center gap-4">
-              <Button onClick={() => navigate('/admin/metrics')} variant="outline" size="sm" className="text-farmer-green border-farmer-green hover:bg-green-50">
+            <div className="flex items-center gap-2">
+              <Button onClick={() => navigate('/admin/metrics')} variant="outline" size="sm" className="text-farmer-green border-farmer-green hover:bg-green-50 hidden md:flex">
                 <Icon name="BarChart3" size={18} className="mr-2" />
                 Бизнес-метрики
               </Button>
-              <Button onClick={() => navigate('/admin/delete-users')} variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+              <Button onClick={() => navigate('/admin/metrics')} variant="outline" size="sm" className="text-farmer-green border-farmer-green hover:bg-green-50 md:hidden">
+                <Icon name="BarChart3" size={18} />
+              </Button>
+              <Button onClick={() => navigate('/admin/delete-users')} variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50 hidden md:flex">
                 <Icon name="UserX" size={18} className="mr-2" />
                 Удалить пользователей
               </Button>
-              <span className="text-gray-700">Администратор</span>
-              <Button onClick={handleLogout} variant="outline" size="sm">
+              <Button onClick={() => navigate('/admin/delete-users')} variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50 md:hidden">
+                <Icon name="UserX" size={18} />
+              </Button>
+              <Button onClick={handleLogout} variant="outline" size="sm" className="hidden sm:flex">
                 <Icon name="LogOut" size={18} className="mr-2" />
                 Выйти
+              </Button>
+              <Button onClick={handleLogout} variant="outline" size="sm" className="sm:hidden">
+                <Icon name="LogOut" size={18} />
               </Button>
             </div>
           </div>

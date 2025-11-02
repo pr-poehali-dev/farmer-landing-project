@@ -123,20 +123,26 @@ const AdminMetrics = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Icon name="BarChart3" size={32} className="text-farmer-green" />
-              <h1 className="text-2xl font-bold text-gray-900">{t('admin.metrics')}</h1>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Icon name="BarChart3" size={24} className="text-farmer-green sm:w-8 sm:h-8" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">{t('admin.metrics')}</h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <LanguageSwitcher />
-              <Button onClick={loadMetrics} variant="outline" size="sm">
+              <Button onClick={loadMetrics} variant="outline" size="sm" className="hidden sm:flex">
                 <Icon name="RefreshCw" size={18} className="mr-2" />
                 {t('common.refresh')}
               </Button>
-              <Button onClick={() => navigate('/admin')} variant="outline" size="sm">
+              <Button onClick={loadMetrics} variant="outline" size="sm" className="sm:hidden">
+                <Icon name="RefreshCw" size={18} />
+              </Button>
+              <Button onClick={() => navigate('/admin')} variant="outline" size="sm" className="hidden sm:flex">
                 <Icon name="ArrowLeft" size={18} className="mr-2" />
                 {t('common.back')}
+              </Button>
+              <Button onClick={() => navigate('/admin')} variant="outline" size="sm" className="sm:hidden">
+                <Icon name="ArrowLeft" size={18} />
               </Button>
             </div>
           </div>
