@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import InvestmentProposals from '@/components/farmer/InvestmentProposals';
 import OffersManagement from '@/components/farmer/OffersManagement';
+import OfferRequestsTable from '@/components/farmer/OfferRequestsTable';
 import RegionSelector from '@/components/farmer/RegionSelector';
 import AssetsSelector from '@/components/farmer/AssetsSelector';
 import ProfileEditor from '@/components/farmer/ProfileEditor';
@@ -259,7 +260,7 @@ const FarmerDashboard = () => {
         )}
 
         <Tabs defaultValue="diagnosis" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="diagnosis" className="flex items-center gap-2">
               <Icon name="FileText" size={18} />
               Диагностика
@@ -267,6 +268,10 @@ const FarmerDashboard = () => {
             <TabsTrigger value="offers" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
               <Icon name="CircleDollarSign" size={18} />
               Офферы
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
+              <Icon name="Users" size={18} />
+              Заявки
             </TabsTrigger>
             <TabsTrigger value="proposals" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
               <Icon name="Package" size={18} />
@@ -334,6 +339,16 @@ const FarmerDashboard = () => {
 
           <TabsContent value="offers">
             <OffersManagement userId={user!.id.toString()} />
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Icon name="Users" className="text-farmer-green" size={24} />
+                <h2 className="text-2xl font-bold text-gray-900">Все заявки на мои предложения</h2>
+              </div>
+              <OfferRequestsTable userId={user!.id.toString()} />
+            </Card>
           </TabsContent>
 
           <TabsContent value="proposals">

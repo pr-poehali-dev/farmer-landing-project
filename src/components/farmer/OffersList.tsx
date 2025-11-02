@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import OfferRequestsTable from './OfferRequestsTable';
 
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
@@ -31,6 +33,8 @@ const OffersList = ({ userId, refreshTrigger }: OffersListProps) => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [selectedOfferId, setSelectedOfferId] = useState<number | null>(null);
+  const [showRequestsModal, setShowRequestsModal] = useState(false);
 
   useEffect(() => {
     loadOffers();
@@ -222,7 +226,8 @@ const OffersList = ({ userId, refreshTrigger }: OffersListProps) => {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        toast.info('Просмотр заявок в разработке');
+                        setSelectedOfferId(offer.id);
+                        setShowRequestsModal(true);
                       }}
                     >
                       <Icon name="Users" size={16} className="mr-2" />
@@ -246,6 +251,15 @@ const OffersList = ({ userId, refreshTrigger }: OffersListProps) => {
           </Card>
         );
       })}
+
+      <Dialog open={showRequestsModal} onOpenChange={setShowRequestsModal}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Заявки на предложение</DialogTitle>
+          </DialogHeader>
+          <OfferRequestsTable userId={userId} offerId={selectedOfferId || undefined} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import OfferRequestsTable from '@/components/farmer/OfferRequestsTable';
 
 const STATS_API = 'https://functions.poehali.dev/0a0119c5-f173-40c2-bc49-c845a420422f';
 
@@ -277,67 +279,106 @@ const AdminDashboard = () => {
           </Card>
         )}
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Icon name="Users" size={24} className="text-farmer-green" />
-              Последние пользователи
-            </h2>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {stats.users.map(user => (
-                <div key={user.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="font-semibold text-gray-900">{user.name}</p>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      user.role === 'farmer' ? 'bg-farmer-green/10 text-farmer-green' :
-                      user.role === 'investor' ? 'bg-farmer-orange/10 text-farmer-orange' :
-                      'bg-gray-200 text-gray-700'
-                    }`}>
-                      {user.role === 'farmer' ? 'Фермер' : user.role === 'investor' ? 'Инвестор' : 'Продавец'}
-                    </span>
-                  </div>
-                  <div className="flex gap-4 text-sm text-gray-500">
-                    <span>Предложений: {user.proposals_count}</span>
-                    <span>Заявок: {user.investments_count}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="overview">
+              <Icon name="BarChart3" size={18} className="mr-2" />
+              Обзор
+            </TabsTrigger>
+            <TabsTrigger value="requests">
+              <Icon name="Users" size={18} className="mr-2" />
+              Заявки
+            </TabsTrigger>
+            <TabsTrigger value="data">
+              <Icon name="Database" size={18} className="mr-2" />
+              Данные
+            </TabsTrigger>
+          </TabsList>
 
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Icon name="FileText" size={24} className="text-farmer-orange" />
-              Последние предложения
-            </h2>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {stats.proposals.map(proposal => (
-                <div key={proposal.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-gray-900 flex-1">{proposal.description}</p>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ml-2 ${
-                      proposal.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
-                    }`}>
-                      {proposal.status === 'active' ? 'Активно' : 'Закрыто'}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 mb-2">
-                    <p>Фермер: {proposal.farmer_name}</p>
-                    <p>Email: {proposal.farmer_email}</p>
-                  </div>
-                  <div className="flex gap-4 text-sm text-gray-700">
-                    <span className="font-medium">{proposal.price.toLocaleString('ru-RU')} ₽</span>
-                    <span>Долей: {proposal.shares}</span>
-                    <span>Заявок: {proposal.investors_count}</span>
-                  </div>
-                </div>
-              ))}
+          <TabsContent value="overview">
+            <div className="grid md:grid-cols-2 gap-8">
+
             </div>
-          </Card>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Icon name="Users" size={24} className="text-farmer-green" />
+                Все заявки на офферы
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                Просмотр всех заявок инвесторов на офферы фермеров. 
+                Фермеры управляют заявками в своих кабинетах.
+              </p>
+              <OfferRequestsTable userId="0" />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="data">
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="p-6">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Icon name="Users" size={24} className="text-farmer-green" />
+                  Последние пользователи
+                </h2>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {stats.users.map(user => (
+                    <div key={user.id} className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-gray-900">{user.name}</p>
+                          <p className="text-sm text-gray-600">{user.email}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          user.role === 'farmer' ? 'bg-farmer-green/10 text-farmer-green' :
+                          user.role === 'investor' ? 'bg-farmer-orange/10 text-farmer-orange' :
+                          'bg-gray-200 text-gray-700'
+                        }`}>
+                          {user.role === 'farmer' ? 'Фермер' : user.role === 'investor' ? 'Инвестор' : 'Продавец'}
+                        </span>
+                      </div>
+                      <div className="flex gap-4 text-sm text-gray-500">
+                        <span>Предложений: {user.proposals_count}</span>
+                        <span>Заявок: {user.investments_count}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Icon name="FileText" size={24} className="text-farmer-orange" />
+                  Последние предложения
+                </h2>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {stats.proposals.map(proposal => (
+                    <div key={proposal.id} className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="font-semibold text-gray-900 flex-1">{proposal.description}</p>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ml-2 ${
+                          proposal.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
+                        }`}>
+                          {proposal.status === 'active' ? 'Активно' : 'Закрыто'}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        <p>Фермер: {proposal.farmer_name}</p>
+                        <p>Email: {proposal.farmer_email}</p>
+                      </div>
+                      <div className="flex gap-4 text-sm text-gray-700">
+                        <span className="font-medium">{proposal.price.toLocaleString('ru-RU')} ₽</span>
+                        <span>Долей: {proposal.shares}</span>
+                        <span>Заявок: {proposal.investors_count}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
