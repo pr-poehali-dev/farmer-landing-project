@@ -103,7 +103,7 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="rating" className="mt-6">
-            <FarmerRating points={points} />
+            <FarmerRating userId={user?.id || ''} />
           </TabsContent>
         </Tabs>
       </main>
