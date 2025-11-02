@@ -29,7 +29,7 @@ interface Proposal {
 
 interface ProposalsViewerProps {
   userId: number;
-  onInvest: (proposalId: number, productType: string) => void;
+  onInvest: (proposalId: number, productType: string) => Promise<boolean>;
 }
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
@@ -253,13 +253,17 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 </div>
 
                 <Button
-                  onClick={() => onInvest(proposal.id, proposal.type)}
+                  onClick={async () => {
+                    const success = await onInvest(proposal.id, proposal.type);
+                    if (success) {
+                      toast.success('Заявка отправлена! Проверьте "Мои заявки"');
+                      await loadMyRequests();
+                    }
+                  }}
                   className="w-full bg-farmer-green hover:bg-farmer-green-dark"
                 >
                   <Icon name="Heart" size={16} className="mr-2" />
-                  {proposal.type === 'patronage' 
-                    ? 'Оставить заявку' 
-                    : 'Оставить заявку'}
+                  Оставить заявку
                 </Button>
               </div>
             </Card>

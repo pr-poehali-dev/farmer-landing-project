@@ -171,19 +171,22 @@ const InvestorDashboard = () => {
         body: JSON.stringify({
           action: 'create_request',
           proposal_id: proposalId,
-          product_type: productType
+          type: productType
         })
       });
       
       if (response.ok) {
-        toast.success('Заявка отправлена! Ожидайте подтверждения от фермера.');
-        loadData();
+        await loadData();
+        return true;
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Ошибка инвестирования');
+        toast.error(error.error || 'Некорректные данные. Попробуйте еще раз.');
+        return false;
       }
     } catch (error) {
-      toast.error('Ошибка соединения');
+      console.error('Ошибка создания заявки:', error);
+      toast.error('Ошибка соединения с сервером');
+      return false;
     }
   };
 
@@ -268,8 +271,8 @@ const InvestorDashboard = () => {
           <TabsContent value="proposals">
             <ProposalsViewer 
               userId={user!.id} 
-              onInvest={(proposalId, productType) => {
-                handleInvestInProposal(proposalId, productType);
+              onInvest={async (proposalId, productType) => {
+                await handleInvestInProposal(proposalId, productType);
               }}
             />
           </TabsContent>
