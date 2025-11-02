@@ -202,12 +202,8 @@ const InvestorDashboard = () => {
           />
         </div>
 
-        <Tabs defaultValue="offers" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="offers">
-              <Icon name="CircleDollarSign" size={18} className="mr-2" />
-              Офферы
-            </TabsTrigger>
+        <Tabs defaultValue="farmers" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="farmers">
               <Icon name="Users" size={18} className="mr-2" />
               Фермеры
@@ -221,10 +217,6 @@ const InvestorDashboard = () => {
               Портфель
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="offers">
-            <OffersList userId={user!.id} />
-          </TabsContent>
 
           <TabsContent value="farmers">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
