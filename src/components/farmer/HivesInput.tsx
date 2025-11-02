@@ -10,11 +10,14 @@ interface Props {
 
 export default function HivesInput({ animals, onUpdate }: Props) {
   const hivesIndex = animals.findIndex(a => a.type === 'hives');
-  const hivesCount = hivesIndex >= 0 ? animals[hivesIndex].count : 0;
+  const hivesCount = hivesIndex >= 0 ? animals[hivesIndex].count : '';
 
-  const handleHivesChange = (value: number) => {
-    if (hivesIndex >= 0) {
-      onUpdate(hivesIndex, 'count', value);
+  const handleHivesChange = (value: string) => {
+    const numValue = parseInt(value) || 0;
+    const currentIndex = animals.findIndex(a => a.type === 'hives');
+    
+    if (currentIndex >= 0) {
+      onUpdate(currentIndex, 'count', numValue);
     }
   };
 
@@ -28,7 +31,7 @@ export default function HivesInput({ animals, onUpdate }: Props) {
         type="number"
         placeholder="Например: 20"
         value={hivesCount}
-        onChange={(e) => handleHivesChange(parseInt(e.target.value) || 0)}
+        onChange={(e) => handleHivesChange(e.target.value)}
       />
     </div>
   );
