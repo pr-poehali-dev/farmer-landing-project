@@ -44,14 +44,24 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
             <div className="text-sm text-gray-600">Продавцов</div>
           </div>
         </div>
-        <Button
-          onClick={() => navigate('/register')}
-          size="lg"
-          className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto max-w-full"
-        >
-          <span className="hidden sm:inline">Вернись к истокам — зарегистрируйся сейчас!</span>
-          <span className="sm:hidden">Зарегистрируйся сейчас!</span>
-        </Button>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          <Button
+            onClick={() => navigate('/login')}
+            size="lg"
+            variant="outline"
+            className="border-2 border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+          >
+            Войти
+          </Button>
+          <Button
+            onClick={() => navigate('/register')}
+            size="lg"
+            className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto max-w-full"
+          >
+            <span className="hidden sm:inline">Вернись к истокам — зарегистрируйся сейчас!</span>
+            <span className="sm:hidden">Зарегистрируйся сейчас!</span>
+          </Button>
+        </div>
       </div>
     </section>
   );
