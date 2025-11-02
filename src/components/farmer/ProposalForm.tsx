@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
-import { Asset, FARMER_API, PROPOSAL_TYPES, UPDATE_FREQUENCIES } from './proposal-types';
+import { Asset, FARMER_API } from './proposal-types';
+import { ProposalTypeSelector } from './ProposalTypeSelector';
+import { AssetDetailsForm } from './AssetDetailsForm';
+import { SharePricingForm } from './SharePricingForm';
+import { IncomeDetailsForm } from './IncomeDetailsForm';
+import { ProductDetailsForm } from './ProductDetailsForm';
+import { PatronageDetailsForm } from './PatronageDetailsForm';
 
 interface Props {
   userId: string;
   onSuccess: () => void;
 }
+
+const MIN_SHARE_PRICE = 5000;
 
 const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [proposalType, setProposalType] = useState<'income' | 'products' | 'patronage'>('income');
@@ -21,7 +26,6 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [assetName, setAssetName] = useState<string>('');
   const [assetCount, setAssetCount] = useState<string>('');
   const [assetDetails, setAssetDetails] = useState<string>('');
-  const [price, setPrice] = useState<string>('');
   const [shares, setShares] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [expectedProduct, setExpectedProduct] = useState<string>('');
@@ -38,23 +42,6 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [lastYearYield, setLastYearYield] = useState<string>('');
   const [totalAssetValue, setTotalAssetValue] = useState<string>('');
 
-  const getMinPrice = () => {
-    switch (proposalType) {
-      case 'income': return 5000;
-      case 'products': return 3000;
-      case 'patronage': return 1000;
-      default: return 1000;
-    }
-  };
-
-  const MIN_SHARE_PRICE = 5000;
-
-  const calculateMaxShares = () => {
-    const totalValue = parseFloat(totalAssetValue);
-    if (!totalValue || totalValue < MIN_SHARE_PRICE) return 0;
-    return Math.floor(totalValue / MIN_SHARE_PRICE);
-  };
-
   const calculateSharePrice = () => {
     const totalValue = parseFloat(totalAssetValue);
     const sharesNum = parseInt(shares);
@@ -62,7 +49,6 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
     return Math.floor(totalValue / sharesNum);
   };
 
-  const maxShares = calculateMaxShares();
   const calculatedSharePrice = calculateSharePrice();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,11 +59,10 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       return;
     }
 
-    const priceNum = parseFloat(price);
     const sharesNum = parseInt(shares);
     const countNum = parseInt(assetCount) || 0;
 
-    if (priceNum < MIN_SHARE_PRICE) {
+    if (calculatedSharePrice < MIN_SHARE_PRICE) {
       toast.error(`Минимальная цена доли: ${MIN_SHARE_PRICE} руб.`);
       return;
     }
@@ -134,7 +119,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           action: 'create_proposal',
           type: proposalType,
           asset,
-          price: priceNum,
+          price: calculatedSharePrice,
           shares: sharesNum,
           description: description.trim(),
           expected_product: proposalType === 'products' ? expectedProduct.trim() : undefined,
@@ -157,7 +142,6 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
         setAssetName('');
         setAssetCount('');
         setAssetDetails('');
-        setPrice('');
         setShares('');
         setDescription('');
         setExpectedProduct('');
@@ -194,357 +178,68 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          <Label className="text-base font-semibold">Тип предложения</Label>
-          <RadioGroup value={proposalType} onValueChange={(v) => setProposalType(v as 'income' | 'products' | 'patronage')}>
-            {PROPOSAL_TYPES.map(type => (
-              <Card 
-                key={type.value}
-                className={`p-4 cursor-pointer transition-all ${
-                  proposalType === type.value 
-                    ? 'border-2 border-green-600 bg-green-50' 
-                    : 'border hover:border-green-300'
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setProposalType(type.value as 'income' | 'products' | 'patronage');
-                }}
-              >
-                <div className="flex items-start gap-3">
-                  <RadioGroupItem value={type.value} id={type.value} />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Icon name={type.icon as any} size={20} className="text-green-600" />
-                      <Label htmlFor={type.value} className="font-bold cursor-pointer">
-                        {type.label}
-                      </Label>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{type.description}</p>
-                    <p className="text-xs text-green-700 italic">{type.hint}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </RadioGroup>
-        </div>
+        <ProposalTypeSelector value={proposalType} onChange={setProposalType} />
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Тип актива</Label>
-            <RadioGroup value={assetType} onValueChange={(v) => setAssetType(v as 'animal' | 'crop' | 'beehive')}>
-              <div className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="animal" id="animal" />
-                  <Label htmlFor="animal" className="cursor-pointer flex items-center gap-1">
-                    <Icon name="Beef" size={16} />
-                    Животноводство
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="crop" id="crop" />
-                  <Label htmlFor="crop" className="cursor-pointer flex items-center gap-1">
-                    <Icon name="Wheat" size={16} />
-                    Растениеводство
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="beehive" id="beehive" />
-                  <Label htmlFor="beehive" className="cursor-pointer flex items-center gap-1">
-                    <Icon name="Flower2" size={16} />
-                    Пчеловодство
-                  </Label>
-                </div>
-              </div>
-            </RadioGroup>
-          </div>
+        <AssetDetailsForm
+          assetType={assetType}
+          assetName={assetName}
+          assetCount={assetCount}
+          assetDetails={assetDetails}
+          onAssetTypeChange={setAssetType}
+          onAssetNameChange={setAssetName}
+          onAssetCountChange={setAssetCount}
+          onAssetDetailsChange={setAssetDetails}
+        />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="assetName">Название актива *</Label>
-              <Input
-                id="assetName"
-                value={assetName}
-                onChange={(e) => setAssetName(e.target.value)}
-                placeholder={assetType === 'animal' ? 'Коровы' : assetType === 'crop' ? 'Пшеница' : 'Пчелы'}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="assetCount">
-                Количество ({assetType === 'crop' ? 'га' : assetType === 'beehive' ? 'ульев' : 'голов'})
-              </Label>
-              <Input
-                id="assetCount"
-                type="number"
-                min="0"
-                value={assetCount}
-                onChange={(e) => setAssetCount(e.target.value)}
-                placeholder="10"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="assetDetails">Детали актива (порода, сорт, возраст...)</Label>
-            <Input
-              id="assetDetails"
-              value={assetDetails}
-              onChange={(e) => setAssetDetails(e.target.value)}
-              placeholder={assetType === 'animal' ? 'Например: Голштинская порода' : 'Например: Озимая пшеница'}
-            />
-          </div>
-        </div>
-
-        <Card className="p-4 bg-amber-50 border-amber-200 space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Icon name="PieChart" size={18} className="text-amber-600" />
-            <Label className="text-base font-semibold">Деление на доли</Label>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="totalAssetValue">
-              Общая стоимость актива (руб) *
-            </Label>
-            <Input
-              id="totalAssetValue"
-              type="number"
-              min="5000"
-              step="1000"
-              value={totalAssetValue}
-              onChange={(e) => {
-                setTotalAssetValue(e.target.value);
-                setShares('');
-                setPrice('');
-              }}
-              placeholder="Например: 100000"
-              required
-            />
-            <p className="text-xs text-gray-600">
-              Укажите полную стоимость актива, который вы хотите разделить на доли
-            </p>
-          </div>
-
-          {totalAssetValue && parseFloat(totalAssetValue) >= MIN_SHARE_PRICE && (
-            <div className="p-3 bg-white rounded-lg border border-amber-300">
-              <div className="flex items-start gap-2 mb-2">
-                <Icon name="Info" size={16} className="text-amber-600 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-semibold text-amber-900">Автоматический расчет</p>
-                  <p className="text-gray-700 mt-1">
-                    Максимум долей по {MIN_SHARE_PRICE.toLocaleString()} руб: <span className="font-bold">{maxShares}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="shares">Количество долей *</Label>
-              <Input
-                id="shares"
-                type="number"
-                min="1"
-                max={maxShares || undefined}
-                value={shares}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setShares(value);
-                  if (value && totalAssetValue) {
-                    const totalValue = parseFloat(totalAssetValue);
-                    const sharesNum = parseInt(value);
-                    if (sharesNum > 0) {
-                      setPrice(Math.floor(totalValue / sharesNum).toString());
-                    }
-                  }
-                }}
-                placeholder={maxShares ? `Макс: ${maxShares}` : "10"}
-                required
-                disabled={!totalAssetValue}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price">
-                Цена одной доли
-                {proposalType === 'patronage' && '/мес'}
-              </Label>
-              <Input
-                id="price"
-                type="number"
-                value={price}
-                placeholder="Рассчитается авто"
-                disabled
-                className="bg-gray-100"
-              />
-            </div>
-          </div>
-
-          {shares && calculatedSharePrice < MIN_SHARE_PRICE && (
-            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <Icon name="AlertTriangle" size={16} className="text-red-600 mt-0.5" />
-              <p className="text-sm text-red-800">
-                Цена доли {calculatedSharePrice.toLocaleString()} руб меньше минимума {MIN_SHARE_PRICE.toLocaleString()} руб. 
-                Уменьшите количество долей до {maxShares}.
-              </p>
-            </div>
-          )}
-
-          {shares && calculatedSharePrice >= MIN_SHARE_PRICE && (
-            <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <Icon name="CheckCircle2" size={16} className="text-green-600 mt-0.5" />
-              <p className="text-sm text-green-800">
-                ✅ {shares} {parseInt(shares) === 1 ? 'доля' : parseInt(shares) < 5 ? 'доли' : 'долей'} по {calculatedSharePrice.toLocaleString()} руб
-              </p>
-            </div>
-          )}
-        </Card>
-
-        {proposalType === 'products' && (
-          <div className="space-y-2">
-            <Label htmlFor="expected_product">Ожидаемый продукт на долю</Label>
-            <Input
-              id="expected_product"
-              value={expectedProduct}
-              onChange={(e) => setExpectedProduct(e.target.value)}
-              placeholder="Например: 10 кг свежей свеклы"
-              required
-            />
-          </div>
-        )}
+        <SharePricingForm
+          totalAssetValue={totalAssetValue}
+          shares={shares}
+          onTotalAssetValueChange={setTotalAssetValue}
+          onSharesChange={setShares}
+        />
 
         {proposalType === 'income' && (
-          <Card className="p-4 bg-blue-50 border-blue-200 space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Icon name="Calculator" size={18} className="text-blue-600" />
-              <Label className="text-base font-semibold">Расчет доходности</Label>
-            </div>
+          <IncomeDetailsForm
+            revenuePeriod={revenuePeriod}
+            revenueAmount={revenueAmount}
+            revenueDescription={revenueDescription}
+            maintenanceCost={maintenanceCost}
+            payoutAmount={payoutAmount}
+            payoutPeriod={payoutPeriod}
+            payoutDuration={payoutDuration}
+            lastYearYield={lastYearYield}
+            onRevenuePeriodChange={setRevenuePeriod}
+            onRevenueAmountChange={setRevenueAmount}
+            onRevenueDescriptionChange={setRevenueDescription}
+            onMaintenanceCostChange={setMaintenanceCost}
+            onPayoutAmountChange={setPayoutAmount}
+            onPayoutPeriodChange={setPayoutPeriod}
+            onPayoutDurationChange={setPayoutDuration}
+            onLastYearYieldChange={setLastYearYield}
+          />
+        )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-sm">Доход от актива</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={revenueAmount}
-                  onChange={(e) => setRevenueAmount(e.target.value)}
-                  placeholder="Например: 500"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Период дохода</Label>
-                <Select value={revenuePeriod} onValueChange={(v: any) => setRevenuePeriod(v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">В день</SelectItem>
-                    <SelectItem value="monthly">В месяц</SelectItem>
-                    <SelectItem value="yearly">В год</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm">Что приносит доход</Label>
-              <Input
-                value={revenueDescription}
-                onChange={(e) => setRevenueDescription(e.target.value)}
-                placeholder="Например: продажа молока по 40 руб/литр"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm">Расходы на содержание (руб/мес)</Label>
-              <Input
-                type="number"
-                value={maintenanceCost}
-                onChange={(e) => setMaintenanceCost(e.target.value)}
-                placeholder="Например: 3000"
-              />
-            </div>
-
-            <div className="border-t pt-3 mt-3">
-              <Label className="text-base font-semibold mb-3 block">Выплата инвестору</Label>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-sm">Сумма выплаты (руб)</Label>
-                  <Input
-                    type="number"
-                    value={payoutAmount}
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    placeholder="5000"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Период выплаты</Label>
-                  <Select value={payoutPeriod} onValueChange={(v: any) => setPayoutPeriod(v)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Ежемесячно</SelectItem>
-                      <SelectItem value="yearly">Ежегодно</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2 mt-3">
-                <Label className="text-sm">Срок выплат (месяцев)</Label>
-                <Input
-                  type="number"
-                  value={payoutDuration}
-                  onChange={(e) => setPayoutDuration(e.target.value)}
-                  placeholder="12"
-                  required
-                />
-              </div>
-            </div>
-
-            {assetType === 'crop' && (
-              <div className="space-y-2">
-                <Label className="text-sm">Урожай за прошлый год</Label>
-                <Input
-                  value={lastYearYield}
-                  onChange={(e) => setLastYearYield(e.target.value)}
-                  placeholder="Например: 45 тонн с гектара"
-                />
-              </div>
-            )}
-          </Card>
+        {proposalType === 'products' && (
+          <ProductDetailsForm
+            expectedProduct={expectedProduct}
+            onExpectedProductChange={setExpectedProduct}
+          />
         )}
 
         {proposalType === 'patronage' && (
-          <div className="space-y-2">
-            <Label htmlFor="frequency">Частота обновлений</Label>
-            <Select value={updateFrequency} onValueChange={setUpdateFrequency}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {UPDATE_FREQUENCIES.map(freq => (
-                  <SelectItem key={freq.value} value={freq.value}>
-                    {freq.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <PatronageDetailsForm
+            updateFrequency={updateFrequency}
+            onUpdateFrequencyChange={setUpdateFrequency}
+          />
         )}
 
-        <div className="space-y-2">
+        <div>
           <Label htmlFor="description">Описание предложения *</Label>
           <Textarea
             id="description"
+            placeholder="Расскажите подробнее о вашем предложении..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Опиши, что получит инвестор, почему стоит вложиться именно в это..."
             rows={4}
             required
           />
@@ -552,20 +247,10 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
 
         <Button 
           type="submit" 
-          disabled={submitting || !assetName.trim()}
-          className="w-full bg-farmer-green hover:bg-green-700"
+          className="w-full bg-green-600 hover:bg-green-700"
+          disabled={submitting}
         >
-          {submitting ? (
-            <>
-              <Icon name="Loader2" className="animate-spin mr-2" size={18} />
-              Создаю...
-            </>
-          ) : (
-            <>
-              <Icon name="Plus" size={18} className="mr-2" />
-              Опубликовать предложение (+30 баллов)
-            </>
-          )}
+          {submitting ? 'Создаём...' : 'Создать предложение'}
         </Button>
       </form>
     </Card>
