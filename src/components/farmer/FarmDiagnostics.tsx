@@ -42,14 +42,28 @@ interface Crop {
   customName?: string;
 }
 
+interface Animal {
+  type: string;
+  count: number;
+  breed?: string;
+}
+
+interface Equipment {
+  id: string;
+  brand: string;
+  model: string;
+  year: string;
+  attachments: string;
+}
+
 export default function FarmDiagnostics() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   
   const [landArea, setLandArea] = useState('');
-  const [animals, setAnimals] = useState<Record<string, number>>({});
-  const [equipment, setEquipment] = useState('');
+  const [animals, setAnimals] = useState<Animal[]>([]);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [crops, setCrops] = useState<Crop[]>([]);
 
   useEffect(() => {
@@ -72,8 +86,8 @@ export default function FarmDiagnostics() {
       if (data.diagnosis && data.diagnosis.farm_info) {
         const info = data.diagnosis.farm_info;
         setLandArea(info.land_area || '');
-        setAnimals(info.animals || {});
-        setEquipment(info.equipment || '');
+        setAnimals(info.animals || []);
+        setEquipment(info.equipment || []);
         setCrops(info.crops || []);
       }
     } catch (error) {
@@ -83,9 +97,32 @@ export default function FarmDiagnostics() {
     }
   };
 
-  const handleAnimalChange = (animalType: string, value: string) => {
-    const count = parseInt(value) || 0;
-    setAnimals({ ...animals, [animalType]: count });
+  const addAnimal = () => {
+    setAnimals([...animals, { type: 'cows', count: 0, breed: '' }]);
+  };
+
+  const removeAnimal = (index: number) => {
+    setAnimals(animals.filter((_, i) => i !== index));
+  };
+
+  const updateAnimal = (index: number, field: keyof Animal, value: any) => {
+    const updated = [...animals];
+    updated[index] = { ...updated[index], [field]: value };
+    setAnimals(updated);
+  };
+
+  const addEquipment = () => {
+    setEquipment([...equipment, { id: Date.now().toString(), brand: '', model: '', year: '', attachments: '' }]);
+  };
+
+  const removeEquipment = (index: number) => {
+    setEquipment(equipment.filter((_, i) => i !== index));
+  };
+
+  const updateEquipment = (index: number, field: keyof Equipment, value: any) => {
+    const updated = [...equipment];
+    updated[index] = { ...updated[index], [field]: value };
+    setEquipment(updated);
   };
 
   const addCrop = () => {
@@ -143,12 +180,13 @@ export default function FarmDiagnostics() {
     toast.info('ИИ-анализ доступен по платной подписке. Функция в разработке — скоро запуск!');
   };
 
-  const animalCount = Object.values(animals).reduce((sum, count) => sum + count, 0);
+  const animalCount = animals.reduce((sum, a) => sum + a.count, 0);
   const progress = Math.min(100, (
-    (landArea ? 25 : 0) +
-    (animalCount > 0 ? 25 : 0) +
-    (equipment ? 25 : 0) +
-    (crops.length > 0 ? 25 : 0)
+    (landArea ? 20 : 0) +
+    (animalCount > 0 ? 20 : 0) +
+    (equipment.length > 0 ? 20 : 0) +
+    (crops.length > 0 ? 20 : 0) +
+    20
   ));
 
   if (authLoading || loadingData) {
@@ -200,29 +238,80 @@ export default function FarmDiagnostics() {
             </div>
 
             <div>
-              <Label className="mb-2 block">Животные</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {ANIMAL_TYPES.map(animal => (
-                  <div key={animal.value}>
-                    <Label className="text-xs text-gray-600">{animal.label}</Label>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      value={animals[animal.value] || ''}
-                      onChange={(e) => handleAnimalChange(animal.value, e.target.value)}
-                    />
-                  </div>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <Label>Животные</Label>
+                <Button onClick={addAnimal} variant="outline" size="sm">
+                  <Icon name="Plus" size={16} className="mr-1" />
+                  Добавить
+                </Button>
               </div>
+              {animals.map((animal, index) => (
+                <Card key={index} className="p-4 bg-gray-50 mb-3">
+                  <div className="flex items-start justify-between mb-3">
+                    <Label className="text-sm font-semibold">Животное #{index + 1}</Label>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => removeAnimal(index)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-xs">Вид</Label>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm"
+                        value={animal.type}
+                        onChange={(e) => updateAnimal(index, 'type', e.target.value)}
+                      >
+                        {ANIMAL_TYPES.filter(a => a.value !== 'hives').map(a => (
+                          <option key={a.value} value={a.value}>{a.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Количество</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={animal.count || ''}
+                        onChange={(e) => updateAnimal(index, 'count', parseInt(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Порода</Label>
+                      <Input
+                        type="text"
+                        placeholder="Порода"
+                        value={animal.breed || ''}
+                        onChange={(e) => updateAnimal(index, 'breed', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {animals.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">Нажмите "Добавить" чтобы указать животных</p>
+              )}
             </div>
 
             <div>
-              <Label>Какая техника</Label>
+              <Label>Ульи (шт)</Label>
               <Input
-                type="text"
-                placeholder="Например: Трактор John Deere 8R, Комбайн New Holland"
-                value={equipment}
-                onChange={(e) => setEquipment(e.target.value)}
+                type="number"
+                placeholder="0"
+                value={animals.find(a => a.type === 'hives')?.count || ''}
+                onChange={(e) => {
+                  const count = parseInt(e.target.value) || 0;
+                  const hiveIndex = animals.findIndex(a => a.type === 'hives');
+                  if (hiveIndex >= 0) {
+                    updateAnimal(hiveIndex, 'count', count);
+                  } else if (count > 0) {
+                    setAnimals([...animals, { type: 'hives', count, breed: '' }]);
+                  }
+                }}
               />
             </div>
           </AccordionContent>
@@ -302,6 +391,76 @@ export default function FarmDiagnostics() {
             <Button variant="outline" onClick={addCrop} className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
               Добавить культуру
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="garage" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center gap-3">
+              <Icon name="Truck" size={20} className="text-green-600" />
+              <span className="font-semibold">Мой гараж</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-4">
+            {equipment.map((item, index) => (
+              <Card key={item.id} className="p-4 bg-gray-50">
+                <div className="flex items-start justify-between mb-3">
+                  <Label className="text-sm font-semibold">Техника #{index + 1}</Label>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => removeEquipment(index)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Icon name="X" size={16} />
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Марка</Label>
+                    <Input
+                      type="text"
+                      placeholder="John Deere"
+                      value={item.brand}
+                      onChange={(e) => updateEquipment(index, 'brand', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Модель</Label>
+                    <Input
+                      type="text"
+                      placeholder="8R 410"
+                      value={item.model}
+                      onChange={(e) => updateEquipment(index, 'model', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Год выпуска</Label>
+                    <Input
+                      type="text"
+                      placeholder="2020"
+                      value={item.year}
+                      onChange={(e) => updateEquipment(index, 'year', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Вид навесного оборудования</Label>
+                    <Input
+                      type="text"
+                      placeholder="Плуг, культиватор"
+                      value={item.attachments}
+                      onChange={(e) => updateEquipment(index, 'attachments', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </Card>
+            ))}
+
+            <Button variant="outline" onClick={addEquipment} className="w-full">
+              <Icon name="Plus" size={16} className="mr-2" />
+              Добавить технику
             </Button>
           </AccordionContent>
         </AccordionItem>
