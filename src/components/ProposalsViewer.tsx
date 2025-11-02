@@ -464,9 +464,10 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                     const totalAmount = selectedProposal.price * selectedShares;
                     const success = await onInvest(selectedProposal.id, selectedProposal.type, selectedShares, totalAmount);
                     if (success) {
-                      toast.success(`Заявка на ${selectedShares} ${selectedShares === 1 ? 'долю' : 'долей'} отправлена!`);
-                      await loadMyRequests();
+                      toast.success(`✅ Заявка на ${selectedShares} ${selectedShares === 1 ? 'долю' : 'долей'} отправлена! Проверьте "Мои заявки"`);
                       setSelectedProposal(null);
+                      await loadMyRequests();
+                      setTimeout(() => setShowMyRequests(true), 300);
                     }
                   }}
                   className="flex-1 bg-farmer-green hover:bg-farmer-green-dark text-white"
