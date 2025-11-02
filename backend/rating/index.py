@@ -223,14 +223,14 @@ def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
         cur.execute(f'''
             SELECT 
                 fs.user_id,
-                NULL as full_name,
-                COALESCE(fd.farm_info->>'main_activity', 'Ферма №' || fs.user_id) as farm_name,
-                COALESCE(fd.region, fd.country, 'Регион не указан') as region,
+                u.name as full_name,
+                COALESCE(NULLIF(u.farm_name, ''), 'Ферма №' || fs.user_id) as farm_name,
+                COALESCE(NULLIF(u.bio, ''), 'Регион не указан') as region,
                 {score_column} as score,
                 fs.level,
                 ROW_NUMBER() OVER (ORDER BY {score_column} DESC, fs.user_id) as rank
             FROM farmer_scores fs
-            LEFT JOIN farmer_data fd ON CAST(fd.user_id AS TEXT) = fs.user_id
+            LEFT JOIN users u ON u.id = CAST(fs.user_id AS INTEGER)
             ORDER BY {score_column} DESC, fs.user_id
             LIMIT 100
         ''')
