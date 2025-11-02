@@ -103,23 +103,6 @@ const InvestmentTypesSection = () => {
             </Button>
           </Card>
         </div>
-
-        <Card className="p-8 bg-gradient-to-r from-farmer-green/5 to-farmer-orange/5 text-center">
-          <p className="text-lg text-gray-700 leading-relaxed italic mb-6">
-            «Представь: фермер делит корову на доли — ты берешь свою, следишь за ней в видео, 
-            получаешь свежие продукты. Это не сделка — это история жизни, где твоя поддержка 
-            спасает от искусственного, возвращая здоровье и энергию всем нам.»
-          </p>
-          <Button
-            onClick={() => navigate('/register')}
-            size="lg"
-            className="bg-farmer-green hover:bg-farmer-green-dark text-white text-base sm:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 w-full sm:w-auto"
-          >
-            <Icon name="Rocket" size={20} className="mr-2" />
-            <span className="hidden sm:inline">Присоединиться к движению</span>
-            <span className="sm:hidden">Присоединиться</span>
-          </Button>
-        </Card>
       </div>
     </section>
   );
