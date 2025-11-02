@@ -242,45 +242,17 @@ const InvestorDashboard = () => {
           />
         </div>
 
-        <Tabs defaultValue="farmers" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="farmers">
-              <Icon name="Users" size={18} className="mr-2" />
-              Фермеры
+        <Tabs defaultValue="portfolio" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="portfolio">
+              <Icon name="Sprout" size={18} className="mr-2" />
+              Моя виртуальная ферма
             </TabsTrigger>
             <TabsTrigger value="proposals">
               <Icon name="Package" size={18} className="mr-2" />
               Маркет предложений
             </TabsTrigger>
-            <TabsTrigger value="portfolio">
-              <Icon name="Briefcase" size={18} className="mr-2" />
-              Портфель
-            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="farmers">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="lg:col-span-1">
-                <FarmerFilters onFilterChange={handleFilterChange} />
-              </div>
-              <div className="lg:col-span-3">
-                {filteredFarmers.length === 0 ? (
-                  <Card className="p-8">
-                    <div className="text-center text-muted-foreground">
-                      <Icon name="Users" size={48} className="mx-auto mb-4 opacity-50" />
-                      <p>Фермеры не найдены</p>
-                    </div>
-                  </Card>
-                ) : (
-                  <div className="space-y-4">
-                    {filteredFarmers.map((farmer) => (
-                      <FarmerCard key={farmer.user_id} farmer={farmer} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </TabsContent>
 
           <TabsContent value="proposals">
             <ProposalsViewer 
@@ -304,8 +276,8 @@ const InvestorDashboard = () => {
             {portfolio.length === 0 ? (
               <Card className="p-6">
                 <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                  <Icon name="Briefcase" className="text-farmer-orange" />
-                  Мой портфель
+                  <Icon name="Sprout" className="text-farmer-green" />
+                  Моя виртуальная ферма
                 </h2>
                 <p className="text-gray-500 text-center py-8">Пока нет оплаченных инвестиций</p>
               </Card>
