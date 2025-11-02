@@ -256,6 +256,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'investments': investments})
                 }
+            
+            elif action == 'get_balance':
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(
+                    f"""SELECT balance FROM {schema}.users WHERE id = %s""",
+                    (user_id,)
+                )
+                result = cur.fetchone()
+                balance = float(result[0]) if result and result[0] else 0.0
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'balance': balance})
+                }
         
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))

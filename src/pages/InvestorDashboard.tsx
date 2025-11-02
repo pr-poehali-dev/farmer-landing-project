@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import ProposalsViewer from '@/components/ProposalsViewer';
 import FarmerCard from '@/components/FarmerCard';
 import FarmerFilters, { FilterState } from '@/components/FarmerFilters';
+import BalanceWidget from '@/components/BalanceWidget';
+import TopUpModal from '@/components/TopUpModal';
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
@@ -29,6 +31,8 @@ const InvestorDashboard = () => {
   const [selectedProposal, setSelectedProposal] = useState<any>(null);
   const [investAmount, setInvestAmount] = useState(0);
   const [investing, setInvesting] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'investor')) {
@@ -58,6 +62,12 @@ const InvestorDashboard = () => {
       const farmersData = await farmersRes.json();
       setFarmers(farmersData.farmers || []);
       setFilteredFarmers(farmersData.farmers || []);
+      
+      const balanceRes = await fetch(`${INVESTOR_API}?action=get_balance`, {
+        headers: { 'X-User-Id': user!.id.toString() }
+      });
+      const balanceData = await balanceRes.json();
+      setBalance(balanceData.balance || 0);
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
     } finally {
@@ -184,6 +194,13 @@ const InvestorDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="mb-6">
+          <BalanceWidget 
+            balance={balance} 
+            onTopUp={() => setShowTopUpModal(true)} 
+          />
+        </div>
+
         <Tabs defaultValue="farmers" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="farmers">
@@ -265,6 +282,14 @@ const InvestorDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <TopUpModal 
+        open={showTopUpModal}
+        onClose={() => setShowTopUpModal(false)}
+        onSubmit={(amount) => {
+          toast.success(`Переход к оплате ${amount} ₽`);
+        }}
+      />
     </div>
   );
 };

@@ -14,6 +14,8 @@ import GarageItemForm, { GarageItem } from '@/components/garage/GarageItemForm';
 import GarageList from '@/components/garage/GarageList';
 import TechScoreCard from '@/components/garage/TechScoreCard';
 import LeaderboardCard from '@/components/garage/LeaderboardCard';
+import BalanceWidget from '@/components/BalanceWidget';
+import TopUpModal from '@/components/TopUpModal';
 
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
@@ -50,6 +52,8 @@ const FarmerDashboard = () => {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<number>();
   const [allowAccess, setAllowAccess] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'farmer')) {
@@ -84,6 +88,12 @@ const FarmerDashboard = () => {
       const proposalsData = await proposalsRes.json();
       console.log('Proposals data:', proposalsData);
       setProposals(proposalsData.proposals || []);
+      
+      const balanceRes = await fetch(`${FARMER_API}?action=get_balance`, {
+        headers: { 'X-User-Id': user!.id.toString() }
+      });
+      const balanceData = await balanceRes.json();
+      setBalance(balanceData.balance || 0);
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
     } finally {
@@ -228,6 +238,13 @@ const FarmerDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="mb-6">
+          <BalanceWidget 
+            balance={balance} 
+            onTopUp={() => setShowTopUpModal(true)} 
+          />
+        </div>
+
         {!diagnosisCompleted && (
           <Card className="p-6 mb-8 border-2 border-farmer-orange bg-orange-50">
             <div className="flex items-start gap-3">
@@ -367,6 +384,14 @@ const FarmerDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <TopUpModal 
+        open={showTopUpModal}
+        onClose={() => setShowTopUpModal(false)}
+        onSubmit={(amount) => {
+          toast.success(`Переход к оплате ${amount} ₽`);
+        }}
+      />
     </div>
   );
 };

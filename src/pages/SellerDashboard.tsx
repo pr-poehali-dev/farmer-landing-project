@@ -10,6 +10,8 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import BalanceWidget from '@/components/BalanceWidget';
+import TopUpModal from '@/components/TopUpModal';
 
 const SELLER_API = 'https://functions.poehali.dev/cc24321a-77b4-44ce-9ae2-7fb7efee6660';
 
@@ -39,6 +41,8 @@ const SellerDashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
   
   const [profileForm, setProfileForm] = useState({
     company_name: '',
@@ -103,6 +107,12 @@ const SellerDashboard = () => {
         region: data.profile.region || '',
         city: data.profile.city || ''
       });
+      
+      const balanceRes = await fetch(`${SELLER_API}?action=get_balance`, {
+        headers: { 'X-User-Id': user!.id.toString() }
+      });
+      const balanceData = await balanceRes.json();
+      setBalance(balanceData.balance || 0);
     } catch (error) {
       toast.error('Ошибка загрузки профиля');
     } finally {
@@ -321,6 +331,13 @@ const SellerDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="mb-6">
+          <BalanceWidget 
+            balance={balance} 
+            onTopUp={() => setShowTopUpModal(true)} 
+          />
+        </div>
+
         <Card className="p-6 mb-6 bg-gradient-to-r from-farmer-green/5 to-farmer-orange/5">
           <h2 className="text-2xl font-bold mb-2 text-gray-900">
             Твой кабинет — стань партнером в таинстве роста ферм
@@ -887,6 +904,14 @@ const SellerDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <TopUpModal 
+        open={showTopUpModal}
+        onClose={() => setShowTopUpModal(false)}
+        onSubmit={(amount) => {
+          toast.success(`Переход к оплате ${amount} ₽`);
+        }}
+      />
     </div>
   );
 };

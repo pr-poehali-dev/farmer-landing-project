@@ -290,6 +290,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'proposals': proposals})
                 }
+            
+            elif action == 'get_balance':
+                cur.execute(
+                    f"""SELECT balance FROM {schema}.users WHERE id = %s""",
+                    (user_id,)
+                )
+                result = cur.fetchone()
+                balance = float(result[0]) if result and result[0] else 0.0
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'balance': balance})
+                }
         
         return {
             'statusCode': 405,
