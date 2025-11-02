@@ -47,9 +47,10 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
         <Button
           onClick={() => navigate('/register')}
           size="lg"
-          className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
+          className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto max-w-full"
         >
-          Вернись к истокам — зарегистрируйся сейчас!
+          <span className="hidden sm:inline">Вернись к истокам — зарегистрируйся сейчас!</span>
+          <span className="sm:hidden">Зарегистрируйся сейчас!</span>
         </Button>
       </div>
     </section>
