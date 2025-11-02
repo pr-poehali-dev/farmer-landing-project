@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
@@ -37,9 +38,12 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const [loading, setLoading] = useState(true);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filter, setFilter] = useState<'all' | 'income' | 'products' | 'patronage'>('all');
+  const [showMyRequests, setShowMyRequests] = useState(false);
+  const [myRequests, setMyRequests] = useState<any[]>([]);
 
   useEffect(() => {
     loadProposals();
+    loadMyRequests();
   }, []);
 
   const loadProposals = async () => {
@@ -53,6 +57,45 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
       toast.error('Ошибка загрузки предложений');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMyRequests = async () => {
+    try {
+      const response = await fetch(`${INVESTOR_API}?action=get_portfolio`, {
+        headers: { 'X-User-Id': userId.toString() }
+      });
+      const data = await response.json();
+      setMyRequests(data.investments || []);
+    } catch (error) {
+      console.error('Ошибка загрузки заявок');
+    }
+  };
+
+  const cancelRequest = async (investmentId: number) => {
+    if (!confirm('Вы уверены, что хотите отменить заявку?')) return;
+    
+    try {
+      const response = await fetch(INVESTOR_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId.toString()
+        },
+        body: JSON.stringify({
+          action: 'cancel_investment',
+          investment_id: investmentId
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Заявка отменена');
+        loadMyRequests();
+      } else {
+        toast.error('Ошибка при отмене заявки');
+      }
+    } catch (error) {
+      toast.error('Ошибка при отмене заявки');
     }
   };
 
@@ -101,6 +144,18 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
 
   return (
     <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Маркет предложений</h2>
+        <Button
+          variant="outline"
+          onClick={() => setShowMyRequests(true)}
+          className="flex items-center gap-2"
+        >
+          <Icon name="FileText" size={18} />
+          Мои заявки ({myRequests.length})
+        </Button>
+      </div>
+
       <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="mb-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">Все</TabsTrigger>
@@ -211,6 +266,78 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
           ))}
         </div>
       )}
+
+      <Dialog open={showMyRequests} onOpenChange={setShowMyRequests}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Icon name="FileText" className="text-farmer-green" />
+              Мои заявки
+            </DialogTitle>
+          </DialogHeader>
+          
+          {myRequests.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Icon name="Inbox" size={64} className="mx-auto mb-4 opacity-30" />
+              <p className="text-lg">У вас пока нет заявок</p>
+              <p className="text-sm mt-2">Оставьте заявку на понравившееся предложение</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {myRequests.map((request) => {
+                const status = request.status || 'pending';
+                const statusText = status === 'pending' ? 'Ждем подтверждение' : 
+                                 status === 'active' ? 'Одобрено' :
+                                 status === 'rejected' ? 'Отклонено' : 'Отменено';
+                const statusColor = status === 'active' ? 'bg-green-100 text-green-700' :
+                                  status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-red-100 text-red-700';
+                
+                return (
+                  <Card key={request.id} className="p-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColor}`}>
+                            {statusText}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(request.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="font-medium text-gray-900 mb-1">
+                          {request.proposal_description}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Фермер: {request.farmer_name}
+                        </p>
+                        <div className="flex gap-4 mt-2 text-sm text-gray-600">
+                          <span>Сумма: {request.amount} ₽</span>
+                          <span>Тип: {getTypeLabel(request.proposal_type)}</span>
+                        </div>
+                      </div>
+                      {status === 'pending' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            cancelRequest(request.id);
+                            setShowMyRequests(false);
+                          }}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Icon name="X" size={16} className="mr-1" />
+                          Отменить
+                        </Button>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
