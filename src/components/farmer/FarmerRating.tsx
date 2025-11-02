@@ -421,38 +421,45 @@ export default function FarmerRating({ userId }: Props) {
                 ))}
               </select>
             </div>
-            <div className="space-y-2">
-              {leaderboard.map((entry) => {
-                const isCurrentUser = entry.user_id === userId;
-                return (
-                  <Card 
-                    key={entry.user_id}
-                    className={`p-3 ${isCurrentUser ? 'bg-blue-50 border-2 border-blue-300' : 'bg-white'}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`text-lg font-bold ${
-                          entry.rank === 1 ? 'text-yellow-500' :
-                          entry.rank === 2 ? 'text-gray-400' :
-                          entry.rank === 3 ? 'text-orange-600' :
-                          'text-gray-600'
-                        }`}>
-                          {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            {entry.farm_name || `Ферма №${entry.user_id}`}
-                            {isCurrentUser && <span className="ml-2 text-xs text-blue-600">(Вы)</span>}
+            {leaderboard.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Icon name="Users" size={48} className="mx-auto mb-4 text-gray-300" />
+                <p>Список лидеров пуст</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {leaderboard.map((entry) => {
+                  const isCurrentUser = entry.user_id === userId;
+                  return (
+                    <Card 
+                      key={entry.user_id}
+                      className={`p-3 ${isCurrentUser ? 'bg-blue-50 border-2 border-blue-300' : 'bg-white'}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`text-lg font-bold ${
+                            entry.rank === 1 ? 'text-yellow-500' :
+                            entry.rank === 2 ? 'text-gray-400' :
+                            entry.rank === 3 ? 'text-orange-600' :
+                            'text-gray-600'
+                          }`}>
+                            {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
                           </div>
-                          <div className="text-xs text-gray-500">{entry.region || 'Регион не указан'}</div>
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              {entry.farm_name || `Ферма №${entry.user_id}`}
+                              {isCurrentUser && <span className="ml-2 text-xs text-blue-600">(Вы)</span>}
+                            </div>
+                            <div className="text-xs text-gray-500">{entry.region || 'Регион не указан'}</div>
+                          </div>
                         </div>
+                        <div className="text-lg font-bold text-gray-900">{entry.score}</div>
                       </div>
-                      <div className="text-lg font-bold text-gray-900">{entry.score}</div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </Card>
         </TabsContent>
       </Tabs>

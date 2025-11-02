@@ -196,14 +196,17 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
 
 def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute('''
-            INSERT INTO farmer_scores (user_id)
-            SELECT CAST(fd.user_id AS TEXT)
-            FROM farmer_data fd
-            WHERE CAST(fd.user_id AS TEXT) NOT IN (SELECT user_id FROM farmer_scores)
-            ON CONFLICT (user_id) DO NOTHING
-        ''')
-        conn.commit()
+        try:
+            cur.execute('''
+                INSERT INTO farmer_scores (user_id)
+                SELECT CAST(fd.user_id AS TEXT)
+                FROM farmer_data fd
+                WHERE CAST(fd.user_id AS TEXT) NOT IN (SELECT user_id FROM farmer_scores)
+                ON CONFLICT (user_id) DO NOTHING
+            ''')
+            conn.commit()
+        except:
+            conn.rollback()
         
         score_column = 'total_score'
         if category == 'productivity':
@@ -217,22 +220,25 @@ def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
         elif category == 'community':
             score_column = 'community_score'
         
-        cur.execute(f'''
-            SELECT 
-                fs.user_id,
-                fd.full_name,
-                fd.farm_name,
-                fd.region,
-                fs.{score_column} as score,
-                fs.level,
-                ROW_NUMBER() OVER (ORDER BY fs.{score_column} DESC) as rank
-            FROM farmer_scores fs
-            LEFT JOIN farmer_data fd ON CAST(fd.user_id AS TEXT) = fs.user_id
-            ORDER BY fs.{score_column} DESC
-            LIMIT 100
-        ''')
-        
-        leaderboard = cur.fetchall()
+        try:
+            cur.execute(f'''
+                SELECT 
+                    fs.user_id,
+                    fd.full_name,
+                    fd.farm_name,
+                    COALESCE(fd.region, '') as region,
+                    fs.{score_column} as score,
+                    fs.level,
+                    ROW_NUMBER() OVER (ORDER BY fs.{score_column} DESC, fs.user_id) as rank
+                FROM farmer_scores fs
+                LEFT JOIN farmer_data fd ON CAST(fd.user_id AS TEXT) = fs.user_id
+                ORDER BY fs.{score_column} DESC, fs.user_id
+                LIMIT 100
+            ''')
+            
+            leaderboard = cur.fetchall()
+        except Exception as e:
+            leaderboard = []
     
     conn.close()
     return {
