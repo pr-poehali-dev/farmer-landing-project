@@ -68,10 +68,11 @@ const FarmersSection = () => {
             <Button
               onClick={() => navigate('/register?role=farmer')}
               size="lg"
-              className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-lg px-10 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-base sm:text-lg px-4 sm:px-6 md:px-10 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
             >
               <Icon name="Sprout" size={22} className="mr-2" />
-              Оживи свою ферму — зарегистрируйся!
+              <span className="hidden sm:inline">Оживи свою ферму — зарегистрируйся!</span>
+              <span className="sm:hidden">Зарегистрируйся!</span>
             </Button>
           </div>
         </Card>

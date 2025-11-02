@@ -68,10 +68,11 @@ const SellersSection = () => {
             <Button
               onClick={() => navigate('/register?role=seller')}
               size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-4 sm:px-6 md:px-10 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
             >
               <Icon name="Rocket" size={22} className="mr-2" />
-              Поддержи рост — зарегистрируйся!
+              <span className="hidden sm:inline">Поддержи рост — зарегистрируйся!</span>
+              <span className="sm:hidden">Зарегистрируйся!</span>
             </Button>
           </div>
         </Card>
