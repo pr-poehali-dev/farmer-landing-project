@@ -36,6 +36,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [payoutPeriod, setPayoutPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [payoutDuration, setPayoutDuration] = useState<string>('');
   const [lastYearYield, setLastYearYield] = useState<string>('');
+  const [totalAssetValue, setTotalAssetValue] = useState<string>('');
 
   const getMinPrice = () => {
     switch (proposalType) {
@@ -45,6 +46,24 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       default: return 1000;
     }
   };
+
+  const MIN_SHARE_PRICE = 5000;
+
+  const calculateMaxShares = () => {
+    const totalValue = parseFloat(totalAssetValue);
+    if (!totalValue || totalValue < MIN_SHARE_PRICE) return 0;
+    return Math.floor(totalValue / MIN_SHARE_PRICE);
+  };
+
+  const calculateSharePrice = () => {
+    const totalValue = parseFloat(totalAssetValue);
+    const sharesNum = parseInt(shares);
+    if (!totalValue || !sharesNum || sharesNum < 1) return 0;
+    return Math.floor(totalValue / sharesNum);
+  };
+
+  const maxShares = calculateMaxShares();
+  const calculatedSharePrice = calculateSharePrice();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,10 +76,9 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
     const priceNum = parseFloat(price);
     const sharesNum = parseInt(shares);
     const countNum = parseInt(assetCount) || 0;
-    const minPrice = getMinPrice();
 
-    if (priceNum < minPrice) {
-      toast.error(`Минимальная цена для этого типа: ${minPrice} руб.`);
+    if (priceNum < MIN_SHARE_PRICE) {
+      toast.error(`Минимальная цена доли: ${MIN_SHARE_PRICE} руб.`);
       return;
     }
 
@@ -150,6 +168,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
         setPayoutAmount('');
         setPayoutDuration('');
         setLastYearYield('');
+        setTotalAssetValue('');
         onSuccess();
       } else {
         const error = await response.json();
@@ -277,37 +296,110 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="price">
-              Цена доли (мин. {getMinPrice()} руб.
-              {proposalType === 'patronage' && '/мес'})
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              min={getMinPrice()}
-              step="100"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder={`${getMinPrice()}`}
-              required
-            />
+        <Card className="p-4 bg-amber-50 border-amber-200 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon name="PieChart" size={18} className="text-amber-600" />
+            <Label className="text-base font-semibold">Деление на доли</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="shares">Количество долей</Label>
+            <Label htmlFor="totalAssetValue">
+              Общая стоимость актива (руб) *
+            </Label>
             <Input
-              id="shares"
+              id="totalAssetValue"
               type="number"
-              min="1"
-              value={shares}
-              onChange={(e) => setShares(e.target.value)}
-              placeholder="10"
+              min="5000"
+              step="1000"
+              value={totalAssetValue}
+              onChange={(e) => {
+                setTotalAssetValue(e.target.value);
+                setShares('');
+                setPrice('');
+              }}
+              placeholder="Например: 100000"
               required
             />
+            <p className="text-xs text-gray-600">
+              Укажите полную стоимость актива, который вы хотите разделить на доли
+            </p>
           </div>
-        </div>
+
+          {totalAssetValue && parseFloat(totalAssetValue) >= MIN_SHARE_PRICE && (
+            <div className="p-3 bg-white rounded-lg border border-amber-300">
+              <div className="flex items-start gap-2 mb-2">
+                <Icon name="Info" size={16} className="text-amber-600 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-semibold text-amber-900">Автоматический расчет</p>
+                  <p className="text-gray-700 mt-1">
+                    Максимум долей по {MIN_SHARE_PRICE.toLocaleString()} руб: <span className="font-bold">{maxShares}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="shares">Количество долей *</Label>
+              <Input
+                id="shares"
+                type="number"
+                min="1"
+                max={maxShares || undefined}
+                value={shares}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setShares(value);
+                  if (value && totalAssetValue) {
+                    const totalValue = parseFloat(totalAssetValue);
+                    const sharesNum = parseInt(value);
+                    if (sharesNum > 0) {
+                      setPrice(Math.floor(totalValue / sharesNum).toString());
+                    }
+                  }
+                }}
+                placeholder={maxShares ? `Макс: ${maxShares}` : "10"}
+                required
+                disabled={!totalAssetValue}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">
+                Цена одной доли
+                {proposalType === 'patronage' && '/мес'}
+              </Label>
+              <Input
+                id="price"
+                type="number"
+                value={price}
+                placeholder="Рассчитается авто"
+                disabled
+                className="bg-gray-100"
+              />
+            </div>
+          </div>
+
+          {shares && calculatedSharePrice < MIN_SHARE_PRICE && (
+            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <Icon name="AlertTriangle" size={16} className="text-red-600 mt-0.5" />
+              <p className="text-sm text-red-800">
+                Цена доли {calculatedSharePrice.toLocaleString()} руб меньше минимума {MIN_SHARE_PRICE.toLocaleString()} руб. 
+                Уменьшите количество долей до {maxShares}.
+              </p>
+            </div>
+          )}
+
+          {shares && calculatedSharePrice >= MIN_SHARE_PRICE && (
+            <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <Icon name="CheckCircle2" size={16} className="text-green-600 mt-0.5" />
+              <p className="text-sm text-green-800">
+                ✅ {shares} {parseInt(shares) === 1 ? 'доля' : parseInt(shares) < 5 ? 'доли' : 'долей'} по {calculatedSharePrice.toLocaleString()} руб
+              </p>
+            </div>
+          )}
+        </Card>
 
         {proposalType === 'products' && (
           <div className="space-y-2">
