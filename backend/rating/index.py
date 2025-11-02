@@ -222,41 +222,21 @@ def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
         
         cur.execute(f'''
             SELECT 
-                user_id,
+                fs.user_id,
                 NULL as full_name,
-                NULL as farm_name,
-                '' as region,
+                COALESCE(fd.farm_info->>'main_activity', 'Ферма №' || fs.user_id) as farm_name,
+                COALESCE(fd.region, fd.country, 'Регион не указан') as region,
                 {score_column} as score,
-                level,
-                ROW_NUMBER() OVER (ORDER BY {score_column} DESC, user_id) as rank
-            FROM farmer_scores
-            ORDER BY {score_column} DESC, user_id
+                fs.level,
+                ROW_NUMBER() OVER (ORDER BY {score_column} DESC, fs.user_id) as rank
+            FROM farmer_scores fs
+            LEFT JOIN farmer_data fd ON CAST(fd.user_id AS TEXT) = fs.user_id
+            ORDER BY {score_column} DESC, fs.user_id
             LIMIT 100
         ''')
         
         leaderboard_raw = cur.fetchall()
-        leaderboard = []
-        
-        for entry in leaderboard_raw:
-            entry_dict = dict(entry)
-            user_id_str = entry_dict['user_id']
-            
-            try:
-                cur.execute('''
-                    SELECT full_name, farm_name, region 
-                    FROM farmer_data 
-                    WHERE CAST(user_id AS TEXT) = %s
-                ''', (user_id_str,))
-                farmer_data = cur.fetchone()
-                
-                if farmer_data:
-                    entry_dict['full_name'] = farmer_data['full_name']
-                    entry_dict['farm_name'] = farmer_data['farm_name']
-                    entry_dict['region'] = farmer_data['region'] or ''
-            except:
-                pass
-            
-            leaderboard.append(entry_dict)
+        leaderboard = [dict(entry) for entry in leaderboard_raw]
     
     conn.close()
     return {
