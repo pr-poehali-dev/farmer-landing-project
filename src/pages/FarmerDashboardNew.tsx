@@ -50,8 +50,19 @@ export default function FarmerDashboardNew() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button 
+            onClick={() => setActiveTab('profile')}
+            size="lg"
+            className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
+          >
+            <Icon name="User" size={20} className="mr-2" />
+            Мой профиль
+          </Button>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
             <TabsTrigger value="diagnostics" className="flex items-center gap-2">
               <Icon name="Home" size={18} />
               <span className="hidden md:inline">Моё хозяйство</span>
@@ -59,10 +70,6 @@ export default function FarmerDashboardNew() {
             <TabsTrigger value="proposals" className="flex items-center gap-2">
               <Icon name="DollarSign" size={18} />
               <span className="hidden md:inline">Предложения</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <Icon name="User" size={18} />
-              <span className="hidden md:inline">Профиль</span>
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="flex items-center gap-2">
               <Icon name="ShoppingCart" size={18} />
