@@ -23,7 +23,7 @@ interface InvestorRequestsProps {
 const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
   const [requests, setRequests] = useState<InvestorRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'pending' | 'active' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'paid' | 'active' | 'all'>('pending');
 
   useEffect(() => {
     fetchRequests();
@@ -56,8 +56,19 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
           proposal_description: 'Покупка оборудования',
           proposal_type: 'income',
           amount: 100000,
-          status: 'pending',
+          status: 'approved',
           date: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+          id: '3',
+          investor_id: 'inv3',
+          investor_name: 'Александр Иванов',
+          proposal_id: 'p3',
+          proposal_description: 'Расширение теплиц',
+          proposal_type: 'income',
+          amount: 75000,
+          status: 'paid',
+          date: new Date(Date.now() - 172800000).toISOString()
         }
       ]);
     } finally {
@@ -72,11 +83,11 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
       });
 
       if (response.ok) {
-        toast.success(action === 'approve' ? 'Заявка одобрена!' : 'Заявка отклонена');
+        toast.success(action === 'approve' ? 'Заявка одобрена! Ожидаем оплату от инвестора' : 'Заявка отклонена');
         setRequests(prev => 
           prev.map(req => 
             req.id === requestId 
-              ? { ...req, status: action === 'approve' ? 'active' : 'rejected' }
+              ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' }
               : req
           )
         );
@@ -132,7 +143,22 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
         )}
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex gap-3">
+          <Icon name="Info" className="text-blue-600 flex-shrink-0 mt-1" size={20} />
+          <div className="text-sm text-blue-900">
+            <p className="font-semibold mb-2">Процесс работы с инвесторами:</p>
+            <ol className="list-decimal list-inside space-y-1 text-blue-800">
+              <li>Инвестор оставляет заявку на ваше предложение</li>
+              <li>Вы одобряете или отклоняете заявку</li>
+              <li>После одобрения инвестор получает кнопку "Оплатить"</li>
+              <li>После оплаты инвестиция становится активной</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-6 flex-wrap">
         <Button
           variant={filter === 'pending' ? 'default' : 'outline'}
           onClick={() => setFilter('pending')}
@@ -141,11 +167,25 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
           Ожидают ответа ({requests.filter(r => r.status === 'pending').length})
         </Button>
         <Button
+          variant={filter === 'approved' ? 'default' : 'outline'}
+          onClick={() => setFilter('approved')}
+          className={filter === 'approved' ? 'bg-farmer-green' : ''}
+        >
+          Ждем оплаты ({requests.filter(r => r.status === 'approved').length})
+        </Button>
+        <Button
+          variant={filter === 'paid' ? 'default' : 'outline'}
+          onClick={() => setFilter('paid')}
+          className={filter === 'paid' ? 'bg-farmer-green' : ''}
+        >
+          Оплачено ({requests.filter(r => r.status === 'paid').length})
+        </Button>
+        <Button
           variant={filter === 'active' ? 'default' : 'outline'}
           onClick={() => setFilter('active')}
           className={filter === 'active' ? 'bg-farmer-green' : ''}
         >
-          Одобренные ({requests.filter(r => r.status === 'active').length})
+          Активные ({requests.filter(r => r.status === 'active').length})
         </Button>
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
@@ -209,7 +249,7 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 min-w-[140px]">
+                <div className="flex flex-col gap-2 min-w-[160px]">
                   {request.status === 'pending' ? (
                     <>
                       <Button
@@ -230,11 +270,15 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
                     </>
                   ) : (
                     <div className={`px-4 py-2 rounded-lg text-center font-semibold ${
-                      request.status === 'active' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-red-100 text-red-700'
+                      request.status === 'active' ? 'bg-green-100 text-green-700' :
+                      request.status === 'paid' ? 'bg-blue-100 text-blue-700' :
+                      request.status === 'approved' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
                     }`}>
-                      {request.status === 'active' ? '✓ Одобрено' : '✗ Отклонено'}
+                      {request.status === 'active' ? '✓ Активно' :
+                       request.status === 'paid' ? '💳 Оплачено' :
+                       request.status === 'approved' ? '⏳ Ждем оплаты' :
+                       '✗ Отклонено'}
                     </div>
                   )}
                 </div>

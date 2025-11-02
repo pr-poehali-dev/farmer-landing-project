@@ -275,13 +275,22 @@ const InvestorDashboard = () => {
           </TabsContent>
 
           <TabsContent value="portfolio">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex gap-3">
+                <Icon name="Info" className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                <div className="text-sm text-green-900">
+                  <p className="font-semibold mb-1">В портфеле отображаются только оплаченные инвестиции</p>
+                  <p className="text-green-800">Одобренные заявки, ожидающие оплаты, находятся в разделе "Мои заявки"</p>
+                </div>
+              </div>
+            </div>
             {portfolio.length === 0 ? (
               <Card className="p-6">
                 <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
                   <Icon name="Briefcase" className="text-farmer-orange" />
                   Мой портфель
                 </h2>
-                <p className="text-gray-500 text-center py-8">Пока нет инвестиций</p>
+                <p className="text-gray-500 text-center py-8">Пока нет оплаченных инвестиций</p>
               </Card>
             ) : (
               <div className="space-y-6">

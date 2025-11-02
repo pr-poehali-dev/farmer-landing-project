@@ -284,8 +284,8 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 <ol className="list-decimal list-inside space-y-1 text-blue-800">
                   <li>Вы оставляете заявку на предложение фермера</li>
                   <li>Фермер получает уведомление и рассматривает заявку</li>
-                  <li>После одобрения заявка появится в вашем портфеле</li>
-                  <li>Одобренные инвестиции вы можете отслеживать во вкладке "Портфель"</li>
+                  <li>После одобрения вам нужно оплатить заявку</li>
+                  <li>После оплаты инвестиция появится в вашем портфеле</li>
                 </ol>
               </div>
             </div>
@@ -302,9 +302,12 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
               {myRequests.map((request) => {
                 const status = request.status || 'pending';
                 const statusText = status === 'pending' ? 'Ждем подтверждение' : 
-                                 status === 'active' ? 'Одобрено' :
+                                 status === 'approved' ? 'Одобрено - требуется оплата' :
+                                 status === 'paid' ? 'Оплачено' :
+                                 status === 'active' ? 'Активно' :
                                  status === 'rejected' ? 'Отклонено' : 'Отменено';
-                const statusColor = status === 'active' ? 'bg-green-100 text-green-700' :
+                const statusColor = status === 'active' || status === 'paid' ? 'bg-green-100 text-green-700' :
+                                  status === 'approved' ? 'bg-blue-100 text-blue-700' :
                                   status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                                   'bg-red-100 text-red-700';
                 
@@ -331,20 +334,34 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                           <span>Тип: {getTypeLabel(request.proposal_type)}</span>
                         </div>
                       </div>
-                      {status === 'pending' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            cancelRequest(request.id);
-                            setShowMyRequests(false);
-                          }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Icon name="X" size={16} className="mr-1" />
-                          Отменить
-                        </Button>
-                      )}
+                      <div className="flex flex-col gap-2 min-w-[140px]">
+                        {status === 'pending' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              cancelRequest(request.id);
+                              setShowMyRequests(false);
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Icon name="X" size={16} className="mr-1" />
+                            Отменить
+                          </Button>
+                        )}
+                        {status === 'approved' && (
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              toast.info('Скоро здесь появится оплата! Функция в разработке.');
+                            }}
+                            className="bg-farmer-green hover:bg-farmer-green-dark text-white"
+                          >
+                            <Icon name="CreditCard" size={16} className="mr-1" />
+                            Оплатить {request.amount} ₽
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </Card>
                 );
