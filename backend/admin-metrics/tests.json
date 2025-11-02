@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "Get all metrics",
+      "method": "GET",
+      "path": "/?type=all",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get user metrics only",
+      "method": "GET",
+      "path": "/?type=users",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Handle OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

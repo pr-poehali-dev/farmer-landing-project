@@ -1,4 +1,5 @@
 {
+  "admin-metrics": "https://functions.poehali.dev/e07a87af-9e24-471c-b21c-3cc12b198981",
   "delete-user": "https://functions.poehali.dev/68b32d82-8055-4ae6-b41c-28ff4dad404b",
   "seller-api": "https://functions.poehali.dev/cc24321a-77b4-44ce-9ae2-7fb7efee6660",
   "investor-api": "https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5",
