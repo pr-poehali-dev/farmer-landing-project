@@ -209,7 +209,7 @@ const InvestorDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="proposals">
               <Icon name="Package" size={18} className="mr-2" />
-              Предложения
+              Маркет предложений
             </TabsTrigger>
             <TabsTrigger value="portfolio">
               <Icon name="Briefcase" size={18} className="mr-2" />
@@ -258,7 +258,7 @@ const InvestorDashboard = () => {
               </h2>
               
               {portfolio.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Пока нет инвестиций</p>
+                <p className="text-gray-500 text-center py-8">Пока нет заявок</p>
               ) : (
                 <div className="space-y-3">
                   {portfolio.map((investment) => (

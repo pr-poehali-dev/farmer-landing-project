@@ -265,7 +265,7 @@ const FarmerDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="proposals" className="flex items-center gap-2" disabled={!diagnosisCompleted}>
               <Icon name="Package" size={18} />
-              Предложения
+              Мои предложения
             </TabsTrigger>
             <TabsTrigger value="garage" className="flex items-center gap-2">
               <Icon name="Truck" size={18} />

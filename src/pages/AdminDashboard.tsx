@@ -235,7 +235,7 @@ const AdminDashboard = () => {
               <Icon name="FileText" size={32} className="text-farmer-orange" />
               <span className="text-3xl font-bold text-gray-900">{stats.overview.total_proposals}</span>
             </div>
-            <p className="text-gray-600 font-medium">Всего предложений</p>
+            <p className="text-gray-600 font-medium">Предложения фермеров</p>
             <div className="mt-3 text-sm text-gray-500">
               Активных: {stats.overview.active_proposals}
             </div>
@@ -246,7 +246,7 @@ const AdminDashboard = () => {
               <Icon name="TrendingUp" size={32} className="text-farmer-green" />
               <span className="text-3xl font-bold text-gray-900">{stats.overview.total_investments}</span>
             </div>
-            <p className="text-gray-600 font-medium">Всего инвестиций</p>
+            <p className="text-gray-600 font-medium">Заявки инвесторов</p>
           </Card>
 
           <Card className="p-6">
@@ -256,7 +256,7 @@ const AdminDashboard = () => {
                 {stats.overview.total_invested.toLocaleString('ru-RU')} ₽
               </span>
             </div>
-            <p className="text-gray-600 font-medium">Сумма инвестиций</p>
+            <p className="text-gray-600 font-medium">Сумма по заявкам</p>
           </Card>
         </div>
 
@@ -301,7 +301,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="flex gap-4 text-sm text-gray-500">
                     <span>Предложений: {user.proposals_count}</span>
-                    <span>Инвестиций: {user.investments_count}</span>
+                    <span>Заявок: {user.investments_count}</span>
                   </div>
                 </div>
               ))}
@@ -331,7 +331,7 @@ const AdminDashboard = () => {
                   <div className="flex gap-4 text-sm text-gray-700">
                     <span className="font-medium">{proposal.price.toLocaleString('ru-RU')} ₽</span>
                     <span>Долей: {proposal.shares}</span>
-                    <span>Инвесторов: {proposal.investors_count}</span>
+                    <span>Заявок: {proposal.investors_count}</span>
                   </div>
                 </div>
               ))}

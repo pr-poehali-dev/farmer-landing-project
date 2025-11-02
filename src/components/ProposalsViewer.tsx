@@ -192,7 +192,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                       Долей: {proposal.shares}
                     </div>
                     <div className="text-xs text-gray-500">
-                      Инвесторов: {proposal.investors_count}
+                      Заявок: {proposal.investors_count}
                     </div>
                   </div>
                 </div>
@@ -203,8 +203,8 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 >
                   <Icon name="Heart" size={16} className="mr-2" />
                   {proposal.type === 'patronage' 
-                    ? 'Стать покровителем' 
-                    : 'Инвестировать виртуально'}
+                    ? 'Оставить заявку' 
+                    : 'Оставить заявку'}
                 </Button>
               </div>
             </Card>
