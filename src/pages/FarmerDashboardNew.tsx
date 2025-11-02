@@ -9,6 +9,7 @@ import FarmDiagnostics from '@/components/farmer/FarmDiagnostics';
 import InvestmentProposals from '@/components/farmer/InvestmentProposals';
 import OwnerProfile from '@/components/farmer/OwnerProfile';
 import SellerMarketplace from '@/components/farmer/SellerMarketplace';
+import FarmerRating from '@/components/farmer/FarmerRating';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -50,14 +51,22 @@ export default function FarmerDashboardNew() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+        <div className="mb-6 flex gap-3">
           <Button 
             onClick={() => setActiveTab('profile')}
             size="lg"
-            className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
           >
             <Icon name="User" size={20} className="mr-2" />
             Мой профиль
+          </Button>
+          <Button 
+            onClick={() => setActiveTab('rating')}
+            size="lg"
+            className="bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-700 hover:to-amber-800 text-white shadow-lg"
+          >
+            <Icon name="Trophy" size={20} className="mr-2" />
+            Мой рейтинг
           </Button>
         </div>
 
@@ -91,6 +100,10 @@ export default function FarmerDashboardNew() {
 
           <TabsContent value="marketplace" className="mt-6">
             <SellerMarketplace />
+          </TabsContent>
+
+          <TabsContent value="rating" className="mt-6">
+            <FarmerRating points={points} />
           </TabsContent>
         </Tabs>
       </main>
