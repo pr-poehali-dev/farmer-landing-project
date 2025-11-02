@@ -77,11 +77,13 @@ const AdminDashboard = () => {
 
   const loadStats = () => {
     setLoading(true);
-    fetch(`${STATS_API}?action=admin`, {
-      headers: { 'X-User-Id': '1' }
-    })
+    fetch(`${STATS_API}?action=admin`)
       .then(res => {
-        if (!res.ok) throw new Error('Доступ запрещён');
+        if (!res.ok) {
+          return res.text().then(text => {
+            throw new Error(text || 'Доступ запрещён');
+          });
+        }
         return res.json();
       })
       .then(data => {
@@ -89,7 +91,8 @@ const AdminDashboard = () => {
         setLoading(false);
       })
       .catch(err => {
-        toast.error(err.message || 'Ошибка загрузки статистики');
+        console.error('Ошибка загрузки статистики:', err);
+        toast.error('Не удалось загрузить статистику');
         setLoading(false);
       });
   };
