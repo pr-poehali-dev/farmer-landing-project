@@ -111,11 +111,45 @@ def get_farmer_scores(conn, user_id: str, headers: dict) -> dict:
 
 def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        productivity_score = 0
-        tech_score = 0
-        investment_score = 0
-        expertise_score = 0
-        community_score = 0
+        proposal_count = 0
+        profile_filled = 0
+        investment_count = 0
+        
+        try:
+            cur.execute('SELECT COUNT(*) as count FROM proposals WHERE CAST(user_id AS TEXT) = %s', (user_id,))
+            result = cur.fetchone()
+            if result:
+                proposal_count = result['count']
+        except:
+            pass
+        
+        try:
+            cur.execute('SELECT COUNT(*) as count FROM farmer_data WHERE user_id = %s AND farm_name IS NOT NULL', (user_id,))
+            result = cur.fetchone()
+            if result:
+                profile_filled = result['count']
+        except:
+            pass
+        
+        try:
+            cur.execute('''
+                SELECT COUNT(*) as count 
+                FROM investments 
+                WHERE proposal_id IN (
+                    SELECT id FROM proposals WHERE CAST(user_id AS TEXT) = %s
+                )
+            ''', (user_id,))
+            result = cur.fetchone()
+            if result:
+                investment_count = result['count']
+        except:
+            pass
+        
+        productivity_score = proposal_count * 30
+        tech_score = profile_filled * 20
+        investment_score = investment_count * 50
+        expertise_score = min(proposal_count * 10, 100)
+        community_score = investment_count * 15
         
         total_score = productivity_score + tech_score + investment_score + expertise_score + community_score
         
@@ -162,6 +196,15 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
 
 def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute('''
+            INSERT INTO farmer_scores (user_id)
+            SELECT CAST(fd.user_id AS TEXT)
+            FROM farmer_data fd
+            WHERE CAST(fd.user_id AS TEXT) NOT IN (SELECT user_id FROM farmer_scores)
+            ON CONFLICT (user_id) DO NOTHING
+        ''')
+        conn.commit()
+        
         score_column = 'total_score'
         if category == 'productivity':
             score_column = 'productivity_score'
@@ -177,13 +220,13 @@ def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
         cur.execute(f'''
             SELECT 
                 fs.user_id,
-                fp.full_name,
-                fp.farm_name,
+                fd.full_name,
+                fd.farm_name,
                 fs.{score_column} as score,
                 fs.level,
                 ROW_NUMBER() OVER (ORDER BY fs.{score_column} DESC) as rank
             FROM farmer_scores fs
-            LEFT JOIN farmer_profiles fp ON fs.user_id = fp.user_id
+            LEFT JOIN farmer_data fd ON CAST(fd.user_id AS TEXT) = fs.user_id
             ORDER BY fs.{score_column} DESC
             LIMIT 100
         ''')
