@@ -1,0 +1,72 @@
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import Icon from '@/components/ui/icon';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ANIMAL_TYPES, Animal } from '@/types/farm.types';
+
+interface Props {
+  animal: Animal;
+  index: number;
+  onUpdate: (index: number, field: keyof Animal, value: any) => void;
+  onRemove: (index: number) => void;
+}
+
+export default function AnimalFormItem({ animal, index, onUpdate, onRemove }: Props) {
+  return (
+    <Card className="p-4 bg-gray-50 mb-3">
+      <div className="flex items-start justify-between mb-3">
+        <Label className="text-sm font-semibold">Животное #{index + 1}</Label>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => onRemove(index)}
+          className="h-6 w-6 p-0"
+        >
+          <Icon name="X" size={16} />
+        </Button>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs">Вид</Label>
+          <Select value={animal.type} onValueChange={(val) => onUpdate(index, 'type', val)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ANIMAL_TYPES.filter(t => t.value !== 'hives').map(type => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs">Количество</Label>
+          <Input
+            type="number"
+            value={animal.count}
+            onChange={(e) => onUpdate(index, 'count', parseInt(e.target.value) || 0)}
+          />
+        </div>
+        <div>
+          <Label className="text-xs">Порода (опционально)</Label>
+          <Input
+            type="text"
+            placeholder="Например: Симментальская"
+            value={animal.breed || ''}
+            onChange={(e) => onUpdate(index, 'breed', e.target.value)}
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
