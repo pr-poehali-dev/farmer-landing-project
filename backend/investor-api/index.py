@@ -186,7 +186,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT p.id, p.description, p.price, p.shares, p.type,
                            p.asset, p.expected_product, p.update_frequency,
                            u.first_name, u.last_name, u.farm_name, fd.region,
-                           (SELECT COUNT(*) FROM {schema}.investments i WHERE i.proposal_id = p.id) as investors_count
+                           (SELECT COUNT(*) FROM {schema}.investments i WHERE i.proposal_id = p.id) as investors_count,
+                           p.user_id
                     FROM {schema}.proposals p
                     LEFT JOIN {schema}.users u ON p.user_id = u.id
                     LEFT JOIN {schema}.farmer_data fd ON p.user_id = fd.user_id
@@ -214,7 +215,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'farmer_name': f"{row[8] or ''} {row[9] or ''}".strip() or row[10] or 'Фермер',
                         'farm_name': row[10] or 'Ферма',
                         'region': row[11] or 'Регион не указан',
-                        'investors_count': row[12]
+                        'investors_count': row[12],
+                        'farmer_id': row[13]
                     })
                 
                 return {

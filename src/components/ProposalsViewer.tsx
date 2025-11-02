@@ -25,11 +25,12 @@ interface Proposal {
   farm_name: string;
   region: string;
   investors_count: number;
+  farmer_id?: number;
 }
 
 interface ProposalsViewerProps {
   userId: number;
-  onInvest: (proposalId: number, productType: string) => Promise<boolean>;
+  onInvest: (proposalId: number, productType: string, shares?: number, totalAmount?: number) => Promise<boolean>;
 }
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
@@ -40,6 +41,8 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const [filter, setFilter] = useState<'all' | 'income' | 'products' | 'patronage'>('all');
   const [showMyRequests, setShowMyRequests] = useState(false);
   const [myRequests, setMyRequests] = useState<any[]>([]);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
+  const [selectedShares, setSelectedShares] = useState(1);
 
   useEffect(() => {
     loadProposals();
@@ -199,9 +202,13 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                   {proposal.asset.name}
                 </h3>
                 
-                <p className="text-sm text-gray-600 mb-1">
+                <button
+                  onClick={() => proposal.farmer_id && window.open(`/profile/${proposal.farmer_id}`, '_blank')}
+                  className="text-sm text-gray-600 mb-1 hover:text-farmer-orange transition-colors flex items-center gap-1"
+                >
+                  <Icon name="User" size={14} />
                   {proposal.farmer_name} • {proposal.region}
-                </p>
+                </button>
 
                 <p className="text-gray-700 mb-4 line-clamp-3">
                   {proposal.description}
@@ -245,17 +252,9 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 </div>
 
                 <Button
-                  onClick={async () => {
-                    console.log('Нажата кнопка, proposal:', proposal.id, proposal.type);
-                    const success = await onInvest(proposal.id, proposal.type);
-                    console.log('Результат onInvest:', success);
-                    if (success) {
-                      toast.success('Заявка отправлена! Проверьте "Мои заявки"');
-                      await loadMyRequests();
-                      console.log('Заявки обновлены');
-                    } else {
-                      console.error('onInvest вернул false');
-                    }
+                  onClick={() => {
+                    setSelectedProposal(proposal);
+                    setSelectedShares(1);
                   }}
                   className="w-full bg-farmer-green hover:bg-farmer-green-dark"
                 >
@@ -332,6 +331,7 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                         </p>
                         <div className="flex gap-4 mt-2 text-sm text-gray-600">
                           <span>Сумма: {request.amount} ₽</span>
+                          {request.shares && <span>Долей: {request.shares}</span>}
                           <span>Тип: {getTypeLabel(request.proposal_type)}</span>
                         </div>
                       </div>
@@ -375,6 +375,106 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                   </Card>
                 );
               })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedProposal} onOpenChange={() => setSelectedProposal(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              {selectedProposal?.asset.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedProposal && (
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Цена за долю:</span>
+                  <span className="font-bold text-lg">{selectedProposal.price.toLocaleString()} ₽</span>
+                </div>
+
+                <div className="border-t pt-3">
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Количество долей:
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedShares(Math.max(1, selectedShares - 1))}
+                      disabled={selectedShares <= 1}
+                    >
+                      <Icon name="Minus" size={16} />
+                    </Button>
+                    <input
+                      type="number"
+                      min="1"
+                      max={selectedProposal.shares}
+                      value={selectedShares}
+                      onChange={(e) => setSelectedShares(Math.max(1, Math.min(selectedProposal.shares, parseInt(e.target.value) || 1)))}
+                      className="w-20 text-center border rounded px-3 py-2 text-lg font-semibold"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedShares(Math.min(selectedProposal.shares, selectedShares + 1))}
+                      disabled={selectedShares >= selectedProposal.shares}
+                    >
+                      <Icon name="Plus" size={16} />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Доступно: {selectedProposal.shares} долей
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-farmer-green/10 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Сумма инвестиции:</span>
+                  <span className="text-2xl font-bold text-farmer-green">
+                    {(selectedProposal.price * selectedShares).toLocaleString()} ₽
+                  </span>
+                </div>
+
+                {selectedProposal.expected_product && (
+                  <div className="border-t pt-2 mt-2">
+                    <p className="text-sm text-gray-700">
+                      <Icon name="Gift" size={14} className="inline mr-1 text-farmer-orange" />
+                      <strong>Вы получите:</strong> {selectedProposal.expected_product}
+                      {selectedShares > 1 && ` × ${selectedShares}`}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedProposal(null)}
+                  className="flex-1"
+                >
+                  Отмена
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const totalAmount = selectedProposal.price * selectedShares;
+                    const success = await onInvest(selectedProposal.id, selectedProposal.type, selectedShares, totalAmount);
+                    if (success) {
+                      toast.success(`Заявка на ${selectedShares} ${selectedShares === 1 ? 'долю' : 'долей'} отправлена!`);
+                      await loadMyRequests();
+                      setSelectedProposal(null);
+                    }
+                  }}
+                  className="flex-1 bg-farmer-green hover:bg-farmer-green-dark text-white"
+                >
+                  <Icon name="Heart" size={16} className="mr-2" />
+                  Оставить заявку
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

@@ -161,9 +161,9 @@ const InvestorDashboard = () => {
     }
   };
 
-  const handleInvestInProposal = async (proposalId: number, productType: string) => {
+  const handleInvestInProposal = async (proposalId: number, productType: string, shares = 1, totalAmount?: number) => {
     try {
-      console.log('handleInvestInProposal вызван:', { proposalId, productType, proposals });
+      console.log('handleInvestInProposal вызван:', { proposalId, productType, shares, totalAmount, proposals });
       
       // Временное решение: сохраняем локально до реализации бэкенда
       const proposal = proposals.find(p => p.id === proposalId);
@@ -174,6 +174,8 @@ const InvestorDashboard = () => {
         return false;
       }
 
+      const finalAmount = totalAmount || (proposal.price * shares);
+
       const newRequest = {
         id: Date.now().toString(),
         investor_id: user!.id.toString(),
@@ -182,7 +184,8 @@ const InvestorDashboard = () => {
         proposal_description: proposal.description,
         proposal_type: productType,
         farmer_name: proposal.farmer_name,
-        amount: proposal.price,
+        amount: finalAmount,
+        shares: shares,
         status: 'pending',
         date: new Date().toISOString()
       };
