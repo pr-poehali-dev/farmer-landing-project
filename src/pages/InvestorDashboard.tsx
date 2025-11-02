@@ -162,7 +162,7 @@ const InvestorDashboard = () => {
   };
 
   const handleInvestInProposal = async (proposalId: number, productType: string, shares?: number, totalAmount?: number): Promise<boolean> => {
-    const actualShares = shares || 1;
+    const actualShares = shares ?? 1;
     try {
       const proposal = proposals.find(p => p.id === proposalId);
       
