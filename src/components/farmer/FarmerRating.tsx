@@ -129,13 +129,22 @@ export default function FarmerRating({ userId }: Props) {
   };
 
   const loadLeaderboard = async (category: string) => {
-    const response = await fetch(
-      `${RATING_API}?action=leaderboard&category=${category}&period=all-time`,
-      { headers: { 'X-User-Id': userId } }
-    );
-    if (response.ok) {
-      const data = await response.json();
-      setLeaderboard(data);
+    try {
+      const response = await fetch(
+        `${RATING_API}?action=leaderboard&category=${category}&period=all-time`,
+        { headers: { 'X-User-Id': userId } }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Leaderboard data:', data);
+        setLeaderboard(data);
+      } else {
+        console.error('Leaderboard error:', response.status);
+        setLeaderboard([]);
+      }
+    } catch (error) {
+      console.error('Leaderboard fetch error:', error);
+      setLeaderboard([]);
     }
   };
 
