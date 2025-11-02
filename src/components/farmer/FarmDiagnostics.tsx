@@ -46,8 +46,8 @@ export default function FarmDiagnostics() {
       });
       const data = await response.json();
       
-      if (data.diagnosis && data.diagnosis.farm_info) {
-        const info = data.diagnosis.farm_info;
+      if (data.diagnosis && data.diagnosis.assets && data.diagnosis.assets.length > 0) {
+        const info = data.diagnosis.assets[0];
         setLandArea(info.land_area || '');
         setAnimals(info.animals || []);
         setEquipment(info.equipment || []);
@@ -107,7 +107,7 @@ export default function FarmDiagnostics() {
     
     setLoading(true);
     try {
-      const farmInfo = {
+      const assets = {
         land_area: landArea,
         animals,
         equipment,
@@ -122,7 +122,7 @@ export default function FarmDiagnostics() {
         },
         body: JSON.stringify({
           action: 'save_diagnosis',
-          farm_info: farmInfo
+          assets: [assets]
         })
       });
 
