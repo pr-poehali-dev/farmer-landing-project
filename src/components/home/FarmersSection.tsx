@@ -27,38 +27,38 @@ const FarmersSection = () => {
           </p>
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
-            <Card className="p-6 bg-farmer-orange/5 border-2 border-farmer-orange/20 hover:border-farmer-orange/40 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-farmer-orange/20 rounded-full flex items-center justify-center">
-                  <Icon name="BarChart3" size={24} className="text-farmer-orange" />
+            <Card className="p-4 sm:p-6 bg-farmer-orange/5 border-2 border-farmer-orange/20 hover:border-farmer-orange/40 transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="BarChart3" size={20} className="text-farmer-orange sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Диагностика и аналитика</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">Диагностика и аналитика</h3>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                 Почувствуй, как твоя земля оживает через данные (подписка 1500 руб./мес)
               </p>
             </Card>
 
-            <Card className="p-6 bg-farmer-orange/5 border-2 border-farmer-orange/20 hover:border-farmer-orange/40 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-farmer-orange/20 rounded-full flex items-center justify-center">
-                  <Icon name="TrendingUp" size={24} className="text-farmer-orange" />
+            <Card className="p-4 sm:p-6 bg-farmer-orange/5 border-2 border-farmer-orange/20 hover:border-farmer-orange/40 transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="TrendingUp" size={20} className="text-farmer-orange sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Привлечение инвестиций</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">Привлечение инвестиций</h3>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                 Привлеки хранителей для твоих полей с комиссией
               </p>
             </Card>
 
-            <Card className="p-6 bg-farmer-orange/5 border-2 border-farmer-orange/20 hover:border-farmer-orange/40 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-farmer-orange/20 rounded-full flex items-center justify-center">
-                  <Icon name="Users" size={24} className="text-farmer-orange" />
+            <Card className="p-4 sm:p-6 bg-farmer-orange/5 border-2 border-farmer-orange/20 hover:border-farmer-orange/40 transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="Users" size={20} className="text-farmer-orange sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Сообщество</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">Сообщество</h3>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                 Дели таинство роста с союзниками
               </p>
             </Card>
