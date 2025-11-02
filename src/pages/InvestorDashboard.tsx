@@ -161,7 +161,8 @@ const InvestorDashboard = () => {
     }
   };
 
-  const handleInvestInProposal = async (proposalId: number, productType: string, shares = 1, totalAmount?: number) => {
+  const handleInvestInProposal = async (proposalId: number, productType: string, shares?: number, totalAmount?: number): Promise<boolean> => {
+    const actualShares = shares || 1;
     try {
       const proposal = proposals.find(p => p.id === proposalId);
       
@@ -170,12 +171,12 @@ const InvestorDashboard = () => {
         return false;
       }
 
-      const finalAmount = totalAmount || (proposal.price * shares);
+      const finalAmount = totalAmount || (proposal.price * actualShares);
       
       console.log('📤 Отправка заявки на сервер:', { 
         proposalId, 
         productType, 
-        shares, 
+        shares: actualShares, 
         finalAmount,
         proposalPrice: proposal.price 
       });
@@ -190,7 +191,7 @@ const InvestorDashboard = () => {
           action: 'invest',
           proposal_id: proposalId,
           amount: finalAmount,
-          shares: shares
+          shares: actualShares
         })
       });
 
