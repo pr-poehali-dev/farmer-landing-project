@@ -15,6 +15,7 @@ import FarmerCard from '@/components/FarmerCard';
 import FarmerFilters, { FilterState } from '@/components/FarmerFilters';
 import BalanceWidget from '@/components/BalanceWidget';
 import TopUpModal from '@/components/TopUpModal';
+import OffersList from '@/components/investor/OffersList';
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
@@ -201,8 +202,12 @@ const InvestorDashboard = () => {
           />
         </div>
 
-        <Tabs defaultValue="farmers" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+        <Tabs defaultValue="offers" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsTrigger value="offers">
+              <Icon name="CircleDollarSign" size={18} className="mr-2" />
+              Офферы
+            </TabsTrigger>
             <TabsTrigger value="farmers">
               <Icon name="Users" size={18} className="mr-2" />
               Фермеры
@@ -216,6 +221,10 @@ const InvestorDashboard = () => {
               Портфель
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="offers">
+            <OffersList userId={user!.id} />
+          </TabsContent>
 
           <TabsContent value="farmers">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
