@@ -332,8 +332,8 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                           Фермер: {request.farmer_name}
                         </p>
                         <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                          <span>Сумма: {request.amount} ₽</span>
-                          {request.shares && <span>Долей: {request.shares}</span>}
+                          <span>Сумма: {parseFloat(request.amount).toLocaleString()} ₽</span>
+                          {request.shares && request.shares > 0 && <span>Долей: {request.shares}</span>}
                           <span>Тип: {getTypeLabel(request.proposal_type)}</span>
                         </div>
                       </div>
@@ -464,12 +464,16 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 <Button
                   onClick={async () => {
                     const totalAmount = selectedProposal.price * selectedShares;
+                    console.log('Отправка заявки:', { proposalId: selectedProposal.id, type: selectedProposal.type, shares: selectedShares, totalAmount });
                     const success = await onInvest(selectedProposal.id, selectedProposal.type, selectedShares, totalAmount);
+                    console.log('Результат отправки:', success);
                     if (success) {
                       toast.success(`✅ Заявка на ${selectedShares} ${selectedShares === 1 ? 'долю' : 'долей'} отправлена! Проверьте "Мои заявки"`);
                       setSelectedProposal(null);
                       await loadMyRequests();
                       setTimeout(() => setShowMyRequests(true), 300);
+                    } else {
+                      toast.error('Ошибка отправки заявки');
                     }
                   }}
                   className="flex-1 bg-farmer-green hover:bg-farmer-green-dark text-white"

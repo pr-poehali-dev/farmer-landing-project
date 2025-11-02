@@ -171,6 +171,14 @@ const InvestorDashboard = () => {
       }
 
       const finalAmount = totalAmount || (proposal.price * shares);
+      
+      console.log('📤 Отправка заявки на сервер:', { 
+        proposalId, 
+        productType, 
+        shares, 
+        finalAmount,
+        proposalPrice: proposal.price 
+      });
 
       const response = await fetch(INVESTOR_API, {
         method: 'POST',
@@ -187,6 +195,7 @@ const InvestorDashboard = () => {
       });
 
       const data = await response.json();
+      console.log('📥 Ответ сервера:', data);
 
       if (!response.ok) {
         toast.error(data.error || 'Ошибка отправки заявки');
@@ -195,7 +204,7 @@ const InvestorDashboard = () => {
 
       return true;
     } catch (error) {
-      console.error('Ошибка создания заявки:', error);
+      console.error('❌ Ошибка создания заявки:', error);
       toast.error('Ошибка создания заявки');
       return false;
     }
