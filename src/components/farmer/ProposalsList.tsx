@@ -86,6 +86,31 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
               </div>
               <h4 className="font-bold mb-1">{proposal.asset?.name || 'Актив'}</h4>
               <p className="text-sm text-gray-600 mb-2">{proposal.description}</p>
+              
+              {proposal.income_details && (
+                <Card className="p-3 bg-blue-50 border-blue-200 mb-2 text-xs space-y-1">
+                  <div className="font-semibold text-blue-900">💵 Доходность:</div>
+                  <div>
+                    • Доход: {proposal.income_details.revenue_amount.toLocaleString()} руб/{
+                      proposal.income_details.revenue_period === 'daily' ? 'день' :
+                      proposal.income_details.revenue_period === 'monthly' ? 'месяц' : 'год'
+                    }
+                    {proposal.income_details.revenue_description && ` (${proposal.income_details.revenue_description})`}
+                  </div>
+                  {proposal.income_details.maintenance_cost > 0 && (
+                    <div>• Содержание: {proposal.income_details.maintenance_cost.toLocaleString()} руб/мес</div>
+                  )}
+                  <div className="font-semibold text-green-700 pt-1">
+                    → Выплата инвестору: {proposal.income_details.payout_amount.toLocaleString()} руб {
+                      proposal.income_details.payout_period === 'monthly' ? 'ежемесячно' : 'ежегодно'
+                    } в течение {proposal.income_details.payout_duration} мес
+                  </div>
+                  {proposal.income_details.last_year_yield && (
+                    <div className="text-gray-600">📈 Прошлый год: {proposal.income_details.last_year_yield}</div>
+                  )}
+                </Card>
+              )}
+              
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <span>💰 {proposal.price.toLocaleString()} руб.</span>
                 <span>📊 {proposal.shares} долей</span>

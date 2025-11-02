@@ -295,9 +295,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 shares = body_data.get('shares', 1)
                 expected_product = body_data.get('expected_product') or None
                 update_frequency = body_data.get('update_frequency') or 'weekly'
+                income_details = body_data.get('income_details') or None
                 
                 print(f"DEBUG create_proposal: user_id={user_id} type={type(user_id)}, price={price} type={type(price)}, shares={shares} type={type(shares)}")
-                print(f"DEBUG values: proposal_type={proposal_type}, asset={asset}, description={description}")
+                print(f"DEBUG values: proposal_type={proposal_type}, asset={asset}, description={description}, income_details={income_details}")
                 
                 if not asset or not description or price <= 0:
                     return {
@@ -309,15 +310,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 asset_json = json.dumps(asset)
                 asset_name = asset.get('name', '')
                 asset_type_val = asset.get('type', '')
+                income_details_json = json.dumps(income_details) if income_details else None
                 
                 try:
                     cur.execute(
                         f"""INSERT INTO {schema}.proposals 
                            (user_id, description, price, shares, type, status, 
-                            asset, asset_type, asset_details, expected_product, update_frequency)
-                           VALUES (%s, %s, %s, %s, %s, 'active', %s::jsonb, %s, %s, %s, %s) RETURNING id""",
+                            asset, asset_type, asset_details, expected_product, update_frequency, income_details)
+                           VALUES (%s, %s, %s, %s, %s, 'active', %s::jsonb, %s, %s, %s, %s, %s::jsonb) RETURNING id""",
                         (user_id, description, price, shares, proposal_type, 
-                         asset_json, asset_type_val, asset_name, expected_product, update_frequency)
+                         asset_json, asset_type_val, asset_name, expected_product, update_frequency, income_details_json)
                     )
                 except Exception as e:
                     print(f"ERROR inserting proposal: {str(e)}")
@@ -497,7 +499,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             elif action == 'get_proposals':
                 cur.execute(
                     f"""SELECT id, description, price, shares, type, asset, 
-                              expected_product, update_frequency, status, created_at
+                              expected_product, update_frequency, status, created_at, income_details
                        FROM {schema}.proposals WHERE user_id = %s ORDER BY created_at DESC""",
                     (user_id,)
                 )
@@ -513,7 +515,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'expected_product': row[6],
                         'update_frequency': row[7],
                         'status': row[8],
-                        'created_at': row[9].isoformat() if row[9] else None
+                        'created_at': row[9].isoformat() if row[9] else None,
+                        'income_details': row[10] if row[10] else None
                     })
                 
                 return {

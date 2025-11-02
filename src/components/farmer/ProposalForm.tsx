@@ -28,6 +28,15 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [updateFrequency, setUpdateFrequency] = useState<string>('weekly');
   const [submitting, setSubmitting] = useState(false);
 
+  const [revenuePeriod, setRevenuePeriod] = useState<'daily' | 'monthly' | 'yearly'>('monthly');
+  const [revenueAmount, setRevenueAmount] = useState<string>('');
+  const [revenueDescription, setRevenueDescription] = useState<string>('');
+  const [maintenanceCost, setMaintenanceCost] = useState<string>('');
+  const [payoutAmount, setPayoutAmount] = useState<string>('');
+  const [payoutPeriod, setPayoutPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [payoutDuration, setPayoutDuration] = useState<string>('');
+  const [lastYearYield, setLastYearYield] = useState<string>('');
+
   const getMinPrice = () => {
     switch (proposalType) {
       case 'income': return 5000;
@@ -70,6 +79,21 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       return;
     }
 
+    if (proposalType === 'income') {
+      if (!revenueAmount || parseFloat(revenueAmount) <= 0) {
+        toast.error('Укажите сумму дохода');
+        return;
+      }
+      if (!payoutAmount || parseFloat(payoutAmount) <= 0) {
+        toast.error('Укажите сумму выплаты инвестору');
+        return;
+      }
+      if (!payoutDuration || parseInt(payoutDuration) <= 0) {
+        toast.error('Укажите срок выплат');
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     const asset: Asset = {
@@ -96,7 +120,17 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           shares: sharesNum,
           description: description.trim(),
           expected_product: proposalType === 'products' ? expectedProduct.trim() : undefined,
-          update_frequency: proposalType === 'patronage' ? updateFrequency : undefined
+          update_frequency: proposalType === 'patronage' ? updateFrequency : undefined,
+          income_details: proposalType === 'income' ? {
+            revenue_period: revenuePeriod,
+            revenue_amount: parseFloat(revenueAmount),
+            revenue_description: revenueDescription.trim(),
+            maintenance_cost: parseFloat(maintenanceCost) || 0,
+            payout_amount: parseFloat(payoutAmount),
+            payout_period: payoutPeriod,
+            payout_duration: parseInt(payoutDuration),
+            last_year_yield: lastYearYield.trim() || undefined
+          } : undefined
         })
       });
 
@@ -110,6 +144,12 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
         setDescription('');
         setExpectedProduct('');
         setUpdateFrequency('weekly');
+        setRevenueAmount('');
+        setRevenueDescription('');
+        setMaintenanceCost('');
+        setPayoutAmount('');
+        setPayoutDuration('');
+        setLastYearYield('');
         onSuccess();
       } else {
         const error = await response.json();
@@ -277,6 +317,112 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
               required
             />
           </div>
+        )}
+
+        {proposalType === 'income' && (
+          <Card className="p-4 bg-blue-50 border-blue-200 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Icon name="Calculator" size={18} className="text-blue-600" />
+              <Label className="text-base font-semibold">Расчет доходности</Label>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm">Доход от актива</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={revenueAmount}
+                  onChange={(e) => setRevenueAmount(e.target.value)}
+                  placeholder="Например: 500"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">Период дохода</Label>
+                <Select value={revenuePeriod} onValueChange={(v: any) => setRevenuePeriod(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">В день</SelectItem>
+                    <SelectItem value="monthly">В месяц</SelectItem>
+                    <SelectItem value="yearly">В год</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Что приносит доход</Label>
+              <Input
+                value={revenueDescription}
+                onChange={(e) => setRevenueDescription(e.target.value)}
+                placeholder="Например: продажа молока по 40 руб/литр"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Расходы на содержание (руб/мес)</Label>
+              <Input
+                type="number"
+                value={maintenanceCost}
+                onChange={(e) => setMaintenanceCost(e.target.value)}
+                placeholder="Например: 3000"
+              />
+            </div>
+
+            <div className="border-t pt-3 mt-3">
+              <Label className="text-base font-semibold mb-3 block">Выплата инвестору</Label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-sm">Сумма выплаты (руб)</Label>
+                  <Input
+                    type="number"
+                    value={payoutAmount}
+                    onChange={(e) => setPayoutAmount(e.target.value)}
+                    placeholder="5000"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">Период выплаты</Label>
+                  <Select value={payoutPeriod} onValueChange={(v: any) => setPayoutPeriod(v)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">Ежемесячно</SelectItem>
+                      <SelectItem value="yearly">Ежегодно</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-3">
+                <Label className="text-sm">Срок выплат (месяцев)</Label>
+                <Input
+                  type="number"
+                  value={payoutDuration}
+                  onChange={(e) => setPayoutDuration(e.target.value)}
+                  placeholder="12"
+                  required
+                />
+              </div>
+            </div>
+
+            {assetType === 'crop' && (
+              <div className="space-y-2">
+                <Label className="text-sm">Урожай за прошлый год</Label>
+                <Input
+                  value={lastYearYield}
+                  onChange={(e) => setLastYearYield(e.target.value)}
+                  placeholder="Например: 45 тонн с гектара"
+                />
+              </div>
+            )}
+          </Card>
         )}
 
         {proposalType === 'patronage' && (

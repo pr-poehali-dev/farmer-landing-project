@@ -9,6 +9,17 @@ export interface Asset {
   investment_types?: string[];
 }
 
+export interface IncomeDetails {
+  revenue_period: 'daily' | 'monthly' | 'yearly';
+  revenue_amount: number;
+  revenue_description: string;
+  maintenance_cost: number;
+  payout_amount: number;
+  payout_period: 'monthly' | 'yearly';
+  payout_duration: number;
+  last_year_yield?: string;
+}
+
 export interface Proposal {
   id: number;
   type: 'income' | 'products' | 'patronage';
@@ -18,6 +29,7 @@ export interface Proposal {
   description: string;
   expected_product?: string;
   update_frequency?: string;
+  income_details?: IncomeDetails;
   status: string;
   created_at: string;
 }
