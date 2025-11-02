@@ -158,7 +158,7 @@ const Register = () => {
             />
             <Label htmlFor="policy" className="text-sm leading-tight cursor-pointer">
               Я согласен с{' '}
-              <a href="/policy" className="text-farmer-green hover:underline">
+              <a href="/policy" className="text-farmer-green hover:underline break-words">
                 политикой конфиденциальности
               </a>
             </Label>

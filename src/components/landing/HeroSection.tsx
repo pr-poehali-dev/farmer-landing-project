@@ -21,14 +21,14 @@ export default function HeroSection({ scrollToSection }: HeroSectionProps) {
               <Button
                 size="lg"
                 onClick={() => scrollToSection('about')}
-                className="bg-[#0099CC] hover:bg-[#007799] text-white px-8 py-6 text-lg"
+                className="bg-[#0099CC] hover:bg-[#007799] text-white px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 text-base sm:text-lg w-full sm:w-auto"
               >
                 Узнать больше
               </Button>
               <Button
                 size="lg"
                 asChild
-                className="bg-[#4DB8E8] hover:bg-[#3AA8D8] text-white px-8 py-6 text-lg"
+                className="bg-[#4DB8E8] hover:bg-[#3AA8D8] text-white px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 text-base sm:text-lg w-full sm:w-auto"
               >
                 <a href="https://planeta.ru/campaigns/235852" target="_blank" rel="noopener noreferrer">
                   Поддержать проект
