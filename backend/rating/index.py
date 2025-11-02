@@ -230,7 +230,7 @@ def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:
                 fs.level,
                 ROW_NUMBER() OVER (ORDER BY {score_column} DESC, fs.user_id) as rank
             FROM farmer_scores fs
-            LEFT JOIN users u ON u.id = CAST(fs.user_id AS INTEGER)
+            LEFT JOIN users u ON u.id::TEXT = fs.user_id
             ORDER BY {score_column} DESC, fs.user_id
             LIMIT 100
         ''')
