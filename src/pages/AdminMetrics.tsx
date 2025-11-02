@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import {
   LineChart,
   Line,
@@ -58,6 +60,7 @@ const COLORS = ['#16a34a', '#ea580c', '#2563eb', '#ca8a04', '#dc2626', '#7c3aed'
 
 const AdminMetrics = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,11 +72,11 @@ const AdminMetrics = () => {
     setLoading(true);
     try {
       const res = await fetch(`${METRICS_API}?type=all`);
-      if (!res.ok) throw new Error('Ошибка загрузки метрик');
+      if (!res.ok) throw new Error(t('messages.error'));
       const data = await res.json();
       setMetrics(data);
     } catch (err: any) {
-      toast.error(err.message || 'Ошибка загрузки');
+      toast.error(err.message || t('messages.error'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +87,7 @@ const AdminMetrics = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Icon name="Loader2" size={48} className="animate-spin text-farmer-green mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка метрик...</p>
+          <p className="text-gray-600">{t('messages.loading_data')}</p>
         </div>
       </div>
     );
@@ -95,8 +98,8 @@ const AdminMetrics = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 text-center">
           <Icon name="AlertCircle" size={48} className="text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">Ошибка загрузки</h2>
-          <Button onClick={() => navigate('/admin')}>Назад</Button>
+          <h2 className="text-xl font-bold mb-2">{t('messages.error')}</h2>
+          <Button onClick={() => navigate('/admin')}>{t('common.back')}</Button>
         </Card>
       </div>
     );
@@ -104,14 +107,14 @@ const AdminMetrics = () => {
 
   const roleData = metrics.users?.by_role
     ? Object.entries(metrics.users.by_role).map(([name, value]) => ({
-        name: name === 'farmer' ? 'Фермеры' : name === 'investor' ? 'Инвесторы' : 'Продавцы',
+        name: name === 'farmer' ? t('auth.farmer') : name === 'investor' ? t('auth.investor') : t('auth.seller'),
         value,
       }))
     : [];
 
   const typeData = metrics.proposals?.by_type
     ? Object.entries(metrics.proposals.by_type).map(([name, value]) => ({
-        name: name === 'income' ? 'Доход' : name === 'patronage' ? 'Патронаж' : 'Товары',
+        name: name === 'income' ? t('farmer.income') : name === 'patronage' ? t('farmer.patronage') : t('farmer.products'),
         value,
       }))
     : [];
@@ -123,16 +126,17 @@ const AdminMetrics = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Icon name="BarChart3" size={32} className="text-farmer-green" />
-              <h1 className="text-2xl font-bold text-gray-900">Бизнес-метрики</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t('admin.metrics')}</h1>
             </div>
             <div className="flex items-center gap-4">
+              <LanguageSwitcher />
               <Button onClick={loadMetrics} variant="outline" size="sm">
                 <Icon name="RefreshCw" size={18} className="mr-2" />
-                Обновить
+                {t('common.refresh')}
               </Button>
               <Button onClick={() => navigate('/admin')} variant="outline" size="sm">
                 <Icon name="ArrowLeft" size={18} className="mr-2" />
-                Назад
+                {t('common.back')}
               </Button>
             </div>
           </div>
@@ -148,8 +152,7 @@ const AdminMetrics = () => {
                   <Icon name="Users" size={28} className="text-farmer-green" />
                   <span className="text-3xl font-bold text-gray-900">{metrics.users.dau}</span>
                 </div>
-                <p className="text-gray-600 font-medium">DAU (Daily Active Users)</p>
-                <p className="text-xs text-gray-500 mt-1">Активных сегодня</p>
+                <p className="text-gray-600 font-medium">{t('admin.dau')}</p>
               </Card>
 
               <Card className="p-6">
@@ -157,8 +160,7 @@ const AdminMetrics = () => {
                   <Icon name="UserCheck" size={28} className="text-farmer-orange" />
                   <span className="text-3xl font-bold text-gray-900">{metrics.users.mau}</span>
                 </div>
-                <p className="text-gray-600 font-medium">MAU (Monthly Active Users)</p>
-                <p className="text-xs text-gray-500 mt-1">Активных за месяц</p>
+                <p className="text-gray-600 font-medium">{t('admin.mau')}</p>
               </Card>
             </>
           )}

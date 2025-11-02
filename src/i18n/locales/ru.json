@@ -1,0 +1,110 @@
+{
+  "common": {
+    "welcome": "Добро пожаловать",
+    "login": "Войти",
+    "logout": "Выйти",
+    "register": "Регистрация",
+    "email": "Email",
+    "password": "Пароль",
+    "name": "Имя",
+    "loading": "Загрузка...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "back": "Назад",
+    "next": "Далее",
+    "submit": "Отправить",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "refresh": "Обновить",
+    "close": "Закрыть"
+  },
+  "nav": {
+    "home": "Главная",
+    "about": "О нас",
+    "faq": "FAQ",
+    "contacts": "Контакты",
+    "dashboard": "Панель управления",
+    "admin": "Администратор"
+  },
+  "home": {
+    "hero_title": "Платформа для агробизнеса",
+    "hero_subtitle": "Соединяем фермеров, инвесторов и продавцов",
+    "farmer_title": "Я фермер",
+    "farmer_desc": "Получайте инвестиции и развивайте ваше хозяйство",
+    "investor_title": "Я инвестор",
+    "investor_desc": "Инвестируйте в перспективные проекты",
+    "seller_title": "Я продавец",
+    "seller_desc": "Покупайте качественную агропродукцию"
+  },
+  "auth": {
+    "login_title": "Вход в систему",
+    "register_title": "Создать аккаунт",
+    "reset_password": "Сбросить пароль",
+    "forgot_password": "Забыли пароль?",
+    "no_account": "Нет аккаунта?",
+    "have_account": "Уже есть аккаунт?",
+    "role": "Роль",
+    "farmer": "Фермер",
+    "investor": "Инвестор",
+    "seller": "Продавец"
+  },
+  "dashboard": {
+    "profile": "Профиль",
+    "statistics": "Статистика",
+    "proposals": "Предложения",
+    "investments": "Инвестиции",
+    "balance": "Баланс",
+    "marketplace": "Маркетплейс",
+    "settings": "Настройки"
+  },
+  "farmer": {
+    "create_proposal": "Создать предложение",
+    "my_proposals": "Мои предложения",
+    "farm_diagnostic": "Диагностика хозяйства",
+    "gamification_points": "Баллы геймификации",
+    "proposal_type": "Тип предложения",
+    "income": "Доход",
+    "patronage": "Патронаж",
+    "products": "Товары"
+  },
+  "investor": {
+    "available_proposals": "Доступные предложения",
+    "my_investments": "Мои инвестиции",
+    "invest": "Инвестировать",
+    "total_invested": "Всего инвестировано"
+  },
+  "seller": {
+    "my_products": "Мои товары",
+    "add_product": "Добавить товар",
+    "product_catalog": "Каталог товаров"
+  },
+  "admin": {
+    "dashboard": "Панель администратора",
+    "users": "Пользователи",
+    "metrics": "Бизнес-метрики",
+    "delete_users": "Удалить пользователей",
+    "total_users": "Всего пользователей",
+    "dau": "DAU (активных сегодня)",
+    "mau": "MAU (активных за месяц)",
+    "total_revenue": "Общая выручка",
+    "avg_investment": "Средняя инвестиция",
+    "daily_signups": "Регистрации пользователей",
+    "daily_revenue": "Выручка по дням",
+    "users_by_role": "Пользователи по ролям",
+    "proposals_by_type": "Предложения по типам",
+    "top_regions": "Топ-10 регионов",
+    "engagement": "Активность"
+  },
+  "messages": {
+    "success": "Успешно",
+    "error": "Ошибка",
+    "loading_data": "Загрузка данных...",
+    "no_data": "Нет данных",
+    "confirm_delete": "Вы уверены, что хотите удалить?",
+    "saved_successfully": "Сохранено успешно",
+    "login_success": "Вход выполнен успешно",
+    "logout_success": "Выход выполнен успешно"
+  }
+}

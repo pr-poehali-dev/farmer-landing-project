@@ -1,0 +1,110 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "refresh": "Refresh",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "faq": "FAQ",
+    "contacts": "Contacts",
+    "dashboard": "Dashboard",
+    "admin": "Admin"
+  },
+  "home": {
+    "hero_title": "Agribusiness Platform",
+    "hero_subtitle": "Connecting Farmers, Investors and Sellers",
+    "farmer_title": "I'm a Farmer",
+    "farmer_desc": "Get investments and grow your farm",
+    "investor_title": "I'm an Investor",
+    "investor_desc": "Invest in promising agricultural projects",
+    "seller_title": "I'm a Seller",
+    "seller_desc": "Buy quality agricultural products"
+  },
+  "auth": {
+    "login_title": "Sign In",
+    "register_title": "Create Account",
+    "reset_password": "Reset Password",
+    "forgot_password": "Forgot password?",
+    "no_account": "Don't have an account?",
+    "have_account": "Already have an account?",
+    "role": "Role",
+    "farmer": "Farmer",
+    "investor": "Investor",
+    "seller": "Seller"
+  },
+  "dashboard": {
+    "profile": "Profile",
+    "statistics": "Statistics",
+    "proposals": "Proposals",
+    "investments": "Investments",
+    "balance": "Balance",
+    "marketplace": "Marketplace",
+    "settings": "Settings"
+  },
+  "farmer": {
+    "create_proposal": "Create Proposal",
+    "my_proposals": "My Proposals",
+    "farm_diagnostic": "Farm Diagnostic",
+    "gamification_points": "Gamification Points",
+    "proposal_type": "Proposal Type",
+    "income": "Income",
+    "patronage": "Patronage",
+    "products": "Products"
+  },
+  "investor": {
+    "available_proposals": "Available Proposals",
+    "my_investments": "My Investments",
+    "invest": "Invest",
+    "total_invested": "Total Invested"
+  },
+  "seller": {
+    "my_products": "My Products",
+    "add_product": "Add Product",
+    "product_catalog": "Product Catalog"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "users": "Users",
+    "metrics": "Business Metrics",
+    "delete_users": "Delete Users",
+    "total_users": "Total Users",
+    "dau": "DAU (Daily Active Users)",
+    "mau": "MAU (Monthly Active Users)",
+    "total_revenue": "Total Revenue",
+    "avg_investment": "Average Investment",
+    "daily_signups": "Daily Signups",
+    "daily_revenue": "Daily Revenue",
+    "users_by_role": "Users by Role",
+    "proposals_by_type": "Proposals by Type",
+    "top_regions": "Top 10 Regions",
+    "engagement": "Engagement"
+  },
+  "messages": {
+    "success": "Success",
+    "error": "Error",
+    "loading_data": "Loading data...",
+    "no_data": "No data",
+    "confirm_delete": "Are you sure you want to delete?",
+    "saved_successfully": "Saved successfully",
+    "login_success": "Login successful",
+    "logout_success": "Logout successful"
+  }
+}

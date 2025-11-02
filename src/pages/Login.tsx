@@ -7,10 +7,13 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -25,8 +28,8 @@ const Login = () => {
     
     const newErrors: Record<string, string> = {};
     
-    if (!formData.email) newErrors.email = 'Email обязателен';
-    if (!formData.password) newErrors.password = 'Пароль обязателен';
+    if (!formData.email) newErrors.email = t('auth.email') + ' ' + t('messages.error');
+    if (!formData.password) newErrors.password = t('auth.password') + ' ' + t('messages.error');
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -36,13 +39,13 @@ const Login = () => {
     setLoading(true);
     try {
       const result = await login(formData.email, formData.password);
-      toast.success('Вход выполнен успешно!');
+      toast.success(t('messages.login_success'));
       
       if (result.user.role === 'farmer') navigate('/dashboard/farmer');
       else if (result.user.role === 'investor') navigate('/dashboard/investor');
       else navigate('/dashboard/seller');
     } catch (error: any) {
-      toast.error(error.message || 'Ошибка входа');
+      toast.error(error.message || t('messages.error'));
     } finally {
       setLoading(false);
     }
@@ -56,8 +59,11 @@ const Login = () => {
         className="absolute top-4 left-4 text-farmer-green hover:bg-farmer-green/10"
       >
         <Icon name="Home" size={20} className="mr-2" />
-        На главную
+        {t('nav.home')}
       </Button>
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       
       <Card className="w-full max-w-md p-8">
         <div className="flex items-center justify-center mb-6">
@@ -66,13 +72,13 @@ const Login = () => {
         </div>
         
         <h2 className="text-2xl font-bold text-center mb-2 text-gray-900">
-          Войди в свой мир "Фармер"
+          {t('auth.login_title')}
         </h2>
-        <p className="text-center text-gray-600 mb-6">Вернись к своим истокам</p>
+        <p className="text-center text-gray-600 mb-6">{t('common.welcome')}</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('common.email')}</Label>
             <Input
               id="email"
               type="email"
@@ -85,13 +91,13 @@ const Login = () => {
           </div>
           
           <div>
-            <Label htmlFor="password">Пароль</Label>
+            <Label htmlFor="password">{t('common.password')}</Label>
             <Input
               id="password"
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="Введите пароль"
+              placeholder={t('common.password')}
               className={errors.password ? 'border-red-500' : ''}
             />
             {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
@@ -105,10 +111,10 @@ const Login = () => {
             {loading ? (
               <>
                 <Icon name="Loader2" className="animate-spin mr-2" size={18} />
-                Вход...
+                {t('common.loading')}
               </>
             ) : (
-              'Войти'
+              t('common.login')
             )}
           </Button>
         </form>
@@ -119,15 +125,15 @@ const Login = () => {
             className="text-sm text-farmer-green"
             onClick={() => navigate('/reset-password')}
           >
-            Забыли пароль?
+            {t('auth.forgot_password')}
           </Button>
         </div>
         
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Нет аккаунта?{' '}
+            {t('auth.no_account')}{' '}
             <Button variant="link" onClick={() => navigate('/register')} className="text-farmer-green p-0">
-              Зарегистрироваться
+              {t('common.register')}
             </Button>
           </p>
         </div>
