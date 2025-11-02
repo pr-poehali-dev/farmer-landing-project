@@ -50,7 +50,97 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             params = event.get('queryStringParameters', {}) or {}
             action = params.get('action', 'get_proposals')
             
-            if action == 'get_proposals':
+            if action == 'get_offers':
+                schema = 't_p53065890_farmer_landing_proje'
+                
+                cur.execute(
+                    f"""SELECT o.id, o.farm_name, o.title, o.total_amount, o.share_price, 
+                              o.available_shares, o.expected_monthly_income, o.region, o.city, o.socials,
+                              u.name, u.email
+                       FROM {schema}.investment_offers o
+                       JOIN {schema}.users u ON o.farmer_id = u.id
+                       WHERE o.status = 'published'
+                       ORDER BY o.id DESC"""
+                )
+                
+                offers = []
+                for row in cur.fetchall():
+                    offers.append({
+                        'id': row[0],
+                        'farm_name': row[1],
+                        'title': row[2],
+                        'total_amount': float(row[3]),
+                        'share_price': float(row[4]),
+                        'available_shares': row[5],
+                        'expected_monthly_income': float(row[6]) if row[6] else None,
+                        'region': row[7],
+                        'city': row[8],
+                        'socials': row[9],
+                        'farmer_name': row[10] or row[11]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'offers': offers})
+                }
+            
+            elif action == 'get_offer':
+                schema = 't_p53065890_farmer_landing_proje'
+                offer_id = params.get('offer_id')
+                
+                if not offer_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется offer_id'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT o.id, o.farm_name, o.title, o.description, o.asset, 
+                              o.total_amount, o.share_price, o.total_shares, o.available_shares, 
+                              o.min_shares, o.expected_monthly_income, o.region, o.city, o.socials,
+                              u.name, u.email
+                       FROM {schema}.investment_offers o
+                       JOIN {schema}.users u ON o.farmer_id = u.id
+                       WHERE o.id = %s AND o.status = 'published'""",
+                    (offer_id,)
+                )
+                
+                row = cur.fetchone()
+                
+                if not row:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Предложение не найдено'})
+                    }
+                
+                offer = {
+                    'id': row[0],
+                    'farm_name': row[1],
+                    'title': row[2],
+                    'description': row[3],
+                    'asset': row[4],
+                    'total_amount': float(row[5]),
+                    'share_price': float(row[6]),
+                    'total_shares': row[7],
+                    'available_shares': row[8],
+                    'min_shares': row[9],
+                    'expected_monthly_income': float(row[10]) if row[10] else None,
+                    'region': row[11],
+                    'city': row[12],
+                    'socials': row[13],
+                    'farmer_name': row[14] or row[15]
+                }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'offer': offer})
+                }
+            
+            elif action == 'get_proposals':
                 proposal_type = params.get('type', '')
                 
                 query = """
@@ -276,7 +366,74 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body_data = json.loads(event.get('body', '{}'))
             action = body_data.get('action')
             
-            if action == 'invest':
+            if action == 'create_request':
+                schema = 't_p53065890_farmer_landing_proje'
+                offer_id = body_data.get('offer_id')
+                shares_requested = body_data.get('shares_requested', 0)
+                message = body_data.get('message', '')
+                
+                if not offer_id or shares_requested <= 0:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректные данные'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT share_price, available_shares, farmer_id 
+                       FROM {schema}.investment_offers 
+                       WHERE id = %s AND status = 'published'""",
+                    (offer_id,)
+                )
+                offer = cur.fetchone()
+                
+                if not offer:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Предложение не найдено'})
+                    }
+                
+                share_price = float(offer[0])
+                available_shares = offer[1]
+                farmer_id = offer[2]
+                
+                if shares_requested > available_shares:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Запрошено больше долей, чем доступно'})
+                    }
+                
+                amount = share_price * shares_requested
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.investment_requests 
+                       (offer_id, investor_id, shares_requested, amount, message, status)
+                       VALUES (%s, %s, %s, %s, %s, 'pending')
+                       RETURNING id""",
+                    (offer_id, user_id, shares_requested, amount, message)
+                )
+                request_id = cur.fetchone()[0]
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.notifications (user_id, role, type, payload)
+                       VALUES (%s, 'farmer', 'request_created', %s::jsonb),
+                              (NULL, 'admin', 'request_created', %s::jsonb)""",
+                    (farmer_id, 
+                     json.dumps({'request_id': request_id, 'offer_id': offer_id, 'investor_id': int(user_id)}),
+                     json.dumps({'request_id': request_id, 'offer_id': offer_id, 'investor_id': int(user_id)}))
+                )
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'id': request_id, 'status': 'pending'})
+                }
+            
+            elif action == 'invest':
                 proposal_id = body_data.get('proposal_id')
                 amount = body_data.get('amount', 0)
                 

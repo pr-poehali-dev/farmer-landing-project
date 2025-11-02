@@ -126,6 +126,167 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'success': True, 'message': 'Профиль обновлен'})
                 }
             
+            elif action == 'create_offer':
+                farm_name = body_data.get('farm_name', '')
+                title = body_data.get('title', '')
+                description = body_data.get('description', '')
+                asset = body_data.get('asset', {})
+                total_amount = body_data.get('total_amount', 0)
+                share_price = body_data.get('share_price', 0)
+                min_shares = body_data.get('min_shares', 1)
+                expected_monthly_income = body_data.get('expected_monthly_income')
+                region = body_data.get('region', '')
+                city = body_data.get('city', '')
+                socials = body_data.get('socials', {})
+                publish = body_data.get('publish', True)
+                
+                if not farm_name or not title or total_amount <= 0 or share_price <= 0:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заполните обязательные поля'})
+                    }
+                
+                total_shares = int(round(total_amount / share_price))
+                
+                if abs(total_shares * share_price - total_amount) > 0.01:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Сумма не делится на целое число долей (проверьте цену доли)'})
+                    }
+                
+                asset_json = json.dumps(asset)
+                socials_json = json.dumps(socials)
+                status = 'published' if publish else 'draft'
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.investment_offers 
+                       (farmer_id, farm_name, title, description, asset, total_amount, share_price,
+                        total_shares, available_shares, min_shares, expected_monthly_income,
+                        region, city, socials, status)
+                       VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s)
+                       RETURNING id, farm_name, title, total_amount, share_price, total_shares, 
+                                 available_shares, expected_monthly_income, region, city, socials, status""",
+                    (user_id, farm_name, title, description, asset_json, total_amount, share_price,
+                     total_shares, total_shares, min_shares, expected_monthly_income,
+                     region, city, socials_json, status)
+                )
+                result = cur.fetchone()
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'id': result[0],
+                        'farm_name': result[1],
+                        'title': result[2],
+                        'total_amount': float(result[3]),
+                        'share_price': float(result[4]),
+                        'total_shares': result[5],
+                        'available_shares': result[6],
+                        'expected_monthly_income': float(result[7]) if result[7] else None,
+                        'region': result[8],
+                        'city': result[9],
+                        'socials': result[10],
+                        'status': result[11]
+                    })
+                }
+            
+            elif action == 'moderate_request':
+                request_id = body_data.get('request_id')
+                action_type = body_data.get('action_type')
+                
+                if not request_id or action_type not in ['approve', 'reject']:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Неверные параметры'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT r.id, r.offer_id, r.shares_requested, r.status, r.investor_id,
+                              o.available_shares, o.farmer_id
+                       FROM {schema}.investment_requests r
+                       JOIN {schema}.investment_offers o ON o.id = r.offer_id
+                       WHERE r.id = %s""",
+                    (request_id,)
+                )
+                row = cur.fetchone()
+                
+                if not row or row[6] != int(user_id):
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заявка не найдена'})
+                    }
+                
+                if row[3] != 'pending':
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заявка уже обработана'})
+                    }
+                
+                if action_type == 'approve':
+                    shares_requested = row[2]
+                    available_shares = row[5]
+                    offer_id = row[1]
+                    investor_id = row[4]
+                    
+                    if shares_requested > available_shares:
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Недостаточно доступных долей'})
+                        }
+                    
+                    cur.execute(
+                        f"""UPDATE {schema}.investment_offers
+                           SET available_shares = available_shares - %s, updated_at = now()
+                           WHERE id = %s AND available_shares >= %s""",
+                        (shares_requested, offer_id, shares_requested)
+                    )
+                    
+                    if cur.rowcount == 0:
+                        return {
+                            'statusCode': 409,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Конфликт: долей уже не хватило'})
+                        }
+                    
+                    cur.execute(
+                        f"""UPDATE {schema}.investment_requests SET status = 'approved' WHERE id = %s""",
+                        (request_id,)
+                    )
+                    
+                    cur.execute(
+                        f"""INSERT INTO {schema}.notifications (user_id, role, type, payload)
+                           VALUES (%s, 'investor', 'request_approved', %s::jsonb)""",
+                        (investor_id, json.dumps({'request_id': request_id}))
+                    )
+                    
+                elif action_type == 'reject':
+                    cur.execute(
+                        f"""UPDATE {schema}.investment_requests SET status = 'rejected' WHERE id = %s""",
+                        (request_id,)
+                    )
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.notifications (role, type, payload)
+                       VALUES ('admin', 'request_moderated', %s::jsonb)""",
+                    (json.dumps({'request_id': request_id, 'action': action_type}),)
+                )
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
+                }
+            
             elif action == 'create_proposal':
                 proposal_type = body_data.get('type', 'income')
                 asset = body_data.get('asset', {})
@@ -261,6 +422,76 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'profile': profile})
+                }
+            
+            elif action == 'get_offers':
+                cur.execute(
+                    f"""SELECT id, farm_name, title, total_amount, share_price, total_shares, 
+                              available_shares, expected_monthly_income, region, city, socials, status
+                       FROM {schema}.investment_offers WHERE farmer_id = %s ORDER BY id DESC""",
+                    (user_id,)
+                )
+                offers = []
+                for row in cur.fetchall():
+                    offers.append({
+                        'id': row[0],
+                        'farm_name': row[1],
+                        'title': row[2],
+                        'total_amount': float(row[3]),
+                        'share_price': float(row[4]),
+                        'total_shares': row[5],
+                        'available_shares': row[6],
+                        'expected_monthly_income': float(row[7]) if row[7] else None,
+                        'region': row[8],
+                        'city': row[9],
+                        'socials': row[10],
+                        'status': row[11]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'offers': offers})
+                }
+            
+            elif action == 'get_offer_requests':
+                offer_id = params.get('offer_id')
+                
+                if not offer_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется offer_id'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT r.id, r.investor_id, u.email, u.name, r.shares_requested, 
+                              r.amount, r.status, r.message, r.created_at
+                       FROM {schema}.investment_requests r
+                       JOIN {schema}.users u ON u.id = r.investor_id
+                       JOIN {schema}.investment_offers o ON o.id = r.offer_id
+                       WHERE r.offer_id = %s AND o.farmer_id = %s
+                       ORDER BY r.created_at DESC""",
+                    (offer_id, user_id)
+                )
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'investor_id': row[1],
+                        'investor_email': row[2],
+                        'investor_name': row[3],
+                        'shares_requested': row[4],
+                        'amount': float(row[5]),
+                        'status': row[6],
+                        'message': row[7],
+                        'created_at': row[8].isoformat() if row[8] else None
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
                 }
             
             elif action == 'get_proposals':

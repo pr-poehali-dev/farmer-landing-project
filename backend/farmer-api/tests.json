@@ -1,84 +1,87 @@
 {
   "tests": [
     {
-      "name": "Сохранение диагностики хозяйства",
+      "name": "Создание оффера (создать предложение с долями)",
       "method": "POST",
       "headers": {
-        "X-User-Id": "1"
+        "X-User-Id": "11"
       },
       "body": {
-        "action": "save_diagnosis",
-        "country": "Россия",
-        "region": "Республика Бурятия",
-        "assets": [
-          {
-            "id": "1",
-            "type": "animal",
-            "name": "Коровы",
-            "count": 10,
-            "direction": "Молочное",
-            "details": "Голштинская порода",
-            "investment_types": ["income", "products"]
-          }
-        ]
+        "action": "create_offer",
+        "farm_name": "Ферма Краснопеева",
+        "title": "Корова на мясо №2",
+        "description": "Предлагаю инвестировать в корову для получения мяса",
+        "asset": {
+          "type": "animal",
+          "name": "Корова",
+          "count": 1
+        },
+        "total_amount": 150000,
+        "share_price": 5000,
+        "min_shares": 1,
+        "expected_monthly_income": 12000,
+        "region": "Московская область",
+        "city": "Подольск",
+        "socials": {
+          "vk": "https://vk.com",
+          "tg": "https://t.me"
+        },
+        "publish": true
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "success": true,
-        "message": "Диагностика сохранена"
-      }
-    },
-    {
-      "name": "Получение диагностики",
-      "method": "GET",
-      "path": "/?action=get_diagnosis",
-      "headers": {
-        "X-User-Id": "1"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "diagnosis": {
-          "country": "string",
-          "region": "string",
-          "assets": "array"
-        }
+        "id": "number",
+        "farm_name": "Ферма Краснопеева",
+        "total_shares": 30,
+        "available_shares": 30,
+        "status": "published"
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Обновление профиля",
+      "name": "Валидация долей (сумма не делится на целое число)",
       "method": "POST",
       "headers": {
-        "X-User-Id": "1"
+        "X-User-Id": "11"
       },
       "body": {
-        "action": "update_profile",
-        "first_name": "Иван",
-        "last_name": "Иванов",
-        "phone": "+7 (999) 123-45-67",
-        "email": "ivan@example.com"
+        "action": "create_offer",
+        "farm_name": "Ферма Тест",
+        "title": "Тест",
+        "description": "Тест",
+        "total_amount": 150001,
+        "share_price": 5000,
+        "publish": true
       },
-      "expectedStatus": 200,
+      "expectedStatus": 400,
       "expectedBody": {
-        "success": true
+        "error": "string"
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Получение профиля",
+      "name": "Получение списка моих офферов",
       "method": "GET",
-      "path": "/?action=get_profile",
+      "path": "/?action=get_offers",
       "headers": {
-        "X-User-Id": "1"
+        "X-User-Id": "11"
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "profile": {
-          "first_name": "string",
-          "last_name": "string",
-          "phone": "string",
-          "email": "string"
-        }
+        "offers": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение баланса фермера",
+      "method": "GET",
+      "path": "/?action=get_balance",
+      "headers": {
+        "X-User-Id": "11"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "balance": "number"
       },
       "bodyMatcher": "partial"
     }
