@@ -385,7 +385,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         COALESCE(i.count, 0) as investments_count
                     FROM t_p53065890_farmer_landing_proje.users u
                     LEFT JOIN (SELECT user_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.proposals GROUP BY user_id) p ON u.id = p.user_id
-                    LEFT JOIN (SELECT investor_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY investor_id) i ON u.id = i.investor_id
+                    LEFT JOIN (SELECT user_id, COUNT(*) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY user_id) i ON u.id = i.user_id
                     ORDER BY u.created_at DESC
                 """)
                 users_results = cur.fetchall()
@@ -408,7 +408,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         COALESCE(i.count, 0) as investors_count
                     FROM t_p53065890_farmer_landing_proje.proposals p
                     JOIN t_p53065890_farmer_landing_proje.users u ON p.user_id = u.id
-                    LEFT JOIN (SELECT proposal_id, COUNT(DISTINCT investor_id) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY proposal_id) i ON p.id = i.proposal_id
+                    LEFT JOIN (SELECT proposal_id, COUNT(DISTINCT user_id) as count FROM t_p53065890_farmer_landing_proje.investments GROUP BY proposal_id) i ON p.id = i.proposal_id
                     ORDER BY p.created_at DESC
                 """)
                 proposals_results = cur.fetchall()
