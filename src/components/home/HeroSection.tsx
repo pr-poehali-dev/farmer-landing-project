@@ -49,7 +49,7 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
             onClick={() => navigate('/login')}
             size="lg"
             variant="outline"
-            className="border-2 border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+            className="sm:hidden border-2 border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white text-sm px-4 py-4 rounded-full shadow-lg hover:shadow-xl transition-all w-full"
           >
             Войти
           </Button>
