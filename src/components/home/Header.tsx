@@ -31,6 +31,14 @@ const Header = () => {
               Регистрация
             </Button>
           </nav>
+          <div className="flex md:hidden items-center gap-2">
+            <Button onClick={() => navigate('/login')} variant="ghost" size="sm" className="text-farmer-green">
+              Войти
+            </Button>
+            <Button onClick={() => navigate('/register')} size="sm" className="bg-farmer-green hover:bg-farmer-green-dark text-white">
+              Регистрация
+            </Button>
+          </div>
         </div>
       </div>
     </header>
