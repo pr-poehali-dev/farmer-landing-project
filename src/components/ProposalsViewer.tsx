@@ -137,7 +137,10 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
         <h2 className="text-2xl font-bold">Маркет предложений</h2>
         <Button
           variant="outline"
-          onClick={() => setShowMyRequests(true)}
+          onClick={() => {
+            loadMyRequests();
+            setShowMyRequests(true);
+          }}
           className="flex items-center gap-2"
         >
           <Icon name="FileText" size={18} />
@@ -243,10 +246,15 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
 
                 <Button
                   onClick={async () => {
+                    console.log('Нажата кнопка, proposal:', proposal.id, proposal.type);
                     const success = await onInvest(proposal.id, proposal.type);
+                    console.log('Результат onInvest:', success);
                     if (success) {
                       toast.success('Заявка отправлена! Проверьте "Мои заявки"');
                       await loadMyRequests();
+                      console.log('Заявки обновлены');
+                    } else {
+                      console.error('onInvest вернул false');
                     }
                   }}
                   className="w-full bg-farmer-green hover:bg-farmer-green-dark"

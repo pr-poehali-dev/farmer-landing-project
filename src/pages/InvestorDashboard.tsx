@@ -163,8 +163,12 @@ const InvestorDashboard = () => {
 
   const handleInvestInProposal = async (proposalId: number, productType: string) => {
     try {
+      console.log('handleInvestInProposal вызван:', { proposalId, productType, proposals });
+      
       // Временное решение: сохраняем локально до реализации бэкенда
       const proposal = proposals.find(p => p.id === proposalId);
+      console.log('Найденное предложение:', proposal);
+      
       if (!proposal) {
         toast.error('Предложение не найдено');
         return false;
@@ -183,10 +187,14 @@ const InvestorDashboard = () => {
         date: new Date().toISOString()
       };
 
+      console.log('Создана заявка:', newRequest);
+
       // Сохраняем в localStorage
       const existingRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
       existingRequests.push(newRequest);
       localStorage.setItem('investor_requests', JSON.stringify(existingRequests));
+      
+      console.log('Заявка сохранена в localStorage, всего заявок:', existingRequests.length);
 
       return true;
     } catch (error) {
