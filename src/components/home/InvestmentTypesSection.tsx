@@ -113,10 +113,11 @@ const InvestmentTypesSection = () => {
           <Button
             onClick={() => navigate('/register')}
             size="lg"
-            className="bg-farmer-green hover:bg-farmer-green-dark text-white"
+            className="bg-farmer-green hover:bg-farmer-green-dark text-white text-base sm:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 w-full sm:w-auto"
           >
             <Icon name="Rocket" size={20} className="mr-2" />
-            Присоединиться к движению
+            <span className="hidden sm:inline">Присоединиться к движению</span>
+            <span className="sm:hidden">Присоединиться</span>
           </Button>
         </Card>
       </div>
