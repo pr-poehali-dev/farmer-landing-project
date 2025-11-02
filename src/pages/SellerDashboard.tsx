@@ -43,6 +43,7 @@ const SellerDashboard = () => {
   const [saving, setSaving] = useState(false);
   const [balance, setBalance] = useState(0);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [tier, setTier] = useState('none');
   
   const [profileForm, setProfileForm] = useState({
     company_name: '',
@@ -84,6 +85,8 @@ const SellerDashboard = () => {
       navigate('/login');
     } else if (user) {
       loadProfile();
+      loadFarmers();
+      loadAnalytics();
     }
   }, [authLoading, user, navigate]);
 
@@ -94,6 +97,7 @@ const SellerDashboard = () => {
       });
       const data = await response.json();
       setProfile(data.profile);
+      setTier(data.profile.subscription_tier || 'none');
       
       setProfileForm({
         company_name: data.profile.company_name || '',
