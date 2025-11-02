@@ -16,6 +16,7 @@ import FarmerFilters, { FilterState } from '@/components/FarmerFilters';
 import BalanceWidget from '@/components/BalanceWidget';
 import TopUpModal from '@/components/TopUpModal';
 import OffersList from '@/components/investor/OffersList';
+import { VirtualFarm } from '@/components/investor/VirtualFarm';
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
@@ -252,34 +253,40 @@ const InvestorDashboard = () => {
           </TabsContent>
 
           <TabsContent value="portfolio">
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                <Icon name="Briefcase" className="text-farmer-orange" />
-                Мой портфель
-              </h2>
-              
-              {portfolio.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Пока нет заявок</p>
-              ) : (
-                <div className="space-y-3">
-                  {portfolio.map((investment) => (
-                    <Card key={investment.id} className="p-4 border">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">{investment.proposal_description}</p>
-                          <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
-                          <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                            <span>Сумма: {investment.amount} ₽</span>
-                            <span>Тип: {investment.proposal_type}</span>
-                            <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
+            {portfolio.length === 0 ? (
+              <Card className="p-6">
+                <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
+                  <Icon name="Briefcase" className="text-farmer-orange" />
+                  Мой портфель
+                </h2>
+                <p className="text-gray-500 text-center py-8">Пока нет инвестиций</p>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                <VirtualFarm investments={portfolio} />
+                
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
+                  <div className="space-y-3">
+                    {portfolio.map((investment) => (
+                      <Card key={investment.id} className="p-4 border">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{investment.proposal_description}</p>
+                            <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
+                            <div className="flex gap-4 mt-2 text-sm text-gray-600">
+                              <span>Сумма: {investment.amount} ₽</span>
+                              <span>Тип: {investment.proposal_type}</span>
+                              <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </Card>
+                      </Card>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
