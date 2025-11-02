@@ -153,12 +153,24 @@ const AdminDashboard = () => {
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-8 text-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="p-8 text-center max-w-md w-full">
           <Icon name="AlertCircle" size={48} className="text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold mb-2">Ошибка загрузки</h2>
-          <p className="text-gray-600 mb-4">Не удалось загрузить статистику</p>
-          <Button onClick={() => navigate('/')}>На главную</Button>
+          <p className="text-gray-600 mb-6">Не удалось загрузить статистику</p>
+          <div className="flex flex-col gap-3">
+            <Button onClick={loadStats} className="w-full bg-farmer-green hover:bg-farmer-green-dark">
+              <Icon name="RefreshCw" size={18} className="mr-2" />
+              Повторить попытку
+            </Button>
+            <Button onClick={handleLogout} variant="outline" className="w-full">
+              <Icon name="LogOut" size={18} className="mr-2" />
+              Выйти и войти заново
+            </Button>
+            <Button onClick={() => navigate('/')} variant="ghost" className="w-full">
+              На главную
+            </Button>
+          </div>
         </Card>
       </div>
     );
