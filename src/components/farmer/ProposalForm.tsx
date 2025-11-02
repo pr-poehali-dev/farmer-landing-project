@@ -177,7 +177,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <Label className="text-base font-semibold">Тип предложения</Label>
-          <RadioGroup value={proposalType} onValueChange={(v: any) => setProposalType(v)}>
+          <RadioGroup value={proposalType} onValueChange={(v) => setProposalType(v as 'income' | 'products' | 'patronage')}>
             {PROPOSAL_TYPES.map(type => (
               <Card 
                 key={type.value}
@@ -186,7 +186,10 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
                     ? 'border-2 border-green-600 bg-green-50' 
                     : 'border hover:border-green-300'
                 }`}
-                onClick={() => setProposalType(type.value as any)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setProposalType(type.value as 'income' | 'products' | 'patronage');
+                }}
               >
                 <div className="flex items-start gap-3">
                   <RadioGroupItem value={type.value} id={type.value} />
@@ -209,7 +212,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Тип актива</Label>
-            <RadioGroup value={assetType} onValueChange={(v: any) => setAssetType(v)}>
+            <RadioGroup value={assetType} onValueChange={(v) => setAssetType(v as 'animal' | 'crop' | 'beehive')}>
               <div className="flex gap-4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="animal" id="animal" />
