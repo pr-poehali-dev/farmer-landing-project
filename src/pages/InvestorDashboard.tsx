@@ -266,9 +266,7 @@ const InvestorDashboard = () => {
           <TabsContent value="proposals">
             <ProposalsViewer 
               userId={user!.id} 
-              onInvest={async (proposalId, productType) => {
-                await handleInvestInProposal(proposalId, productType);
-              }}
+              onInvest={handleInvestInProposal}
             />
           </TabsContent>
 
