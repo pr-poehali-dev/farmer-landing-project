@@ -62,11 +62,11 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
 
   const loadMyRequests = async () => {
     try {
-      const response = await fetch(`${INVESTOR_API}?action=get_portfolio`, {
+      const response = await fetch(`${INVESTOR_API}?action=get_my_requests`, {
         headers: { 'X-User-Id': userId.toString() }
       });
       const data = await response.json();
-      setMyRequests(data.investments || []);
+      setMyRequests(data.requests || []);
     } catch (error) {
       console.error('Ошибка загрузки заявок');
     }
@@ -275,6 +275,21 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
               Мои заявки
             </DialogTitle>
           </DialogHeader>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="flex gap-3">
+              <Icon name="Info" className="text-blue-600 flex-shrink-0 mt-1" size={20} />
+              <div className="text-sm text-blue-900">
+                <p className="font-semibold mb-2">Как работает процесс:</p>
+                <ol className="list-decimal list-inside space-y-1 text-blue-800">
+                  <li>Вы оставляете заявку на предложение фермера</li>
+                  <li>Фермер получает уведомление и рассматривает заявку</li>
+                  <li>После одобрения заявка появится в вашем портфеле</li>
+                  <li>Одобренные инвестиции вы можете отслеживать во вкладке "Портфель"</li>
+                </ol>
+              </div>
+            </div>
+          </div>
           
           {myRequests.length === 0 ? (
             <div className="text-center py-12 text-gray-500">

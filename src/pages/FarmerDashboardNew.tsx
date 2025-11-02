@@ -10,6 +10,7 @@ import InvestmentProposals from '@/components/farmer/InvestmentProposals';
 import OwnerProfile from '@/components/farmer/OwnerProfile';
 import SellerMarketplace from '@/components/farmer/SellerMarketplace';
 import FarmerRating from '@/components/farmer/FarmerRating';
+import InvestorRequests from '@/components/farmer/InvestorRequests';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -62,7 +63,7 @@ export default function FarmerDashboardNew() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="diagnostics" className="flex items-center gap-2">
               <Icon name="Home" size={18} />
               <span className="hidden md:inline">Моё хозяйство</span>
@@ -70,6 +71,10 @@ export default function FarmerDashboardNew() {
             <TabsTrigger value="proposals" className="flex items-center gap-2">
               <Icon name="DollarSign" size={18} />
               <span className="hidden md:inline">Мои предложения</span>
+            </TabsTrigger>
+            <TabsTrigger value="investors" className="flex items-center gap-2">
+              <Icon name="Users" size={18} />
+              <span className="hidden md:inline">Мои инвесторы</span>
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="flex items-center gap-2">
               <Icon name="ShoppingCart" size={18} />
@@ -83,6 +88,10 @@ export default function FarmerDashboardNew() {
 
           <TabsContent value="proposals" className="mt-6">
             <InvestmentProposals userId={user?.id || ''} onProposalCreated={() => setPoints(p => p + 10)} />
+          </TabsContent>
+
+          <TabsContent value="investors" className="mt-6">
+            <InvestorRequests userId={user?.id || ''} />
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">

@@ -169,20 +169,14 @@ const InvestorDashboard = () => {
           'X-User-Id': user!.id.toString()
         },
         body: JSON.stringify({
-          action: 'invest_virtual',
+          action: 'create_request',
           proposal_id: proposalId,
           product_type: productType
         })
       });
       
       if (response.ok) {
-        const data = await response.json();
-        const messages = {
-          income: `Виртуальная инвестиция принята! Теперь ты совладелец — отслеживай свой доход от земли.`,
-          product: `Отлично! Твоя инвестиция даст урожай: ${data.simulation || 'свежие продукты для здоровья'}.`,
-          patronage: `Ты стал покровителем! Следи за фермой — скоро получишь первые видеообновления.`
-        };
-        toast.success(messages[productType as keyof typeof messages] || 'Инвестиция создана!');
+        toast.success('Заявка отправлена! Ожидайте подтверждения от фермера.');
         loadData();
       } else {
         const error = await response.json();
