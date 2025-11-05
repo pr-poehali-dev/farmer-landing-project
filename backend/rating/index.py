@@ -110,14 +110,15 @@ def get_farmer_scores(conn, user_id: str, headers: dict) -> dict:
 
 
 def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
+    schema = 't_p53065890_farmer_landing_proje'
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         try:
-            cur.execute('''
+            cur.execute(f'''
                 SELECT land_owned, land_rented, animals, equipment, crops, 
                        employees_permanent, employees_seasonal
-                FROM farm_diagnostics 
-                WHERE user_id = %s
-            ''', (user_id,))
+                FROM {schema}.farm_diagnostics 
+                WHERE CAST(user_id AS TEXT) = %s
+            ''', (str(user_id),))
             
             farm_data = cur.fetchone()
             

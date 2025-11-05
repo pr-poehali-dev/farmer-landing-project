@@ -52,32 +52,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = body_data.get('action')
             
             if action == 'save_diagnosis':
-                country = body_data.get('country', 'Россия')
-                region = body_data.get('region', '')
                 assets = body_data.get('assets', [])
-                assets_json = json.dumps(assets)
                 
-                cur.execute(
-                    f"""SELECT id FROM {schema}.farmer_data WHERE user_id = %s""",
-                    (user_id,)
-                )
-                existing = cur.fetchone()
-                
-                if existing:
+                if assets and len(assets) > 0:
+                    asset_data = assets[0]
+                    land_area = asset_data.get('land_area', '')
+                    land_owned = asset_data.get('land_owned', '')
+                    land_rented = asset_data.get('land_rented', '')
+                    animals = json.dumps(asset_data.get('animals', []))
+                    equipment = json.dumps(asset_data.get('equipment', []))
+                    crops = json.dumps(asset_data.get('crops', []))
+                    employees_permanent = asset_data.get('employees_permanent', 0)
+                    employees_seasonal = asset_data.get('employees_seasonal', 0)
+                    
                     cur.execute(
-                        f"""UPDATE {schema}.farmer_data 
-                           SET country = %s, region = %s, assets = %s::jsonb
-                           WHERE user_id = %s""",
-                        (country, region, assets_json, user_id)
+                        f"""SELECT id FROM {schema}.farm_diagnostics WHERE user_id = %s""",
+                        (user_id,)
                     )
-                else:
-                    cur.execute(
-                        f"""INSERT INTO {schema}.farmer_data (user_id, country, region, assets)
-                           VALUES (%s, %s, %s, %s::jsonb)""",
-                        (user_id, country, region, assets_json)
-                    )
-                
-                conn.commit()
+                    existing = cur.fetchone()
+                    
+                    if existing:
+                        cur.execute(
+                            f"""UPDATE {schema}.farm_diagnostics 
+                               SET land_area = %s, land_owned = %s, land_rented = %s,
+                                   animals = %s::jsonb, equipment = %s::jsonb, crops = %s::jsonb,
+                                   employees_permanent = %s, employees_seasonal = %s,
+                                   updated_at = CURRENT_TIMESTAMP
+                               WHERE user_id = %s""",
+                            (land_area, land_owned, land_rented, animals, equipment, crops,
+                             employees_permanent, employees_seasonal, user_id)
+                        )
+                    else:
+                        cur.execute(
+                            f"""INSERT INTO {schema}.farm_diagnostics 
+                               (user_id, land_area, land_owned, land_rented, animals, equipment, crops,
+                                employees_permanent, employees_seasonal)
+                               VALUES (%s, %s, %s, %s, %s::jsonb, %s::jsonb, %s::jsonb, %s, %s)""",
+                            (user_id, land_area, land_owned, land_rented, animals, equipment, crops,
+                             employees_permanent, employees_seasonal)
+                        )
+                    
+                    conn.commit()
                 
                 return {
                     'statusCode': 200,
@@ -371,25 +386,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'get_diagnosis':
                 cur.execute(
-                    f"""SELECT fd.country, fd.region, fd.assets 
-                       FROM {schema}.farmer_data fd 
-                       WHERE fd.user_id = %s""",
+                    f"""SELECT land_area, land_owned, land_rented, animals, equipment, crops,
+                              employees_permanent, employees_seasonal
+                       FROM {schema}.farm_diagnostics
+                       WHERE user_id = %s""",
                     (user_id,)
                 )
                 result = cur.fetchone()
                 
                 if result:
-                    data = {
-                        'country': result[0] or 'Россия',
-                        'region': result[1] or '',
-                        'assets': result[2] if result[2] else []
-                    }
+                    assets = [{
+                        'land_area': result[0] or '',
+                        'land_owned': result[1] or '',
+                        'land_rented': result[2] or '',
+                        'animals': result[3] if result[3] else [],
+                        'equipment': result[4] if result[4] else [],
+                        'crops': result[5] if result[5] else [],
+                        'employees_permanent': result[6] or 0,
+                        'employees_seasonal': result[7] or 0
+                    }]
                 else:
-                    data = {
-                        'country': 'Россия',
-                        'region': '',
-                        'assets': []
-                    }
+                    assets = []
+                
+                data = {
+                    'country': 'Россия',
+                    'region': '',
+                    'assets': assets
+                }
                 
                 return {
                     'statusCode': 200,
