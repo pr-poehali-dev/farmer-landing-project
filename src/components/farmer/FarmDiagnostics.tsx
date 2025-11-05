@@ -112,7 +112,12 @@ export default function FarmDiagnostics() {
 
   const handleSave = async () => {
     console.log('🎯 handleSave вызван, user:', user);
-    if (!user) {
+    console.log('💾 localStorage.user:', localStorage.getItem('user'));
+    
+    const storedUser = localStorage.getItem('user');
+    const currentUser = storedUser ? JSON.parse(storedUser) : user;
+    
+    if (!currentUser) {
       console.error('❌ User не найден!');
       toast.error('Ошибка: пользователь не авторизован');
       return;
@@ -131,13 +136,13 @@ export default function FarmDiagnostics() {
         employees_seasonal: employeesSeasonal,
       };
 
-      console.log('🚀 Сохранение данных:', { userId: user.id, assets });
+      console.log('🚀 Сохранение данных:', { userId: currentUser.id, assets });
 
       const response = await fetch(FARMER_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
+          'X-User-Id': currentUser.id.toString()
         },
         body: JSON.stringify({
           action: 'save_diagnosis',
