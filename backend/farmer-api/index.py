@@ -401,8 +401,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 proposal_id = body_data.get('proposal_id')
                 reason = body_data.get('reason', '')
                 
-                print(f"DEBUG: request_proposal_deletion - proposal_id={proposal_id}, user_id={user_id}")
-                
                 if not proposal_id:
                     return {
                         'statusCode': 400,
@@ -410,14 +408,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'proposal_id обязателен'})
                     }
                 
-                print(f"DEBUG: Checking ownership for proposal_id={proposal_id}")
                 cur.execute(
                     f"""SELECT user_id FROM {schema}.proposals WHERE id = %s""",
                     (proposal_id,)
                 )
                 row = cur.fetchone()
-                print(f"DEBUG: Found proposal owner: {row}")
-                
                 if not row or str(row[0]) != str(user_id):
                     return {
                         'statusCode': 403,
