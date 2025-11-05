@@ -36,6 +36,8 @@ const InvestorDashboard = () => {
   const [balance, setBalance] = useState(0);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'farm'>('farm');
+  const [activeTab, setActiveTab] = useState('portfolio');
+  const [marketAssetFilter, setMarketAssetFilter] = useState<'all' | 'animal' | 'crop' | 'beehive'>('all');
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'investor')) {
@@ -251,7 +253,7 @@ const InvestorDashboard = () => {
           />
         </div>
 
-        <Tabs defaultValue="portfolio" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="portfolio">
               <Icon name="Sprout" size={18} className="mr-2" />
@@ -267,6 +269,7 @@ const InvestorDashboard = () => {
             <ProposalsViewer 
               userId={user!.id} 
               onInvest={handleInvestInProposal}
+              externalAssetFilter={marketAssetFilter}
             />
           </TabsContent>
 
@@ -302,7 +305,13 @@ const InvestorDashboard = () => {
               </div>
 
               {viewMode === 'farm' ? (
-                <VirtualFarm investments={portfolio} />
+                <VirtualFarm 
+                  investments={portfolio} 
+                  onNavigateToMarket={(assetType) => {
+                    setMarketAssetFilter(assetType);
+                    setActiveTab('proposals');
+                  }}
+                />
               ) : (
                 <Card className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>

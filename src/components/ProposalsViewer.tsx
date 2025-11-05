@@ -40,11 +40,12 @@ interface Proposal {
 interface ProposalsViewerProps {
   userId: number;
   onInvest: (proposalId: number, productType: string, shares?: number, totalAmount?: number) => Promise<boolean>;
+  externalAssetFilter?: 'all' | 'animal' | 'crop' | 'beehive';
 }
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
-const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
+const ProposalsViewer = ({ userId, onInvest, externalAssetFilter }: ProposalsViewerProps) => {
   const [loading, setLoading] = useState(true);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filter, setFilter] = useState<'all' | 'income' | 'products' | 'patronage'>('all');
@@ -59,6 +60,12 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
     loadProposals();
     loadMyRequests();
   }, []);
+
+  useEffect(() => {
+    if (externalAssetFilter && externalAssetFilter !== 'all') {
+      setAssetTypeFilter(externalAssetFilter);
+    }
+  }, [externalAssetFilter]);
 
   const loadProposals = async () => {
     try {

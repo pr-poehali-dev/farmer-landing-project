@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { useNavigate } from 'react-router-dom';
 
 interface Investment {
   id: number;
@@ -87,8 +86,12 @@ function FarmPlot({ type, image, title, items, onClick }: FarmPlotProps) {
   );
 }
 
-export function VirtualFarm({ investments }: { investments: Investment[] }) {
-  const navigate = useNavigate();
+interface VirtualFarmProps {
+  investments: Investment[];
+  onNavigateToMarket: (assetType: 'animal' | 'crop' | 'beehive') => void;
+}
+
+export function VirtualFarm({ investments, onNavigateToMarket }: VirtualFarmProps) {
   const [selectedPlot, setSelectedPlot] = useState<'livestock' | 'crops' | 'beehives' | null>(null);
 
   const livestockInvestments = investments.filter(inv => 
@@ -108,8 +111,16 @@ export function VirtualFarm({ investments }: { investments: Investment[] }) {
   };
 
   const handleGoToMarket = () => {
+    const assetTypeMap: Record<'livestock' | 'crops' | 'beehives', 'animal' | 'crop' | 'beehive'> = {
+      livestock: 'animal',
+      crops: 'crop',
+      beehives: 'beehive'
+    };
+    
+    if (selectedPlot) {
+      onNavigateToMarket(assetTypeMap[selectedPlot]);
+    }
     setSelectedPlot(null);
-    navigate('/dashboard/investor', { state: { scrollToTab: 'market' } });
   };
 
   const getPlotTitle = (type: 'livestock' | 'crops' | 'beehives') => {
