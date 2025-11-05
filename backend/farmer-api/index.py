@@ -614,6 +614,114 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'balance': balance})
                 }
+            
+            elif action == 'request_proposal_deletion':
+                proposal_id = body_data.get('proposal_id')
+                reason = body_data.get('reason', '')
+                
+                if not proposal_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'proposal_id обязателен'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT user_id FROM {schema}.proposals WHERE id = %s""",
+                    (proposal_id,)
+                )
+                row = cur.fetchone()
+                if not row or str(row[0]) != str(user_id):
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Нет прав на удаление'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT i.id, i.user_id FROM {schema}.investments i
+                       WHERE i.proposal_id = %s AND i.status = 'active'""",
+                    (proposal_id,)
+                )
+                investments = cur.fetchall()
+                
+                if len(investments) == 0:
+                    cur.execute(f"""UPDATE {schema}.proposals SET status = 'deleted' WHERE id = %s""", (proposal_id,))
+                    conn.commit()
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'success': True, 'immediate': True})
+                    }
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.proposal_deletion_requests 
+                       (proposal_id, farmer_id, reason, status)
+                       VALUES (%s, %s, %s, 'pending')
+                       RETURNING id""",
+                    (proposal_id, user_id, reason)
+                )
+                deletion_request_id = cur.fetchone()[0]
+                
+                for investment_id, investor_id in investments:
+                    cur.execute(
+                        f"""INSERT INTO {schema}.deletion_confirmations 
+                           (deletion_request_id, investor_id, investment_id, confirmed)
+                           VALUES (%s, %s, %s, FALSE)""",
+                        (deletion_request_id, investor_id, investment_id)
+                    )
+                    
+                    cur.execute(
+                        f"""INSERT INTO {schema}.notifications 
+                           (user_id, type, title, message, link, created_at)
+                           VALUES (%s, 'deletion_request', 'Запрос на удаление предложения', 
+                                   'Фермер запросил удаление предложения, в котором вы участвуете. Пожалуйста, подтвердите.', 
+                                   '/dashboard/investor', CURRENT_TIMESTAMP)""",
+                        (investor_id,)
+                    )
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'deletion_request_id': deletion_request_id, 'investors_count': len(investments)})
+                }
+            
+            elif action == 'get_deletion_requests':
+                cur.execute(
+                    f"""SELECT dr.id, dr.proposal_id, dr.reason, dr.status, dr.created_at,
+                              p.description, p.type,
+                              COUNT(dc.id) as total_confirmations,
+                              SUM(CASE WHEN dc.confirmed = TRUE THEN 1 ELSE 0 END) as confirmed_count
+                       FROM {schema}.proposal_deletion_requests dr
+                       JOIN {schema}.proposals p ON dr.proposal_id = p.id
+                       LEFT JOIN {schema}.deletion_confirmations dc ON dr.id = dc.deletion_request_id
+                       WHERE dr.farmer_id = %s AND dr.status = 'pending'
+                       GROUP BY dr.id, dr.proposal_id, dr.reason, dr.status, dr.created_at, p.description, p.type
+                       ORDER BY dr.created_at DESC""",
+                    (user_id,)
+                )
+                
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'proposal_id': row[1],
+                        'reason': row[2],
+                        'status': row[3],
+                        'created_at': row[4].isoformat() if row[4] else None,
+                        'proposal_description': row[5],
+                        'proposal_type': row[6],
+                        'total_confirmations': row[7],
+                        'confirmed_count': row[8]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
+                }
         
         return {
             'statusCode': 405,
