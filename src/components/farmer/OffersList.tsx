@@ -37,6 +37,14 @@ const OffersList = ({ userId, refreshTrigger }: OffersListProps) => {
   const [showRequestsModal, setShowRequestsModal] = useState(false);
 
   useEffect(() => {
+    const savedOffers = localStorage.getItem(`offers_${userId}`);
+    if (savedOffers) {
+      try {
+        setOffers(JSON.parse(savedOffers));
+      } catch (e) {
+        console.error('Ошибка восстановления офферов:', e);
+      }
+    }
     loadOffers();
   }, [refreshTrigger]);
 
@@ -47,7 +55,9 @@ const OffersList = ({ userId, refreshTrigger }: OffersListProps) => {
         headers: { 'X-User-Id': userId }
       });
       const data = await response.json();
-      setOffers(data.offers || []);
+      const loadedOffers = data.offers || [];
+      setOffers(loadedOffers);
+      localStorage.setItem(`offers_${userId}`, JSON.stringify(loadedOffers));
     } catch (error) {
       toast.error('Ошибка загрузки предложений');
     } finally {
