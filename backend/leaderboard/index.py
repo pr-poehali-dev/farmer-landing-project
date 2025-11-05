@@ -81,14 +81,14 @@ def get_total_leaderboard(conn, region: str) -> List[dict]:
         region_filter = ''
         params = []
         
-        if region:
-            region_filter = f'AND fd.region = %s'
-            params.append(region)
+        if region and region != 'all':
+            region_filter = f'AND fd.region ILIKE %s'
+            params.append(f'%{region}%')
         
         query = f'''
             SELECT 
-                u.id::text as user_id,
-                COALESCE(u.farm_name, u.name, 'Ферма №' || u.id) as farm_name,
+                u.id::text as "userId",
+                COALESCE(fd.farm_name, u.farm_name, u.name, 'Ферма №' || u.id) as "farmName",
                 COALESCE(fd.region, 'Не указан') as region,
                 COALESCE(fs.total_score, 0) as score,
                 ROW_NUMBER() OVER (ORDER BY COALESCE(fs.total_score, 0) DESC) as rank
