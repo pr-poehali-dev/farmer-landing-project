@@ -57,6 +57,26 @@ const FarmersSection = () => {
 
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Icon name="Award" size={20} className="text-farmer-orange" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Рейтинг и сравнение</h4>
+                  <p className="text-sm text-gray-600">Сравнивай свою ферму с другими, получай рекомендации по улучшениям</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Icon name="ShoppingCart" size={20} className="text-farmer-orange" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Маркетплейс удобрений</h4>
+                  <p className="text-sm text-gray-600">Смотри, какие удобрения используют успешные фермы, и покупай напрямую у продавцов</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <Icon name="Users" size={20} className="text-farmer-orange" />
                 </div>
                 <div>
