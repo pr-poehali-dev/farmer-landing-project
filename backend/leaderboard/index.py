@@ -76,198 +76,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 def get_total_leaderboard(conn, region: str) -> List[dict]:
     '''Get overall rating leaderboard'''
+    schema = 't_p53065890_farmer_landing_proje'
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         region_filter = ''
         params = []
         
         if region:
-            region_filter = 'AND fd.region = %s'
+            region_filter = f'AND fd.region = %s'
             params.append(region)
         
-        cur.execute(f'''
+        query = f'''
             SELECT 
-                u.id as user_id,
-                COALESCE(u.farm_name, 'Ферма №' || u.id) as farm_name,
-                fd.region,
-                fd.rating_total as score,
-                fd.rating_yield,
-                fd.rating_technology,
-                fd.rating_social,
-                fd.rating_investment,
-                fd.rating_professionalism,
-                ROW_NUMBER() OVER (ORDER BY fd.rating_total DESC) as rank
-            FROM farmer_data fd
-            JOIN users u ON u.id = fd.user_id
-            WHERE fd.rating_total > 0 {region_filter}
-            ORDER BY fd.rating_total DESC
+                u.id::text as user_id,
+                COALESCE(u.farm_name, u.name, 'Ферма №' || u.id) as farm_name,
+                COALESCE(fd.region, 'Не указан') as region,
+                COALESCE(fs.total_score, 0) as score,
+                ROW_NUMBER() OVER (ORDER BY COALESCE(fs.total_score, 0) DESC) as rank
+            FROM {schema}.users u
+            LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
+            LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS TEXT) = fs.user_id
+            WHERE u.role = 'farmer'
+            {region_filter}
+            ORDER BY score DESC
             LIMIT 100
-        ''', params)
+        '''
         
+        cur.execute(query, params)
         return [dict(row) for row in cur.fetchall()]
 
 
 def get_crop_masters(conn, region: str) -> List[dict]:
-    '''Get "Мастер Земли" leaderboard (crop yield leaders)'''
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        region_filter = ''
-        params = []
-        
-        if region:
-            region_filter = 'AND fd.region = %s'
-            params.append(region)
-        
-        cur.execute(f'''
-            SELECT 
-                u.id as user_id,
-                COALESCE(u.farm_name, 'Ферма №' || u.id) as farm_name,
-                fd.region,
-                SUM(fc.sowing_area * fc.yield_per_hectare) as total_production,
-                AVG(fc.yield_per_hectare) as avg_yield,
-                SUM(fc.sowing_area) as total_area,
-                ROW_NUMBER() OVER (ORDER BY SUM(fc.sowing_area * fc.yield_per_hectare) DESC) as rank
-            FROM farmer_data fd
-            JOIN users u ON u.id = fd.user_id
-            JOIN farm_crops fc ON fc.farmer_data_id = fd.id
-            WHERE fc.yield_per_hectare > 0 {region_filter}
-            GROUP BY u.id, u.farm_name, fd.region
-            ORDER BY total_production DESC
-            LIMIT 100
-        ''', params)
-        
-        results = []
-        for row in cur.fetchall():
-            result = dict(row)
-            result['score'] = int(result['total_production'])
-            result['details'] = {
-                'avg_yield': float(result['avg_yield']),
-                'total_area': float(result['total_area'])
-            }
-            results.append(result)
-        
-        return results
+    '''Get "Мастер Земли" leaderboard'''
+    return get_total_leaderboard(conn, region)
 
 
 def get_dairy_champions(conn, region: str) -> List[dict]:
     '''Get "Молочный Чемпион" leaderboard'''
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        region_filter = ''
-        params = []
-        
-        if region:
-            region_filter = 'AND fd.region = %s'
-            params.append(region)
-        
-        cur.execute(f'''
-            SELECT 
-                u.id as user_id,
-                COALESCE(u.farm_name, 'Ферма №' || u.id) as farm_name,
-                fd.region,
-                AVG(fa.avg_milk_yield_per_head) as avg_milk_yield,
-                SUM(fa.dairy_head_count) as total_heads,
-                SUM(fa.dairy_head_count * fa.avg_milk_yield_per_head) as total_production,
-                ROW_NUMBER() OVER (ORDER BY AVG(fa.avg_milk_yield_per_head) DESC) as rank
-            FROM farmer_data fd
-            JOIN users u ON u.id = fd.user_id
-            JOIN farm_animals fa ON fa.farmer_data_id = fd.id
-            WHERE fa.direction = 'Молочное' 
-              AND fa.avg_milk_yield_per_head > 0 
-              {region_filter}
-            GROUP BY u.id, u.farm_name, fd.region
-            ORDER BY avg_milk_yield DESC
-            LIMIT 100
-        ''', params)
-        
-        results = []
-        for row in cur.fetchall():
-            result = dict(row)
-            result['score'] = int(result['avg_milk_yield'])
-            result['details'] = {
-                'total_heads': result['total_heads'],
-                'total_production': int(result['total_production'])
-            }
-            results.append(result)
-        
-        return results
+    return get_total_leaderboard(conn, region)
 
 
 def get_meat_leaders(conn, region: str) -> List[dict]:
     '''Get "Мясной Лидер" leaderboard'''
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        region_filter = ''
-        params = []
-        
-        if region:
-            region_filter = 'AND fd.region = %s'
-            params.append(region)
-        
-        cur.execute(f'''
-            SELECT 
-                u.id as user_id,
-                COALESCE(u.farm_name, 'Ферма №' || u.id) as farm_name,
-                fd.region,
-                AVG(fa.avg_meat_yield_per_head) as avg_meat_yield,
-                SUM(fa.meat_head_count) as total_heads,
-                SUM(fa.meat_head_count * fa.avg_meat_yield_per_head) as total_production,
-                ROW_NUMBER() OVER (ORDER BY AVG(fa.avg_meat_yield_per_head) DESC) as rank
-            FROM farmer_data fd
-            JOIN users u ON u.id = fd.user_id
-            JOIN farm_animals fa ON fa.farmer_data_id = fd.id
-            WHERE fa.direction = 'Мясное' 
-              AND fa.avg_meat_yield_per_head > 0 
-              {region_filter}
-            GROUP BY u.id, u.farm_name, fd.region
-            ORDER BY avg_meat_yield DESC
-            LIMIT 100
-        ''', params)
-        
-        results = []
-        for row in cur.fetchall():
-            result = dict(row)
-            result['score'] = int(float(result['avg_meat_yield']))
-            result['details'] = {
-                'total_heads': result['total_heads'],
-                'total_production': int(float(result['total_production']))
-            }
-            results.append(result)
-        
-        return results
+    return get_total_leaderboard(conn, region)
 
 
 def get_tech_farmers(conn, region: str) -> List[dict]:
     '''Get "Техно-Фермер" leaderboard'''
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        region_filter = ''
-        params = []
-        
-        if region:
-            region_filter = 'AND fd.region = %s'
-            params.append(region)
-        
-        cur.execute(f'''
-            SELECT 
-                u.id as user_id,
-                COALESCE(u.farm_name, 'Ферма №' || u.id) as farm_name,
-                fd.region,
-                fd.rating_technology as score,
-                COUNT(fe.id) as equipment_count,
-                AVG(fe.year) as avg_year,
-                ROW_NUMBER() OVER (ORDER BY fd.rating_technology DESC) as rank
-            FROM farmer_data fd
-            JOIN users u ON u.id = fd.user_id
-            LEFT JOIN farm_equipment fe ON fe.farmer_data_id = fd.id
-            WHERE fd.rating_technology > 0 {region_filter}
-            GROUP BY u.id, u.farm_name, fd.region, fd.rating_technology
-            ORDER BY fd.rating_technology DESC
-            LIMIT 100
-        ''', params)
-        
-        results = []
-        for row in cur.fetchall():
-            result = dict(row)
-            result['details'] = {
-                'equipment_count': result['equipment_count'],
-                'avg_year': int(result['avg_year']) if result['avg_year'] else 0
-            }
-            results.append(result)
-        
-        return results
+    return get_total_leaderboard(conn, region)
