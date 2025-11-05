@@ -134,7 +134,7 @@ const Login = () => {
             type="button"
             variant="outline"
             className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=telegram'}
+            onClick={() => navigate('/oauth/telegram')}
           >
             <Icon name="Send" size={18} className="mr-2" />
             Telegram
