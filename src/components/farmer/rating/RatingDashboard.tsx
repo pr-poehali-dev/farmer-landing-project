@@ -85,7 +85,7 @@ export default function RatingDashboard() {
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Icon name="Trophy" size={24} className="text-yellow-600" />
@@ -101,6 +101,53 @@ export default function RatingDashboard() {
                 Место в регионе: #{rank}
               </div>
             )}
+          </div>
+        </div>
+        
+        <div className="border-t border-yellow-300 pt-4">
+          <div className="flex items-start gap-2 mb-3">
+            <Icon name="Calculator" size={18} className="text-yellow-700 mt-0.5" />
+            <h3 className="font-semibold text-gray-900">Как считается рейтинг</h3>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div>
+              <div className="font-medium mb-1">🌾 Урожайность (40%)</div>
+              <ul className="text-xs text-gray-600 space-y-0.5 ml-4">
+                <li>• Площадь посевов × урожайность</li>
+                <li>• Сравнение со средней по региону</li>
+                <li>• Молоко: голов × надои / средняя по региону</li>
+                <li>• Мясо: голов × прирост / средняя по региону</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium mb-1">🚜 Технологичность (20%)</div>
+              <ul className="text-xs text-gray-600 space-y-0.5 ml-4">
+                <li>• Количество и возраст техники</li>
+                <li>• Новая техника = выше коэффициент</li>
+                <li>• Агротехнологии для культур</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium mb-1">👥 Социальный капитал (15%)</div>
+              <ul className="text-xs text-gray-600 space-y-0.5 ml-4">
+                <li>• Постоянные сотрудники × 50 баллов</li>
+                <li>• Сезонные работники × 20 баллов</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium mb-1">💰 Инвестиционная активность (15%)</div>
+              <ul className="text-xs text-gray-600 space-y-0.5 ml-4">
+                <li>• Активные предложения × 100</li>
+                <li>• Полученные инвестиции × 200</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium mb-1">🎓 Экспертиза (10%)</div>
+              <ul className="text-xs text-gray-600 space-y-0.5 ml-4">
+                <li>• Достижения × 50 баллов</li>
+                <li>• Завершенные квесты × 20 баллов</li>
+              </ul>
+            </div>
           </div>
         </div>
       </Card>
