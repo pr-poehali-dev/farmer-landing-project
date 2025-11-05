@@ -78,11 +78,5 @@ export const useAuth = () => {
     navigate('/');
   };
 
-  const setAuthData = (data: { token: string; user: User }) => {
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', data.token);
-    setUser(data.user);
-  };
-
-  return { user, loading, login, register, logout, setAuthData };
+  return { user, loading, login, register, logout };
 };
