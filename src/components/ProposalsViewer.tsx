@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { LIVESTOCK_TYPES, LIVESTOCK_DIRECTIONS, LIVESTOCK_BREEDS } from '@/data/livestock';
+import { CROP_TYPES, CROP_VARIETIES, CROP_PURPOSES } from '@/data/crops';
 
 interface Proposal {
   id: number;
@@ -18,6 +21,12 @@ interface Proposal {
     type: string;
     count?: number;
     details?: string;
+    livestock_type?: string;
+    livestock_breed?: string;
+    livestock_direction?: string;
+    crop_type?: string;
+    crop_variety?: string;
+    crop_purpose?: string;
   };
   expected_product?: string;
   update_frequency?: string;
@@ -39,6 +48,8 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
   const [loading, setLoading] = useState(true);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filter, setFilter] = useState<'all' | 'income' | 'products' | 'patronage'>('all');
+  const [assetTypeFilter, setAssetTypeFilter] = useState<'all' | 'animal' | 'crop' | 'beehive'>('all');
+  const [directionFilter, setDirectionFilter] = useState<string>('all');
   const [showMyRequests, setShowMyRequests] = useState(false);
   const [myRequests, setMyRequests] = useState<any[]>([]);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
@@ -93,9 +104,37 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
     }
   };
 
-  const filteredProposals = filter === 'all' 
-    ? proposals 
-    : proposals.filter(p => p.type === filter);
+  const getLivestockLabel = (value: string, type: 'type' | 'breed' | 'direction') => {
+    if (type === 'type') {
+      return LIVESTOCK_TYPES.find(t => t.value === value)?.label || value;
+    }
+    if (type === 'direction') {
+      return LIVESTOCK_DIRECTIONS.find(d => d.value === value)?.label || value;
+    }
+    const allBreeds = Object.values(LIVESTOCK_BREEDS).flat();
+    return allBreeds.find(b => b.value === value)?.label || value;
+  };
+  
+  const getCropLabel = (value: string, type: 'type' | 'variety' | 'purpose') => {
+    if (type === 'type') {
+      return CROP_TYPES.find(t => t.value === value)?.label || value;
+    }
+    if (type === 'purpose') {
+      return CROP_PURPOSES.find(p => p.value === value)?.label || value;
+    }
+    const allVarieties = Object.values(CROP_VARIETIES).flat();
+    return allVarieties.find(v => v.value === value)?.label || value;
+  };
+
+  const filteredProposals = proposals.filter(p => {
+    if (filter !== 'all' && p.type !== filter) return false;
+    if (assetTypeFilter !== 'all' && p.asset.type !== assetTypeFilter) return false;
+    if (directionFilter !== 'all') {
+      if (p.asset.type === 'animal' && p.asset.livestock_direction !== directionFilter) return false;
+      if (p.asset.type === 'crop' && p.asset.crop_purpose !== directionFilter) return false;
+    }
+    return true;
+  });
 
   const getTypeIcon = (type: string) => {
     switch(type) {
@@ -171,6 +210,61 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
         </TabsList>
       </Tabs>
 
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <div>
+          <label className="text-sm font-medium mb-2 block">Тип актива</label>
+          <Select value={assetTypeFilter} onValueChange={(v) => setAssetTypeFilter(v as any)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все</SelectItem>
+              <SelectItem value="animal">🐄 Животные</SelectItem>
+              <SelectItem value="crop">🌾 Культуры</SelectItem>
+              <SelectItem value="beehive">🐝 Ульи</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {(assetTypeFilter === 'animal' || assetTypeFilter === 'crop') && (
+          <div>
+            <label className="text-sm font-medium mb-2 block">
+              {assetTypeFilter === 'animal' ? 'Направление' : 'Назначение'}
+            </label>
+            <Select value={directionFilter} onValueChange={setDirectionFilter}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все</SelectItem>
+                {assetTypeFilter === 'animal' && LIVESTOCK_DIRECTIONS.map(d => (
+                  <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                ))}
+                {assetTypeFilter === 'crop' && CROP_PURPOSES.map(p => (
+                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        
+        {(assetTypeFilter !== 'all' || directionFilter !== 'all') && (
+          <div className="flex items-end">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setAssetTypeFilter('all');
+                setDirectionFilter('all');
+              }}
+              className="w-full"
+            >
+              <Icon name="X" size={16} className="mr-2" />
+              Сбросить
+            </Button>
+          </div>
+        )}
+      </div>
+
       {filter !== 'all' && (
         <Card className="p-4 mb-6 bg-gradient-to-r from-farmer-green/5 to-farmer-orange/5">
           <p className="text-gray-700 italic">
@@ -203,6 +297,46 @@ const ProposalsViewer = ({ userId, onInvest }: ProposalsViewerProps) => {
                 <h3 className="font-bold text-lg mb-1">
                   {proposal.asset.name}
                 </h3>
+                
+                {proposal.asset.type === 'animal' && (proposal.asset.livestock_type || proposal.asset.livestock_breed || proposal.asset.livestock_direction) && (
+                  <div className="flex flex-wrap gap-1 mb-2 text-xs">
+                    {proposal.asset.livestock_type && (
+                      <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                        🐄 {getLivestockLabel(proposal.asset.livestock_type, 'type')}
+                      </span>
+                    )}
+                    {proposal.asset.livestock_breed && (
+                      <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                        📋 {getLivestockLabel(proposal.asset.livestock_breed, 'breed')}
+                      </span>
+                    )}
+                    {proposal.asset.livestock_direction && (
+                      <span className="px-2 py-0.5 rounded bg-green-100 text-green-800">
+                        🎯 {getLivestockLabel(proposal.asset.livestock_direction, 'direction')}
+                      </span>
+                    )}
+                  </div>
+                )}
+                
+                {proposal.asset.type === 'crop' && (proposal.asset.crop_type || proposal.asset.crop_variety || proposal.asset.crop_purpose) && (
+                  <div className="flex flex-wrap gap-1 mb-2 text-xs">
+                    {proposal.asset.crop_type && (
+                      <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        🌾 {getCropLabel(proposal.asset.crop_type, 'type')}
+                      </span>
+                    )}
+                    {proposal.asset.crop_variety && (
+                      <span className="px-2 py-0.5 rounded bg-lime-100 text-lime-800">
+                        🌱 {getCropLabel(proposal.asset.crop_variety, 'variety')}
+                      </span>
+                    )}
+                    {proposal.asset.crop_purpose && (
+                      <span className="px-2 py-0.5 rounded bg-teal-100 text-teal-800">
+                        🎯 {getCropLabel(proposal.asset.crop_purpose, 'purpose')}
+                      </span>
+                    )}
+                  </div>
+                )}
                 
                 <button
                   onClick={() => proposal.farmer_id && window.open(`/profile/${proposal.farmer_id}`, '_blank')}
