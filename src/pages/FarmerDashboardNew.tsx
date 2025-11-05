@@ -85,7 +85,10 @@ export default function FarmerDashboardNew() {
           </TabsList>
 
           <TabsContent value="diagnostics" className="mt-6">
-            <FarmDiagnostics />
+            <div className="space-y-6">
+              <FarmDiagnostics />
+              <ExtendedProfile userId={user?.id || ''} />
+            </div>
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-6">
@@ -97,14 +100,7 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <div>
-                <OwnerProfile userId={user?.id || ''} />
-              </div>
-              <div>
-                <ExtendedProfile userId={user?.id || ''} />
-              </div>
-            </div>
+            <OwnerProfile userId={user?.id || ''} />
           </TabsContent>
 
           <TabsContent value="marketplace" className="mt-6">
