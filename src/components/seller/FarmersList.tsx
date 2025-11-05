@@ -164,7 +164,15 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                       <Icon name="User" className="text-white" size={20} />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-lg">{farmer.name}</h4>
+                      <div className="mb-2">
+                        <h4 className="font-bold text-lg">{farmer.name}</h4>
+                        {farmer.farm_name && farmer.farm_name !== farmer.name && (
+                          <p className="text-sm text-gray-600 flex items-center gap-1">
+                            <Icon name="Home" size={12} />
+                            {farmer.farm_name}
+                          </p>
+                        )}
+                      </div>
                       
                       <div className="flex flex-wrap gap-2 mt-2">
                         {farmer.region && (
