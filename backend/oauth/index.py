@@ -30,7 +30,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     db_url = os.environ.get('DATABASE_URL')
     jwt_secret = os.environ.get('JWT_SECRET')
-    frontend_url = os.environ.get('FRONTEND_URL', 'https://main--agricultural-app-f9xvg5.poehali.app')
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://фармер.рф')
     
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     yandex_client_id = os.environ.get('YANDEX_CLIENT_ID')
