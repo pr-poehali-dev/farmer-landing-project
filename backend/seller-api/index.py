@@ -303,11 +303,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tier_row = cur.fetchone()
                 tier = tier_row[0] if tier_row else 'none'
                 
-                if tier == 'none':
+                cur.execute(
+                    f"""SELECT products FROM {schema}.seller_data WHERE user_id = %s""",
+                    (user_id,)
+                )
+                products_row = cur.fetchone()
+                current_products = products_row[0] if products_row and products_row[0] else []
+                products_count = len(current_products)
+                
+                if tier == 'none' and products_count >= 10:
                     return {
                         'statusCode': 403,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Требуется подписка для добавления товаров'}),
+                        'body': json.dumps({'error': 'Достигнут лимит бесплатных товаров (10). Оформите подписку для безлимитного добавления.'}),
                         'isBase64Encoded': False
                     }
                 
@@ -337,17 +345,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'status': 'active'
                 }
                 
-                cur.execute(
-                    f"""SELECT products FROM {schema}.seller_data WHERE user_id = %s""",
-                    (user_id,)
-                )
-                row = cur.fetchone()
-                products = row[0] if row and row[0] else []
-                products.append(product)
+                current_products.append(product)
                 
                 cur.execute(
                     f"""UPDATE {schema}.seller_data SET products = %s::jsonb WHERE user_id = %s""",
-                    (json.dumps(products), user_id)
+                    (json.dumps(current_products), user_id)
                 )
                 conn.commit()
                 
