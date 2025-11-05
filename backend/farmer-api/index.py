@@ -615,7 +615,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'balance': balance})
                 }
             
-            elif action == 'request_proposal_deletion':
+            elif action == 'get_deletion_requests':
+                cur.execute(
+                    f"""SELECT dr.id, dr.proposal_id, dr.reason, dr.status, dr.created_at,
+                              p.description, p.type,
+                              COUNT(dc.id) as total_confirmations,
+                              SUM(CASE WHEN dc.confirmed = TRUE THEN 1 ELSE 0 END) as confirmed_count
+                       FROM {schema}.proposal_deletion_requests dr
+                       JOIN {schema}.proposals p ON dr.proposal_id = p.id
+                       LEFT JOIN {schema}.deletion_confirmations dc ON dr.id = dc.deletion_request_id
+                       WHERE dr.farmer_id = %s AND dr.status = 'pending'
+                       GROUP BY dr.id, dr.proposal_id, dr.reason, dr.status, dr.created_at, p.description, p.type
+                       ORDER BY dr.created_at DESC""",
+                    (user_id,)
+                )
+                
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'proposal_id': row[1],
+                        'reason': row[2],
+                        'status': row[3],
+                        'created_at': row[4].isoformat() if row[4] else None,
+                        'proposal_description': row[5],
+                        'proposal_type': row[6],
+                        'total_confirmations': row[7],
+                        'confirmed_count': row[8]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
+                }
+        
+        elif method == 'POST':
+            body_data = json.loads(event.get('body', '{}'))
+            action = body_data.get('action')
+            
+            if action == 'request_proposal_deletion':
                 proposal_id = body_data.get('proposal_id')
                 reason = body_data.get('reason', '')
                 
@@ -686,41 +725,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'deletion_request_id': deletion_request_id, 'investors_count': len(investments)})
-                }
-            
-            elif action == 'get_deletion_requests':
-                cur.execute(
-                    f"""SELECT dr.id, dr.proposal_id, dr.reason, dr.status, dr.created_at,
-                              p.description, p.type,
-                              COUNT(dc.id) as total_confirmations,
-                              SUM(CASE WHEN dc.confirmed = TRUE THEN 1 ELSE 0 END) as confirmed_count
-                       FROM {schema}.proposal_deletion_requests dr
-                       JOIN {schema}.proposals p ON dr.proposal_id = p.id
-                       LEFT JOIN {schema}.deletion_confirmations dc ON dr.id = dc.deletion_request_id
-                       WHERE dr.farmer_id = %s AND dr.status = 'pending'
-                       GROUP BY dr.id, dr.proposal_id, dr.reason, dr.status, dr.created_at, p.description, p.type
-                       ORDER BY dr.created_at DESC""",
-                    (user_id,)
-                )
-                
-                requests = []
-                for row in cur.fetchall():
-                    requests.append({
-                        'id': row[0],
-                        'proposal_id': row[1],
-                        'reason': row[2],
-                        'status': row[3],
-                        'created_at': row[4].isoformat() if row[4] else None,
-                        'proposal_description': row[5],
-                        'proposal_type': row[6],
-                        'total_confirmations': row[7],
-                        'confirmed_count': row[8]
-                    })
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'requests': requests})
                 }
         
         return {
