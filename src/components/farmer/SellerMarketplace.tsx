@@ -19,9 +19,11 @@ const PRODUCT_TYPES = [
 
 export default function SellerMarketplace() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<'products' | 'requests'>('products');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [products, setProducts] = useState<any[]>([]);
+  const [myRequests, setMyRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [requestForm, setRequestForm] = useState({
@@ -34,6 +36,7 @@ export default function SellerMarketplace() {
 
   useEffect(() => {
     loadProducts();
+    loadMyRequests();
   }, []);
 
   const loadProducts = async () => {
@@ -47,6 +50,18 @@ export default function SellerMarketplace() {
       toast.error('Ошибка загрузки товаров');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMyRequests = async () => {
+    try {
+      const response = await fetch(`${SELLER_API}?action=get_farmer_requests`, {
+        headers: { 'X-User-Id': user?.id.toString() || '0' }
+      });
+      const data = await response.json();
+      setMyRequests(data.requests || []);
+    } catch (error) {
+      console.error('Ошибка загрузки заявок');
     }
   };
 
@@ -74,6 +89,7 @@ export default function SellerMarketplace() {
         toast.success('Заявка отправлена продавцу!');
         setSelectedProduct(null);
         setRequestForm({ farmer_name: '', farmer_phone: '', farmer_region: '', message: '' });
+        loadMyRequests();
       } else {
         const error = await response.json();
         toast.error(error.error || 'Ошибка отправки заявки');
@@ -107,36 +123,57 @@ export default function SellerMarketplace() {
         <p className="text-gray-600 mt-1">Найди нужное оборудование, удобрения и семена от проверенных продавцов</p>
       </div>
 
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <Input 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск по товарам и продавцам..."
-            className="w-full"
-          />
-        </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все категории</SelectItem>
-            {PRODUCT_TYPES.map(t => (
-              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex gap-2">
+        <Button
+          variant={activeTab === 'products' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('products')}
+          className="flex items-center gap-2"
+        >
+          <Icon name="Package" size={16} />
+          Все товары
+        </Button>
+        <Button
+          variant={activeTab === 'requests' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('requests')}
+          className="flex items-center gap-2"
+        >
+          <Icon name="MessageSquare" size={16} />
+          Мои заявки {myRequests.length > 0 && `(${myRequests.length})`}
+        </Button>
       </div>
 
-      {filteredProducts.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-500">Товары не найдены</p>
-        </Card>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map(product => (
+      {activeTab === 'products' ? (
+        <>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Input 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Поиск по товарам и продавцам..."
+                className="w-full"
+              />
+            </div>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все категории</SelectItem>
+                {PRODUCT_TYPES.map(t => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {filteredProducts.length === 0 ? (
+            <Card className="p-12 text-center">
+              <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-400" />
+              <p className="text-gray-500">Товары не найдены</p>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map(product => (
             <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow">
               {product.photo_url ? (
                 <img src={product.photo_url} alt={product.name} className="w-full h-40 object-cover rounded-lg mb-4" />
@@ -183,6 +220,69 @@ export default function SellerMarketplace() {
               </Button>
             </Card>
           ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="space-y-4">
+          {myRequests.length === 0 ? (
+            <Card className="p-12 text-center">
+              <Icon name="Inbox" size={48} className="mx-auto mb-4 text-gray-400" />
+              <p className="text-gray-500">У вас пока нет заявок</p>
+              <Button onClick={() => setActiveTab('products')} className="mt-4">
+                Перейти к товарам
+              </Button>
+            </Card>
+          ) : (
+            myRequests.map(req => (
+              <Card key={req.id} className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="Package" size={20} className="text-blue-600" />
+                      <h4 className="font-bold text-lg">{req.product_name}</h4>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Calendar" size={14} />
+                        <span>Отправлено: {new Date(req.created_at).toLocaleDateString('ru-RU')}</span>
+                      </div>
+                      {req.farmer_region && (
+                        <div className="flex items-center gap-2">
+                          <Icon name="MapPin" size={14} />
+                          <span>{req.farmer_region}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {req.message && (
+                      <div className="p-3 bg-gray-50 rounded-lg mb-4">
+                        <p className="text-sm text-gray-700">
+                          <Icon name="MessageCircle" size={14} className="inline mr-2" />
+                          {req.message}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center gap-2">
+                      <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        req.status === 'new' ? 'bg-blue-100 text-blue-700' :
+                        req.status === 'viewed' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-green-100 text-green-700'
+                      }`}>
+                        {req.status === 'new' ? 'Новая' : req.status === 'viewed' ? 'Просмотрена' : 'Обработана'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="ml-4">
+                    <Icon name="CheckCircle" size={24} className="text-green-500" />
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
       )}
 

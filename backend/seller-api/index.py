@@ -281,6 +281,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'get_farmer_requests':
+                cur.execute(
+                    f"""SELECT product_requests FROM {schema}.seller_data"""
+                )
+                rows = cur.fetchall()
+                
+                farmer_requests = []
+                for row in rows:
+                    requests = row[0] or []
+                    for req in requests:
+                        if str(req.get('farmer_id')) == str(user_id):
+                            farmer_requests.append(req)
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': farmer_requests}),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'get_balance':
                 cur.execute(
                     f"""SELECT balance FROM {schema}.users WHERE id = %s""",
