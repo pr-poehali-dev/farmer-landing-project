@@ -40,6 +40,15 @@ export default function OwnerProfile() {
   ];
 
   useEffect(() => {
+    const savedProfile = localStorage.getItem('ownerProfile');
+    if (savedProfile) {
+      try {
+        setProfile(JSON.parse(savedProfile));
+      } catch (e) {
+        console.error('Ошибка восстановления профиля:', e);
+      }
+    }
+    
     if (!authLoading && user) {
       loadProfile();
     } else if (!authLoading && !user) {
@@ -91,12 +100,20 @@ export default function OwnerProfile() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    const storedUser = localStorage.getItem('user');
+    const currentUser = storedUser ? JSON.parse(storedUser) : user;
+    
+    if (!currentUser) {
+      toast.error('Пожалуйста, войди в аккаунт заново');
+      return;
+    }
 
     if (!profile.first_name || !profile.last_name || !profile.phone || !profile.bio || !profile.farm_name || !profile.region) {
       toast.error('Заполни все обязательные поля для 100% профиля');
       return;
     }
+    
+    localStorage.setItem('ownerProfile', JSON.stringify(profile));
     
     setLoading(true);
     try {
@@ -104,7 +121,7 @@ export default function OwnerProfile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
+          'X-User-Id': currentUser.id.toString()
         },
         body: JSON.stringify({
           action: 'update_profile',
