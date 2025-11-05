@@ -65,9 +65,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     employees_permanent = asset_data.get('employees_permanent', 0)
                     employees_seasonal = asset_data.get('employees_seasonal', 0)
                     
+                    user_id_int = int(user_id)
+                    
                     cur.execute(
                         f"""SELECT id FROM {schema}.farm_diagnostics WHERE user_id = %s""",
-                        (user_id,)
+                        (user_id_int,)
                     )
                     existing = cur.fetchone()
                     
@@ -80,7 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                    updated_at = CURRENT_TIMESTAMP
                                WHERE user_id = %s""",
                             (land_area, land_owned, land_rented, animals, equipment, crops,
-                             employees_permanent, employees_seasonal, user_id)
+                             employees_permanent, employees_seasonal, user_id_int)
                         )
                     else:
                         cur.execute(
@@ -88,11 +90,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                (user_id, land_area, land_owned, land_rented, animals, equipment, crops,
                                 employees_permanent, employees_seasonal)
                                VALUES (%s, %s, %s, %s, %s::jsonb, %s::jsonb, %s::jsonb, %s, %s)""",
-                            (user_id, land_area, land_owned, land_rented, animals, equipment, crops,
+                            (user_id_int, land_area, land_owned, land_rented, animals, equipment, crops,
                              employees_permanent, employees_seasonal)
                         )
                     
                     conn.commit()
+                
+                try:
+                    import requests
+                    rating_url = 'https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8'
+                    requests.post(rating_url, json={'action': 'calculate', 'profileId': user_id}, timeout=3)
+                except:
+                    pass
                 
                 return {
                     'statusCode': 200,
@@ -385,12 +394,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = params.get('action', 'get_diagnosis')
             
             if action == 'get_diagnosis':
+                user_id_int = int(user_id)
                 cur.execute(
                     f"""SELECT land_area, land_owned, land_rented, animals, equipment, crops,
                               employees_permanent, employees_seasonal
                        FROM {schema}.farm_diagnostics
                        WHERE user_id = %s""",
-                    (user_id,)
+                    (user_id_int,)
                 )
                 result = cur.fetchone()
                 

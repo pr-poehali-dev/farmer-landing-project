@@ -139,7 +139,10 @@ export default function FarmDiagnostics() {
       });
 
       if (response.ok) {
-        toast.success('Диагностика сохранена! +20 баллов');
+        toast.success('Диагностика сохранена! Рейтинг пересчитывается...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
         const error = await response.json();
         toast.error(error.error || 'Ошибка сохранения');
