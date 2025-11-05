@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { LIVESTOCK_TYPES, LIVESTOCK_DIRECTIONS, LIVESTOCK_BREEDS, LivestockType } from '@/data/livestock';
 
 interface Props {
   assetType: 'animal' | 'crop' | 'beehive';
@@ -24,6 +26,24 @@ export const AssetDetailsForm = ({
   onAssetCountChange,
   onAssetDetailsChange
 }: Props) => {
+  const [livestockType, setLivestockType] = useState<string>('');
+  const [livestockBreed, setLivestockBreed] = useState<string>('');
+  const [livestockDirection, setLivestockDirection] = useState<string>('');
+
+  useEffect(() => {
+    if (assetType !== 'animal') {
+      setLivestockType('');
+      setLivestockBreed('');
+      setLivestockDirection('');
+    }
+  }, [assetType]);
+
+  useEffect(() => {
+    setLivestockBreed('');
+  }, [livestockType]);
+
+  const availableBreeds = livestockType ? LIVESTOCK_BREEDS[livestockType as LivestockType] || [] : [];
+
   return (
     <div className="space-y-4">
       <h3 className="font-semibold text-green-900">Детали актива</h3>
@@ -42,12 +62,66 @@ export const AssetDetailsForm = ({
         </Select>
       </div>
 
+      {assetType === 'animal' && (
+        <>
+          <div>
+            <Label htmlFor="livestockType">Вид животного *</Label>
+            <Select value={livestockType} onValueChange={setLivestockType}>
+              <SelectTrigger id="livestockType">
+                <SelectValue placeholder="Выберите вид" />
+              </SelectTrigger>
+              <SelectContent>
+                {LIVESTOCK_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {livestockType && availableBreeds.length > 0 && (
+            <div>
+              <Label htmlFor="livestockBreed">Порода</Label>
+              <Select value={livestockBreed} onValueChange={setLivestockBreed}>
+                <SelectTrigger id="livestockBreed">
+                  <SelectValue placeholder="Выберите породу" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableBreeds.map((breed) => (
+                    <SelectItem key={breed.value} value={breed.value}>
+                      {breed.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor="livestockDirection">Направление</Label>
+            <Select value={livestockDirection} onValueChange={setLivestockDirection}>
+              <SelectTrigger id="livestockDirection">
+                <SelectValue placeholder="Выберите направление" />
+              </SelectTrigger>
+              <SelectContent>
+                {LIVESTOCK_DIRECTIONS.map((direction) => (
+                  <SelectItem key={direction.value} value={direction.value}>
+                    {direction.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+
       <div>
         <Label htmlFor="assetName">Название актива *</Label>
         <Input
           id="assetName"
           type="text"
-          placeholder="Например: Корова Машка"
+          placeholder={assetType === 'animal' ? 'Например: Корова Машка' : 'Например: Пшеница'}
           value={assetName}
           onChange={(e) => onAssetNameChange(e.target.value)}
           required
@@ -70,7 +144,7 @@ export const AssetDetailsForm = ({
         <Label htmlFor="assetDetails">Дополнительная информация</Label>
         <Textarea
           id="assetDetails"
-          placeholder="Порода, возраст, особенности..."
+          placeholder={assetType === 'animal' ? 'Возраст, вес, особенности...' : 'Сорт, площадь посева...'}
           value={assetDetails}
           onChange={(e) => onAssetDetailsChange(e.target.value)}
           rows={3}
