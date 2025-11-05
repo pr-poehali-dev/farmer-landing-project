@@ -111,7 +111,12 @@ export default function FarmDiagnostics() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    console.log('🎯 handleSave вызван, user:', user);
+    if (!user) {
+      console.error('❌ User не найден!');
+      toast.error('Ошибка: пользователь не авторизован');
+      return;
+    }
     
     setLoading(true);
     try {
