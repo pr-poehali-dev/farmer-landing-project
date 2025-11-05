@@ -104,13 +104,8 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="rating" className="mt-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <div>
-                <DetailedRating userId={user?.id || ''} />
-              </div>
-              <div>
-                <FarmerRating userId={user?.id || ''} />
-              </div>
+            <div className="text-center py-12 text-gray-500">
+              Контент вкладки готов к переделке
             </div>
           </TabsContent>
         </Tabs>
