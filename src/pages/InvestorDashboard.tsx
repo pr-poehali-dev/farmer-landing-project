@@ -280,40 +280,35 @@ const InvestorDashboard = () => {
                 </div>
               </div>
             </div>
-            {portfolio.length === 0 ? (
-              <Card className="p-6">
-                <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                  <Icon name="Sprout" className="text-farmer-green" />
-                  Моя виртуальная ферма
-                </h2>
-                <p className="text-gray-500 text-center py-8">Пока нет оплаченных инвестиций</p>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                <div className="flex gap-2 mb-4">
-                  <Button
-                    variant={viewMode === 'farm' ? 'default' : 'outline'}
-                    onClick={() => setViewMode('farm')}
-                    className="flex items-center gap-2"
-                  >
-                    <span>🌾</span>
-                    Вид фермы
-                  </Button>
-                  <Button
-                    variant={viewMode === 'table' ? 'default' : 'outline'}
-                    onClick={() => setViewMode('table')}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon name="List" size={18} />
-                    Таблица
-                  </Button>
-                </div>
+            
+            <div className="space-y-6">
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant={viewMode === 'farm' ? 'default' : 'outline'}
+                  onClick={() => setViewMode('farm')}
+                  className="flex items-center gap-2"
+                >
+                  <span>🌾</span>
+                  Вид фермы
+                </Button>
+                <Button
+                  variant={viewMode === 'table' ? 'default' : 'outline'}
+                  onClick={() => setViewMode('table')}
+                  className="flex items-center gap-2"
+                >
+                  <Icon name="List" size={18} />
+                  Таблица
+                </Button>
+              </div>
 
-                {viewMode === 'farm' ? (
-                  <VirtualFarm investments={portfolio} />
-                ) : (
-                  <Card className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
+              {viewMode === 'farm' ? (
+                <VirtualFarm investments={portfolio} />
+              ) : (
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
+                  {portfolio.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">Пока нет оплаченных инвестиций</p>
+                  ) : (
                     <div className="space-y-3">
                       {portfolio.map((investment) => {
                         const status = investment.status || 'pending';
@@ -358,10 +353,10 @@ const InvestorDashboard = () => {
                         );
                       })}
                     </div>
-                  </Card>
-                )}
-              </div>
-            )}
+                  )}
+                </Card>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
