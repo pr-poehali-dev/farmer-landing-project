@@ -118,7 +118,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Доход</h4>
-                  <p className="text-sm text-gray-600">Стань совладельцем земли или коровы — получай прибыль от урожая</p>
+                  <p className="text-sm text-gray-600">Стань совладельцем земли или коровы — получай прибыль от урожая и роста стоимости активов</p>
                 </div>
               </div>
 
@@ -128,7 +128,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Продукт</h4>
-                  <p className="text-sm text-gray-600">Вложи в живое — получи натуральные продукты без химии</p>
+                  <p className="text-sm text-gray-600">Вложи в живое — получи натуральные продукты прямо с фермы: мясо, молоко, овощи без химии и посредников</p>
                 </div>
               </div>
 
@@ -138,7 +138,27 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Патронаж</h4>
-                  <p className="text-sm text-gray-600">Следи за фермой в видео — почувствуй связь с настоящим</p>
+                  <p className="text-sm text-gray-600">Следи за своей фермой в видео и фото, получай обновления о жизни животных и росте урожая — почувствуй связь с настоящим</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-farmer-green/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Icon name="Shield" size={20} className="text-farmer-green" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Прозрачность</h4>
+                  <p className="text-sm text-gray-600">Видь полную информацию о фермере, рейтинге и отзывах других инвесторов перед принятием решения</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-farmer-green/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Icon name="Users" size={20} className="text-farmer-green" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Сообщество</h4>
+                  <p className="text-sm text-gray-600">Общайся с другими инвесторами, обменивайся опытом и находи новые возможности для вложений</p>
                 </div>
               </div>
             </div>
