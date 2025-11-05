@@ -111,87 +111,127 @@ def get_farmer_scores(conn, user_id: str, headers: dict) -> dict:
 
 def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        proposal_count = 0
-        profile_filled = 0
-        investment_count = 0
-        
-        try:
-            cur.execute('SELECT COUNT(*) as count FROM proposals WHERE CAST(user_id AS TEXT) = %s', (user_id,))
-            result = cur.fetchone()
-            if result:
-                proposal_count = result['count']
-        except:
-            pass
-        
-        try:
-            cur.execute('SELECT COUNT(*) as count FROM farmer_data WHERE user_id = %s AND farm_name IS NOT NULL', (user_id,))
-            result = cur.fetchone()
-            if result:
-                profile_filled = result['count']
-        except:
-            pass
-        
         try:
             cur.execute('''
-                SELECT COUNT(*) as count 
-                FROM investments 
-                WHERE proposal_id IN (
-                    SELECT id FROM proposals WHERE CAST(user_id AS TEXT) = %s
-                )
+                SELECT land_owned, land_rented, animals, equipment, crops, 
+                       employees_permanent, employees_seasonal
+                FROM farm_diagnostics 
+                WHERE user_id = %s
             ''', (user_id,))
-            result = cur.fetchone()
-            if result:
-                investment_count = result['count']
-        except:
-            pass
-        
-        productivity_score = proposal_count * 30
-        tech_score = profile_filled * 20
-        investment_score = investment_count * 50
-        expertise_score = min(proposal_count * 10, 100)
-        community_score = investment_count * 15
-        
-        total_score = productivity_score + tech_score + investment_score + expertise_score + community_score
-        
-        level = 1
-        if total_score >= 1000:
-            level = 5
-        elif total_score >= 500:
-            level = 4
-        elif total_score >= 250:
-            level = 3
-        elif total_score >= 100:
-            level = 2
-        
-        cur.execute('''
-            INSERT INTO farmer_scores (
-                user_id, productivity_score, tech_score, investment_score,
-                expertise_score, community_score, total_score, level
+            
+            farm_data = cur.fetchone()
+            
+            if not farm_data:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({
+                        'profileId': user_id,
+                        'scores': {
+                            'overall': 0,
+                            'nominations': {'crop_master': 0, 'livestock_champion': 0, 'agro_innovator': 0},
+                            'categories_normalized': {
+                                'land_power': 0, 'livestock_efficiency': 0, 'crop_mastery': 0,
+                                'tech_advancement': 0, 'business_scale': 0
+                            }
+                        }
+                    })
+                }
+            
+            land_owned = float(farm_data.get('land_owned') or 0)
+            land_rented = float(farm_data.get('land_rented') or 0)
+            animals = farm_data.get('animals') or []
+            crops = farm_data.get('crops') or []
+            equipment = farm_data.get('equipment') or []
+            permanent = int(farm_data.get('employees_permanent') or 0)
+            seasonal = int(farm_data.get('employees_seasonal') or 0)
+            
+            land_power = (land_owned * 1.5) + (land_rented * 0.8)
+            
+            livestock_efficiency = 0.0
+            for animal in animals:
+                direction = animal.get('direction', 'other')
+                count = animal.get('count', 0)
+                if direction == 'milk':
+                    milk_yield = animal.get('milkYield', 0)
+                    efficiency_ratio = milk_yield / 6000.0 if milk_yield > 0 else 0
+                    livestock_efficiency += efficiency_ratio * count * 1.2
+                elif direction == 'meat':
+                    meat_yield = animal.get('meatYield', 0)
+                    efficiency_ratio = meat_yield / 300.0 if meat_yield > 0 else 0
+                    livestock_efficiency += efficiency_ratio * count
+            
+            crop_mastery = 0.0
+            for crop in crops:
+                area = crop.get('area', 0)
+                crop_yield = crop.get('yield', 0)
+                if area > 0:
+                    calculated_yield = crop_yield / area
+                    benchmark_yield = 3.5
+                    yield_ratio = calculated_yield / benchmark_yield
+                    crop_mastery += yield_ratio * area
+            
+            current_year = datetime.now().year
+            tech_advancement = 0.0
+            for item in equipment:
+                year = int(item.get('year', current_year))
+                age = current_year - year
+                age_decay_factor = 0.95 ** age
+                tech_advancement += 100 * age_decay_factor
+            
+            business_scale = (permanent * 10) + (seasonal * 4)
+            
+            max_scores = {'land_power': 1000, 'livestock_efficiency': 1000, 'crop_mastery': 1000, 
+                          'tech_advancement': 1000, 'business_scale': 200}
+            
+            normalized = {}
+            for key in ['land_power', 'livestock_efficiency', 'crop_mastery', 'tech_advancement', 'business_scale']:
+                raw_val = locals()[key]
+                max_val = max_scores[key]
+                normalized[key] = (raw_val / max_val * 1000) if max_val > 0 else 0
+            
+            overall_score = (
+                normalized['land_power'] * 0.15 +
+                normalized['livestock_efficiency'] * 0.25 +
+                normalized['crop_mastery'] * 0.25 +
+                normalized['tech_advancement'] * 0.20 +
+                normalized['business_scale'] * 0.15
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (user_id) 
-            DO UPDATE SET
-                productivity_score = EXCLUDED.productivity_score,
-                tech_score = EXCLUDED.tech_score,
-                investment_score = EXCLUDED.investment_score,
-                expertise_score = EXCLUDED.expertise_score,
-                community_score = EXCLUDED.community_score,
-                total_score = EXCLUDED.total_score,
-                level = EXCLUDED.level,
-                last_updated = NOW()
-            RETURNING *
-        ''', (user_id, productivity_score, tech_score, investment_score,
-              expertise_score, community_score, total_score, level))
-        
-        updated_scores = cur.fetchone()
-        conn.commit()
-    
-    conn.close()
-    return {
-        'statusCode': 200,
-        'headers': headers,
-        'body': json.dumps(dict(updated_scores), default=str)
-    }
+            
+            crop_master = (normalized['crop_mastery'] * 0.60 + normalized['land_power'] * 0.25 + 
+                           normalized['tech_advancement'] * 0.15)
+            livestock_champion = (normalized['livestock_efficiency'] * 0.70 + normalized['business_scale'] * 0.20 + 
+                                  normalized['land_power'] * 0.10)
+            agro_innovator = (normalized['tech_advancement'] * 0.50 + normalized['crop_mastery'] * 0.30 + 
+                              normalized['livestock_efficiency'] * 0.20)
+            
+            result = {
+                'profileId': user_id,
+                'scores': {
+                    'overall': overall_score,
+                    'nominations': {
+                        'crop_master': crop_master,
+                        'livestock_champion': livestock_champion,
+                        'agro_innovator': agro_innovator
+                    },
+                    'categories_normalized': normalized
+                }
+            }
+            
+            conn.close()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps(result)
+            }
+            
+        except Exception as e:
+            conn.close()
+            return {
+                'statusCode': 500,
+                'headers': headers,
+                'body': json.dumps({'error': str(e)})
+            }
 
 
 def get_leaderboard(conn, category: str, period: str, headers: dict) -> dict:

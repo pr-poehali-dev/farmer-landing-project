@@ -12,6 +12,7 @@ import SellerMarketplace from '@/components/farmer/SellerMarketplace';
 import FarmerRating from '@/components/farmer/FarmerRating';
 import InvestorRequests from '@/components/farmer/InvestorRequests';
 import DetailedRating from '@/components/farmer/DetailedRating';
+import RatingDashboard from '@/components/farmer/rating/RatingDashboard';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -104,9 +105,7 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="rating" className="mt-6">
-            <div className="text-center py-12 text-gray-500">
-              Контент вкладки готов к переделке
-            </div>
+            <RatingDashboard />
           </TabsContent>
         </Tabs>
       </main>
