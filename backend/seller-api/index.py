@@ -160,11 +160,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     farmer = {
                         'id': row[0],
+                        'name': f"{row[1] or ''} {row[2] or ''}".strip() or row[3] or 'Фермер',
                         'farmer_name': f"{row[1] or ''} {row[2] or ''}".strip() or 'Фермер',
                         'farm_name': row[3] or 'Ферма',
                         'region': row[4] or 'Не указан',
                         'country': row[5] or 'Не указана',
-                        'occupation': 'Неизвестно'
+                        'occupation': 'Неизвестно',
+                        'assets': assets
                     }
                     
                     if assets and len(assets) > 0:
@@ -172,19 +174,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         for asset in assets:
                             asset_type = asset.get('type', '')
                             if asset_type == 'animal':
-                                occupations.append('Животноводство')
+                                occupations.append('animal')
                             elif asset_type == 'crop':
-                                occupations.append('Растениеводство')
+                                occupations.append('crop')
                             elif asset_type == 'beehive':
-                                occupations.append('Пчеловодство')
+                                occupations.append('beehive')
                         
                         if occupations:
-                            farmer['occupation'] = ', '.join(list(set(occupations)))
+                            farmer['occupation'] = occupations[0]
                     
                     if tier == 'premium':
                         farmer['email'] = row[7]
                         farmer['phone'] = row[8]
-                        farmer['assets'] = assets
                         farmer['gamification_points'] = row[9] or 0
                     
                     farmers.append(farmer)
