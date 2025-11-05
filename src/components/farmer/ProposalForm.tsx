@@ -42,6 +42,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [lastYearYield, setLastYearYield] = useState<string>('');
   const [totalAssetValue, setTotalAssetValue] = useState<string>('');
   const [livestockData, setLivestockData] = useState<{ type: string; breed: string; direction: string }>({ type: '', breed: '', direction: '' });
+  const [cropData, setCropData] = useState<{ type: string; variety: string; purpose: string }>({ type: '', variety: '', purpose: '' });
 
   const calculateSharePrice = () => {
     const totalValue = parseFloat(totalAssetValue);
@@ -109,7 +110,10 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       investment_types: [proposalType],
       livestock_type: assetType === 'animal' ? livestockData.type : undefined,
       livestock_breed: assetType === 'animal' ? livestockData.breed : undefined,
-      livestock_direction: assetType === 'animal' ? livestockData.direction : undefined
+      livestock_direction: assetType === 'animal' ? livestockData.direction : undefined,
+      crop_type: assetType === 'crop' ? cropData.type : undefined,
+      crop_variety: assetType === 'crop' ? cropData.variety : undefined,
+      crop_purpose: assetType === 'crop' ? cropData.purpose : undefined
     };
 
     try {
@@ -194,6 +198,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           onAssetCountChange={setAssetCount}
           onAssetDetailsChange={setAssetDetails}
           onLivestockDataChange={setLivestockData}
+          onCropDataChange={setCropData}
         />
 
         <SharePricingForm

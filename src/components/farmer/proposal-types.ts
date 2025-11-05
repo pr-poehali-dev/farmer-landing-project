@@ -10,6 +10,9 @@ export interface Asset {
   livestock_type?: string;
   livestock_breed?: string;
   livestock_direction?: string;
+  crop_type?: string;
+  crop_variety?: string;
+  crop_purpose?: string;
 }
 
 export interface IncomeDetails {

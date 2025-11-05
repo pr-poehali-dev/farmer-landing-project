@@ -13,7 +13,10 @@ export const LIVESTOCK_TYPES = [
   { value: 'llama', label: 'Лама' },
   { value: 'alpaca', label: 'Альпака' },
   { value: 'donkey', label: 'Осёл' },
-  { value: 'camel', label: 'Верблюд' }
+  { value: 'camel', label: 'Верблюд' },
+  { value: 'yak', label: 'Як' },
+  { value: 'deer', label: 'Олень' },
+  { value: 'ostrich', label: 'Страус' }
 ] as const;
 
 export const LIVESTOCK_DIRECTIONS = [
@@ -124,6 +127,22 @@ export const LIVESTOCK_BREEDS: Record<string, { value: string; label: string }[]
   camel: [
     { value: 'dromedary', label: 'Одногорбый (дромедар)' },
     { value: 'bactrian', label: 'Двугорбый (бактриан)' }
+  ],
+  yak: [
+    { value: 'tibetan', label: 'Тибетский' },
+    { value: 'mongolian', label: 'Монгольский' },
+    { value: 'domestic', label: 'Домашний' }
+  ],
+  deer: [
+    { value: 'red', label: 'Благородный' },
+    { value: 'sika', label: 'Пятнистый' },
+    { value: 'fallow', label: 'Лань' },
+    { value: 'reindeer', label: 'Северный олень' }
+  ],
+  ostrich: [
+    { value: 'black', label: 'Чёрный африканский' },
+    { value: 'blue', label: 'Голубошейный' },
+    { value: 'red', label: 'Красношейный' }
   ]
 };
 

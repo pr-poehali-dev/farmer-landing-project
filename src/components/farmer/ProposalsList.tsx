@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { Proposal, FARMER_API } from './proposal-types';
 import { LIVESTOCK_TYPES, LIVESTOCK_DIRECTIONS, LIVESTOCK_BREEDS } from '@/data/livestock';
+import { CROP_TYPES, CROP_VARIETIES, CROP_PURPOSES } from '@/data/crops';
 
 interface Props {
   proposals: Proposal[];
@@ -22,6 +23,17 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
     }
     const allBreeds = Object.values(LIVESTOCK_BREEDS).flat();
     return allBreeds.find(b => b.value === value)?.label || value;
+  };
+  
+  const getCropLabel = (value: string, type: 'type' | 'variety' | 'purpose') => {
+    if (type === 'type') {
+      return CROP_TYPES.find(t => t.value === value)?.label || value;
+    }
+    if (type === 'purpose') {
+      return CROP_PURPOSES.find(p => p.value === value)?.label || value;
+    }
+    const allVarieties = Object.values(CROP_VARIETIES).flat();
+    return allVarieties.find(v => v.value === value)?.label || value;
   };
 
   const handleDelete = async (proposalId: number) => {
@@ -113,6 +125,26 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
                   {proposal.asset.livestock_direction && (
                     <span className="px-2 py-1 rounded bg-green-100 text-green-800">
                       🎯 {getLivestockLabel(proposal.asset.livestock_direction, 'direction')}
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              {proposal.asset?.type === 'crop' && (proposal.asset.crop_type || proposal.asset.crop_variety || proposal.asset.crop_purpose) && (
+                <div className="flex flex-wrap gap-2 mb-2 text-xs">
+                  {proposal.asset.crop_type && (
+                    <span className="px-2 py-1 rounded bg-emerald-100 text-emerald-800">
+                      🌾 {getCropLabel(proposal.asset.crop_type, 'type')}
+                    </span>
+                  )}
+                  {proposal.asset.crop_variety && (
+                    <span className="px-2 py-1 rounded bg-lime-100 text-lime-800">
+                      🌱 {getCropLabel(proposal.asset.crop_variety, 'variety')}
+                    </span>
+                  )}
+                  {proposal.asset.crop_purpose && (
+                    <span className="px-2 py-1 rounded bg-teal-100 text-teal-800">
+                      🎯 {getCropLabel(proposal.asset.crop_purpose, 'purpose')}
                     </span>
                   )}
                 </div>

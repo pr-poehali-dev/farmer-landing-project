@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LIVESTOCK_TYPES, LIVESTOCK_DIRECTIONS, LIVESTOCK_BREEDS, LivestockType } from '@/data/livestock';
+import { CROP_TYPES, CROP_VARIETIES, CROP_PURPOSES, CropType } from '@/data/crops';
 
 interface Props {
   assetType: 'animal' | 'crop' | 'beehive';
@@ -15,6 +16,7 @@ interface Props {
   onAssetCountChange: (value: string) => void;
   onAssetDetailsChange: (value: string) => void;
   onLivestockDataChange?: (data: { type: string; breed: string; direction: string }) => void;
+  onCropDataChange?: (data: { type: string; variety: string; purpose: string }) => void;
 }
 
 export const AssetDetailsForm = ({
@@ -26,11 +28,16 @@ export const AssetDetailsForm = ({
   onAssetNameChange,
   onAssetCountChange,
   onAssetDetailsChange,
-  onLivestockDataChange
+  onLivestockDataChange,
+  onCropDataChange
 }: Props) => {
   const [livestockType, setLivestockType] = useState<string>('');
   const [livestockBreed, setLivestockBreed] = useState<string>('');
   const [livestockDirection, setLivestockDirection] = useState<string>('');
+  
+  const [cropType, setCropType] = useState<string>('');
+  const [cropVariety, setCropVariety] = useState<string>('');
+  const [cropPurpose, setCropPurpose] = useState<string>('');
 
   useEffect(() => {
     if (assetType !== 'animal') {
@@ -38,11 +45,20 @@ export const AssetDetailsForm = ({
       setLivestockBreed('');
       setLivestockDirection('');
     }
+    if (assetType !== 'crop') {
+      setCropType('');
+      setCropVariety('');
+      setCropPurpose('');
+    }
   }, [assetType]);
 
   useEffect(() => {
     setLivestockBreed('');
   }, [livestockType]);
+  
+  useEffect(() => {
+    setCropVariety('');
+  }, [cropType]);
 
   useEffect(() => {
     if (onLivestockDataChange) {
@@ -53,8 +69,19 @@ export const AssetDetailsForm = ({
       });
     }
   }, [livestockType, livestockBreed, livestockDirection, onLivestockDataChange]);
+  
+  useEffect(() => {
+    if (onCropDataChange) {
+      onCropDataChange({
+        type: cropType,
+        variety: cropVariety,
+        purpose: cropPurpose
+      });
+    }
+  }, [cropType, cropVariety, cropPurpose, onCropDataChange]);
 
   const availableBreeds = livestockType ? LIVESTOCK_BREEDS[livestockType as LivestockType] || [] : [];
+  const availableVarieties = cropType ? CROP_VARIETIES[cropType as CropType] || [] : [];
 
   return (
     <div className="space-y-4">
@@ -120,6 +147,60 @@ export const AssetDetailsForm = ({
                 {LIVESTOCK_DIRECTIONS.map((direction) => (
                   <SelectItem key={direction.value} value={direction.value}>
                     {direction.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+
+      {assetType === 'crop' && (
+        <>
+          <div>
+            <Label htmlFor="cropType">Вид культуры *</Label>
+            <Select value={cropType} onValueChange={setCropType}>
+              <SelectTrigger id="cropType">
+                <SelectValue placeholder="Выберите культуру" />
+              </SelectTrigger>
+              <SelectContent>
+                {CROP_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {cropType && availableVarieties.length > 0 && (
+            <div>
+              <Label htmlFor="cropVariety">Сорт/тип</Label>
+              <Select value={cropVariety} onValueChange={setCropVariety}>
+                <SelectTrigger id="cropVariety">
+                  <SelectValue placeholder="Выберите сорт" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableVarieties.map((variety) => (
+                    <SelectItem key={variety.value} value={variety.value}>
+                      {variety.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor="cropPurpose">Назначение</Label>
+            <Select value={cropPurpose} onValueChange={setCropPurpose}>
+              <SelectTrigger id="cropPurpose">
+                <SelectValue placeholder="Выберите назначение" />
+              </SelectTrigger>
+              <SelectContent>
+                {CROP_PURPOSES.map((purpose) => (
+                  <SelectItem key={purpose.value} value={purpose.value}>
+                    {purpose.label}
                   </SelectItem>
                 ))}
               </SelectContent>
