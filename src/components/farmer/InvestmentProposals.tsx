@@ -14,11 +14,21 @@ const InvestmentProposals = ({ userId, onProposalCreated }: Props) => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(false);
 
+  console.log('🔍 InvestmentProposals: userId =', userId);
+
   useEffect(() => {
-    loadProposals();
-  }, []);
+    if (userId) {
+      loadProposals();
+    }
+  }, [userId]);
 
   const loadProposals = async () => {
+    if (!userId) {
+      console.error('❌ userId пустой, не могу загрузить предложения');
+      return;
+    }
+    
+    console.log('📡 Загружаю предложения для userId:', userId);
     setLoading(true);
     try {
       const response = await fetch(`${FARMER_API}?action=get_proposals`, {

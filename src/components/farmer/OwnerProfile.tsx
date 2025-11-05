@@ -14,6 +14,10 @@ const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb710
 
 export default function OwnerProfile() {
   const { user, loading: authLoading } = useAuth();
+  
+  console.log('🔍 OwnerProfile: user =', user);
+  console.log('🔍 localStorage.user =', localStorage.getItem('user'));
+  
   const [profile, setProfile] = useState({
     first_name: '',
     last_name: '',
