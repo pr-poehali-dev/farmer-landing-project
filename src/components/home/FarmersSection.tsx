@@ -41,7 +41,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Привлекай инвестиции</h4>
-                  <p className="text-sm text-gray-600">Предлагай доли в урожае, животных или продуктах</p>
+                  <p className="text-sm text-gray-600">Предлагай доли в урожае и животных, получай финансирование напрямую</p>
                 </div>
               </div>
 
@@ -51,7 +51,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Диагностика земли</h4>
-                  <p className="text-sm text-gray-600">Получай аналитику и данные о состоянии фермы</p>
+                  <p className="text-sm text-gray-600">Получай аналитику состояния почвы и рекомендации по урожаю</p>
                 </div>
               </div>
 
@@ -61,7 +61,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Рейтинг и сравнение</h4>
-                  <p className="text-sm text-gray-600">Сравнивай свою ферму с другими, получай рекомендации по улучшениям</p>
+                  <p className="text-sm text-gray-600">Сравнивай показатели с другими фермами и расти эффективнее</p>
                 </div>
               </div>
 
@@ -71,7 +71,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Маркетплейс удобрений</h4>
-                  <p className="text-sm text-gray-600">Смотри, какие удобрения используют успешные фермы, и покупай напрямую у продавцов</p>
+                  <p className="text-sm text-gray-600">Покупай удобрения напрямую, смотри что используют лучшие фермы</p>
                 </div>
               </div>
 
@@ -81,7 +81,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Сообщество</h4>
-                  <p className="text-sm text-gray-600">Дели опыт и находи поддержку среди других фермеров</p>
+                  <p className="text-sm text-gray-600">Делись опытом и получай поддержку коллег по всей стране</p>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Доход</h4>
-                  <p className="text-sm text-gray-600">Стань совладельцем земли или коровы — получай прибыль от урожая и роста стоимости активов</p>
+                  <p className="text-sm text-gray-600">Стань совладельцем земли и получай прибыль от урожая</p>
                 </div>
               </div>
 
@@ -128,7 +128,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Продукт</h4>
-                  <p className="text-sm text-gray-600">Вложи в живое — получи натуральные продукты прямо с фермы: мясо, молоко, овощи без химии и посредников</p>
+                  <p className="text-sm text-gray-600">Получай натуральные продукты с фермы без химии и посредников</p>
                 </div>
               </div>
 
@@ -138,7 +138,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Патронаж</h4>
-                  <p className="text-sm text-gray-600">Следи за своей фермой в видео и фото, получай обновления о жизни животных и росте урожая — почувствуй связь с настоящим</p>
+                  <p className="text-sm text-gray-600">Следи за фермой в видео, получай обновления и почувствуй связь</p>
                 </div>
               </div>
 
@@ -148,7 +148,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Прозрачность</h4>
-                  <p className="text-sm text-gray-600">Видь полную информацию о фермере, рейтинге и отзывах других инвесторов перед принятием решения</p>
+                  <p className="text-sm text-gray-600">Видь рейтинг фермера и отзывы инвесторов перед вложением</p>
                 </div>
               </div>
 
@@ -158,7 +158,7 @@ const FarmersSection = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Сообщество</h4>
-                  <p className="text-sm text-gray-600">Соревнуйся, чья цифровая ферма круче — сравнивай портфели, делись успехами и находи лучшие инвестиции</p>
+                  <p className="text-sm text-gray-600">Соревнуйся в рейтинге ферм, сравнивай портфели и делись успехами</p>
                 </div>
               </div>
             </div>
