@@ -30,7 +30,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     db_url = os.environ.get('DATABASE_URL')
     jwt_secret = os.environ.get('JWT_SECRET')
-    frontend_url = os.environ.get('FRONTEND_URL', 'https://фармер.рф')
+    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
     
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     yandex_client_id = os.environ.get('YANDEX_CLIENT_ID')
@@ -54,39 +54,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if not telegram_bot_token:
             return error_response('Telegram не настроен')
         
-        # Проверка авторизации Telegram через Login Widget
-        telegram_id = params.get('id')
-        if not telegram_id:
-            return error_response('Отсутствуют данные Telegram')
+        # Telegram использует Telegram Login Widget
+        # Пользователь перенаправляется на специальную страницу с виджетом
+        telegram_auth_url = f"{frontend_url}/oauth/telegram-callback"
         
-        # Проверка подписи
-        import hashlib
-        import hmac
-        
-        check_hash = params.get('hash', '')
-        check_params = {k: v for k, v in params.items() if k not in ['hash', 'provider']}
-        check_string = '\n'.join([f'{k}={v}' for k, v in sorted(check_params.items())])
-        secret_key = hashlib.sha256(telegram_bot_token.encode()).digest()
-        calculated_hash = hmac.new(secret_key, check_string.encode(), hashlib.sha256).hexdigest()
-        
-        if calculated_hash != check_hash:
-            return error_response('Неверная подпись Telegram')
-        
-        # Получение данных пользователя
-        first_name = params.get('first_name', '')
-        last_name = params.get('last_name', '')
-        username = params.get('username', '')
-        name = f"{first_name} {last_name}".strip() or username or 'Пользователь'
-        email = f'telegram_{telegram_id}@oauth.local'
-        
-        # Создание/вход пользователя
-        token = create_or_login_oauth_user(db_url, jwt_secret, 'telegram', telegram_id, email, name)
-        
-        # Редирект на фронтенд с токеном
         return {
             'statusCode': 302,
             'headers': {
-                'Location': f'{frontend_url}/oauth/callback?token={token}',
+                'Location': telegram_auth_url,
                 'Access-Control-Allow-Origin': '*'
             },
             'body': ''
