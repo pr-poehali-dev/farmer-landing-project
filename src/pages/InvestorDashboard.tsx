@@ -38,6 +38,15 @@ const InvestorDashboard = () => {
   const [viewMode, setViewMode] = useState<'table' | 'farm'>('farm');
   const [activeTab, setActiveTab] = useState('portfolio');
   const [marketAssetFilter, setMarketAssetFilter] = useState<'all' | 'animal' | 'crop' | 'beehive'>('all');
+  const [profileData, setProfileData] = useState({
+    first_name: '',
+    last_name: '',
+    country: '',
+    region: '',
+    city: '',
+    phone: ''
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'investor')) {
@@ -101,6 +110,14 @@ const InvestorDashboard = () => {
       });
       const balanceData = await balanceRes.json();
       setBalance(balanceData.balance || 0);
+      
+      const profileRes = await fetch(`${INVESTOR_API}?action=get_profile`, {
+        headers: { 'X-User-Id': user!.id.toString() }
+      });
+      const profileInfo = await profileRes.json();
+      if (profileInfo.profile) {
+        setProfileData(profileInfo.profile);
+      }
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
     } finally {
@@ -215,6 +232,33 @@ const InvestorDashboard = () => {
     }
   };
 
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const response = await fetch(INVESTOR_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user!.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'update_profile',
+          ...profileData
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Профиль сохранён!');
+      } else {
+        toast.error('Ошибка сохранения профиля');
+      }
+    } catch (error) {
+      toast.error('Ошибка соединения');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   const filteredProposals = filterType === 'all' 
     ? proposals 
     : proposals.filter(p => p.type === filterType);
@@ -254,7 +298,7 @@ const InvestorDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="portfolio">
               <Icon name="Sprout" size={18} className="mr-2" />
               Моя виртуальная ферма
@@ -262,6 +306,10 @@ const InvestorDashboard = () => {
             <TabsTrigger value="proposals">
               <Icon name="Package" size={18} className="mr-2" />
               Маркет предложений
+            </TabsTrigger>
+            <TabsTrigger value="profile">
+              <Icon name="User" size={18} className="mr-2" />
+              Мой профиль
             </TabsTrigger>
           </TabsList>
 
@@ -366,6 +414,108 @@ const InvestorDashboard = () => {
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <Card className="p-6 max-w-2xl mx-auto">
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="User" className="text-green-600" size={28} />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Мой профиль</h2>
+                  <p className="text-sm text-gray-600">Заполните информацию о себе</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="first_name">Имя</Label>
+                    <Input
+                      id="first_name"
+                      type="text"
+                      placeholder="Иван"
+                      value={profileData.first_name}
+                      onChange={(e) => setProfileData({...profileData, first_name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="last_name">Фамилия</Label>
+                    <Input
+                      id="last_name"
+                      type="text"
+                      placeholder="Иванов"
+                      value={profileData.last_name}
+                      onChange={(e) => setProfileData({...profileData, last_name: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={user?.email || ''}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Email нельзя изменить</p>
+                </div>
+
+                <div>
+                  <Label htmlFor="phone">Телефон</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+7 (999) 123-45-67"
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="country">Страна</Label>
+                  <Input
+                    id="country"
+                    type="text"
+                    placeholder="Россия"
+                    value={profileData.country}
+                    onChange={(e) => setProfileData({...profileData, country: e.target.value})}
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="region">Регион</Label>
+                    <Input
+                      id="region"
+                      type="text"
+                      placeholder="Московская область"
+                      value={profileData.region}
+                      onChange={(e) => setProfileData({...profileData, region: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="city">Город</Label>
+                    <Input
+                      id="city"
+                      type="text"
+                      placeholder="Москва"
+                      value={profileData.city}
+                      onChange={(e) => setProfileData({...profileData, city: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleSaveProfile}
+                  disabled={savingProfile}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {savingProfile ? 'Сохранение...' : 'Сохранить профиль'}
+                </Button>
+              </div>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

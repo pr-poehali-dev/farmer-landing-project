@@ -397,6 +397,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'requests': requests})
                 }
+            
+            elif action == 'get_profile':
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(
+                    f"""SELECT first_name, last_name, country, region, city, phone
+                       FROM {schema}.users
+                       WHERE id = %s""",
+                    (user_id,)
+                )
+                row = cur.fetchone()
+                
+                profile = {
+                    'first_name': row[0] or '' if row else '',
+                    'last_name': row[1] or '' if row else '',
+                    'country': row[2] or '' if row else '',
+                    'region': row[3] or '' if row else '',
+                    'city': row[4] or '' if row else '',
+                    'phone': row[5] or '' if row else ''
+                }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'profile': profile})
+                }
         
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
@@ -614,6 +639,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'investment_id': investment_id,
                         'simulation': simulation
                     })
+                }
+            
+            elif action == 'update_profile':
+                schema = 't_p53065890_farmer_landing_proje'
+                first_name = body_data.get('first_name', '')
+                last_name = body_data.get('last_name', '')
+                country = body_data.get('country', '')
+                region = body_data.get('region', '')
+                city = body_data.get('city', '')
+                phone = body_data.get('phone', '')
+                
+                cur.execute(
+                    f"""UPDATE {schema}.users 
+                       SET first_name = %s, last_name = %s, country = %s, region = %s, city = %s, phone = %s
+                       WHERE id = %s""",
+                    (first_name, last_name, country, region, city, phone, user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
                 }
         
         return {
