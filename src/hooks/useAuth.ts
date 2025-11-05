@@ -10,7 +10,10 @@ interface User {
 }
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : null;
+  });
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('auth_token')
@@ -34,14 +37,17 @@ export const useAuth = () => {
 
       if (response.ok) {
         const data = await response.json();
+        localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
       } else {
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
         setToken(null);
       }
     } catch (error) {
       console.error('Token verification failed:', error);
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
       setToken(null);
     } finally {
       setLoading(false);
@@ -62,6 +68,7 @@ export const useAuth = () => {
 
     const data = await response.json();
     localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -81,6 +88,7 @@ export const useAuth = () => {
 
     const data = await response.json();
     localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -88,6 +96,7 @@ export const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
     setToken(null);
     setUser(null);
   };
