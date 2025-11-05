@@ -11,7 +11,6 @@ import OwnerProfile from '@/components/farmer/OwnerProfile';
 import SellerMarketplace from '@/components/farmer/SellerMarketplace';
 import FarmerRating from '@/components/farmer/FarmerRating';
 import InvestorRequests from '@/components/farmer/InvestorRequests';
-import ExtendedProfile from '@/components/farmer/ExtendedProfile';
 import DetailedRating from '@/components/farmer/DetailedRating';
 
 export default function FarmerDashboardNew() {
@@ -85,10 +84,7 @@ export default function FarmerDashboardNew() {
           </TabsList>
 
           <TabsContent value="diagnostics" className="mt-6">
-            <div className="space-y-6">
-              <FarmDiagnostics />
-              <ExtendedProfile userId={user?.id || ''} />
-            </div>
+            <FarmDiagnostics />
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-6">

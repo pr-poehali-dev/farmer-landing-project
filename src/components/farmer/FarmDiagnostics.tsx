@@ -28,6 +28,8 @@ export default function FarmDiagnostics() {
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [crops, setCrops] = useState<Crop[]>([]);
+  const [employeesPermanent, setEmployeesPermanent] = useState(0);
+  const [employeesSeasonal, setEmployeesSeasonal] = useState(0);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -52,6 +54,8 @@ export default function FarmDiagnostics() {
         setAnimals(info.animals || []);
         setEquipment(info.equipment || []);
         setCrops(info.crops || []);
+        setEmployeesPermanent(info.employees_permanent || 0);
+        setEmployeesSeasonal(info.employees_seasonal || 0);
       }
     } catch (error) {
       console.error('Ошибка загрузки диагностики:', error);
@@ -112,6 +116,8 @@ export default function FarmDiagnostics() {
         animals,
         equipment,
         crops,
+        employees_permanent: employeesPermanent,
+        employees_seasonal: employeesSeasonal,
       };
 
       const response = await fetch(FARMER_API, {
@@ -206,6 +212,37 @@ export default function FarmDiagnostics() {
             </div>
 
             <HivesInput animals={animals} onUpdate={updateAnimal} onAnimalsChange={setAnimals} />
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="employees" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center gap-3">
+              <Icon name="Users" size={20} className="text-green-600" />
+              <span className="font-semibold">Сотрудники</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Постоянные сотрудники</Label>
+                <Input
+                  type="number"
+                  value={employeesPermanent}
+                  onChange={(e) => setEmployeesPermanent(Number(e.target.value))}
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label>Сезонные работники</Label>
+                <Input
+                  type="number"
+                  value={employeesSeasonal}
+                  onChange={(e) => setEmployeesSeasonal(Number(e.target.value))}
+                  placeholder="0"
+                />
+              </div>
+            </div>
           </AccordionContent>
         </AccordionItem>
 
