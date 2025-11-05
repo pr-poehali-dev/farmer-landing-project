@@ -22,6 +22,7 @@ import TestAccounts from "./pages/TestAccounts";
 import NotFound from "./pages/NotFound";
 import Leaderboard from "./pages/Leaderboard";
 import B2BPanel from "./pages/B2BPanel";
+import OAuthCallback from "./pages/OAuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/test" element={<TestAccounts />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/b2b" element={<B2BPanel />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

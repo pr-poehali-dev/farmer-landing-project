@@ -120,6 +120,47 @@ const Login = () => {
           </Button>
         </form>
         
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">или войдите через</span>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=telegram'}
+          >
+            <Icon name="Send" size={18} className="mr-2" />
+            Telegram
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-red-500 text-red-600 hover:bg-red-50"
+            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=yandex'}
+          >
+            <span className="mr-2 text-lg font-bold">Я</span>
+            Яндекс ID
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
+            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=vk'}
+          >
+            <span className="mr-2 text-lg font-bold">VK</span>
+            ВКонтакте
+          </Button>
+        </div>
+        
         <div className="mt-4 text-center">
           <Button
             variant="link"
