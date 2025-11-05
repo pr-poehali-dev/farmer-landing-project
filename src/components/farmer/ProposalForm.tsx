@@ -41,6 +41,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
   const [payoutDuration, setPayoutDuration] = useState<string>('');
   const [lastYearYield, setLastYearYield] = useState<string>('');
   const [totalAssetValue, setTotalAssetValue] = useState<string>('');
+  const [livestockData, setLivestockData] = useState<{ type: string; breed: string; direction: string }>({ type: '', breed: '', direction: '' });
 
   const calculateSharePrice = () => {
     const totalValue = parseFloat(totalAssetValue);
@@ -105,7 +106,10 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
       name: assetName,
       count: countNum,
       details: assetDetails,
-      investment_types: [proposalType]
+      investment_types: [proposalType],
+      livestock_type: assetType === 'animal' ? livestockData.type : undefined,
+      livestock_breed: assetType === 'animal' ? livestockData.breed : undefined,
+      livestock_direction: assetType === 'animal' ? livestockData.direction : undefined
     };
 
     try {
@@ -189,6 +193,7 @@ const ProposalForm = ({ userId, onSuccess }: Props) => {
           onAssetNameChange={setAssetName}
           onAssetCountChange={setAssetCount}
           onAssetDetailsChange={setAssetDetails}
+          onLivestockDataChange={setLivestockData}
         />
 
         <SharePricingForm

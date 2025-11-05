@@ -7,6 +7,9 @@ export interface Asset {
   hectares?: number;
   details: string;
   investment_types?: string[];
+  livestock_type?: string;
+  livestock_breed?: string;
+  livestock_direction?: string;
 }
 
 export interface IncomeDetails {

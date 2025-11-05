@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { Proposal, FARMER_API } from './proposal-types';
+import { LIVESTOCK_TYPES, LIVESTOCK_DIRECTIONS, LIVESTOCK_BREEDS } from '@/data/livestock';
 
 interface Props {
   proposals: Proposal[];
@@ -12,6 +13,17 @@ interface Props {
 }
 
 const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
+  const getLivestockLabel = (value: string, type: 'type' | 'breed' | 'direction') => {
+    if (type === 'type') {
+      return LIVESTOCK_TYPES.find(t => t.value === value)?.label || value;
+    }
+    if (type === 'direction') {
+      return LIVESTOCK_DIRECTIONS.find(d => d.value === value)?.label || value;
+    }
+    const allBreeds = Object.values(LIVESTOCK_BREEDS).flat();
+    return allBreeds.find(b => b.value === value)?.label || value;
+  };
+
   const handleDelete = async (proposalId: number) => {
     if (!confirm('Удалить это предложение?')) return;
 
@@ -85,6 +97,27 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
                 </span>
               </div>
               <h4 className="font-bold mb-1">{proposal.asset?.name || 'Актив'}</h4>
+              
+              {proposal.asset?.type === 'animal' && (proposal.asset.livestock_type || proposal.asset.livestock_breed || proposal.asset.livestock_direction) && (
+                <div className="flex flex-wrap gap-2 mb-2 text-xs">
+                  {proposal.asset.livestock_type && (
+                    <span className="px-2 py-1 rounded bg-amber-100 text-amber-800">
+                      🐄 {getLivestockLabel(proposal.asset.livestock_type, 'type')}
+                    </span>
+                  )}
+                  {proposal.asset.livestock_breed && (
+                    <span className="px-2 py-1 rounded bg-blue-100 text-blue-800">
+                      📋 {getLivestockLabel(proposal.asset.livestock_breed, 'breed')}
+                    </span>
+                  )}
+                  {proposal.asset.livestock_direction && (
+                    <span className="px-2 py-1 rounded bg-green-100 text-green-800">
+                      🎯 {getLivestockLabel(proposal.asset.livestock_direction, 'direction')}
+                    </span>
+                  )}
+                </div>
+              )}
+              
               <p className="text-sm text-gray-600 mb-2">{proposal.description}</p>
               
               {proposal.income_details && (

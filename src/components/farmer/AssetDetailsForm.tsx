@@ -14,6 +14,7 @@ interface Props {
   onAssetNameChange: (value: string) => void;
   onAssetCountChange: (value: string) => void;
   onAssetDetailsChange: (value: string) => void;
+  onLivestockDataChange?: (data: { type: string; breed: string; direction: string }) => void;
 }
 
 export const AssetDetailsForm = ({
@@ -24,7 +25,8 @@ export const AssetDetailsForm = ({
   onAssetTypeChange,
   onAssetNameChange,
   onAssetCountChange,
-  onAssetDetailsChange
+  onAssetDetailsChange,
+  onLivestockDataChange
 }: Props) => {
   const [livestockType, setLivestockType] = useState<string>('');
   const [livestockBreed, setLivestockBreed] = useState<string>('');
@@ -41,6 +43,16 @@ export const AssetDetailsForm = ({
   useEffect(() => {
     setLivestockBreed('');
   }, [livestockType]);
+
+  useEffect(() => {
+    if (onLivestockDataChange) {
+      onLivestockDataChange({
+        type: livestockType,
+        breed: livestockBreed,
+        direction: livestockDirection
+      });
+    }
+  }, [livestockType, livestockBreed, livestockDirection, onLivestockDataChange]);
 
   const availableBreeds = livestockType ? LIVESTOCK_BREEDS[livestockType as LivestockType] || [] : [];
 
