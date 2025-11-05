@@ -16,7 +16,7 @@ import RatingDashboard from '@/components/farmer/rating/RatingDashboard';
 import PublicLeaderboard from '@/components/farmer/rating/PublicLeaderboard';
 
 export default function FarmerDashboardNew() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('diagnostics');
   const [points, setPoints] = useState(120);
@@ -25,6 +25,14 @@ export default function FarmerDashboardNew() {
     logout();
     navigate('/');
   };
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Icon name="Loader2" className="animate-spin text-gray-400" size={48} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -90,15 +98,15 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-6">
-            <InvestmentProposals userId={user?.id?.toString() || ''} onProposalCreated={() => setPoints(p => p + 10)} />
+            <InvestmentProposals userId={user.id.toString()} onProposalCreated={() => setPoints(p => p + 10)} />
           </TabsContent>
 
           <TabsContent value="investors" className="mt-6">
-            <InvestorRequests userId={user?.id?.toString() || ''} />
+            <InvestorRequests userId={user.id.toString()} />
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">
-            <OwnerProfile userId={user?.id?.toString() || ''} />
+            <OwnerProfile userId={user.id.toString()} />
           </TabsContent>
 
           <TabsContent value="marketplace" className="mt-6">
