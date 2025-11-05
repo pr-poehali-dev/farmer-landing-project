@@ -17,36 +17,49 @@ interface Props {
 }
 
 const PRODUCT_TYPES = [
+  { value: 'equipment', label: 'Сельхозтехника' },
   { value: 'fertilizer', label: 'Удобрения' },
-  { value: 'equipment', label: 'Техника' },
-  { value: 'attachment', label: 'Навесное оборудование' },
-  { value: 'other', label: 'Другое' }
+  { value: 'seeds', label: 'Семена для посева' }
 ];
 
+const FREE_PRODUCTS_LIMIT = 10;
+
 export default function ProductsManager({ tier, products, productForm, onFormChange, onAddProduct, onDeleteProduct }: Props) {
-  if (tier === 'none') {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-12">
-          <Icon name="Lock" className="mx-auto mb-4 text-gray-400" size={48} />
-          <h3 className="text-xl font-bold mb-2">Управление товарами</h3>
-          <p className="text-gray-600 mb-4">Добавляйте товары для показа фермерам</p>
-          <p className="text-sm text-red-600">Доступно с подпиской Basic или Premium</p>
-        </div>
-      </Card>
-    );
-  }
+  const isFreeUser = tier === 'none';
+  const canAddProduct = isFreeUser ? products.length < FREE_PRODUCTS_LIMIT : true;
 
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Icon name="Package" className="text-blue-600" size={24} />
-          <div>
-            <h2 className="text-xl font-bold">Добавить товар</h2>
-            <p className="text-sm text-gray-600">Заполните информацию о товаре</p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Icon name="Package" className="text-blue-600" size={24} />
+            <div>
+              <h2 className="text-xl font-bold">Добавить товар</h2>
+              <p className="text-sm text-gray-600">Заполните информацию о товаре</p>
+            </div>
           </div>
+          {isFreeUser && (
+            <div className="text-right">
+              <p className="text-sm font-semibold text-gray-900">
+                {products.length} / {FREE_PRODUCTS_LIMIT}
+              </p>
+              <p className="text-xs text-gray-500">бесплатных карточек</p>
+            </div>
+          )}
         </div>
+        
+        {isFreeUser && products.length >= FREE_PRODUCTS_LIMIT && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex gap-3">
+              <Icon name="AlertCircle" className="text-amber-600 flex-shrink-0" size={20} />
+              <div className="text-sm">
+                <p className="font-semibold text-amber-900 mb-1">Лимит бесплатных карточек исчерпан</p>
+                <p className="text-amber-800">Вы можете удалить существующие карточки, чтобы добавить новые, или оформить подписку для безлимитного добавления товаров.</p>
+              </div>
+            </div>
+          </div>
+        )}
         
         <form onSubmit={onAddProduct} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -105,9 +118,9 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
             />
           </div>
           
-          <Button type="submit">
+          <Button type="submit" disabled={!canAddProduct}>
             <Icon name="Plus" size={16} className="mr-2" />
-            Добавить товар
+            {canAddProduct ? 'Добавить товар' : 'Лимит исчерпан'}
           </Button>
         </form>
       </Card>
