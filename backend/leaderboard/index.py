@@ -45,13 +45,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(db_url)
     
     try:
-        if nomination == 'total':
+        if nomination in ('total', 'overall'):
             result = get_total_leaderboard(conn, region)
-        elif nomination == 'земля':
+        elif nomination in ('земля', 'crop_master'):
             result = get_crop_masters(conn, region)
-        elif nomination == 'молоко':
+        elif nomination in ('молоко', 'livestock_champion'):
             result = get_dairy_champions(conn, region)
-        elif nomination == 'мясо':
+        elif nomination in ('мясо', 'agro_innovator'):
             result = get_meat_leaders(conn, region)
         elif nomination == 'техника':
             result = get_tech_farmers(conn, region)
