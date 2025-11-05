@@ -65,12 +65,12 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
         <div className="grid grid-cols-4 gap-4 mb-4">
           <div className="space-y-2">
             <Label>Регион</Label>
-            <Select value={regionFilter} onValueChange={onRegionChange}>
+            <Select value={regionFilter || 'all'} onValueChange={(v) => onRegionChange(v === 'all' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Все регионы" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Все регионы</SelectItem>
+                <SelectItem value="all">Все регионы</SelectItem>
                 {REGIONS.map(r => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
                 ))}
@@ -80,12 +80,12 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
           
           <div className="space-y-2">
             <Label>Тип хозяйства</Label>
-            <Select value={occupationFilter} onValueChange={onOccupationChange}>
+            <Select value={occupationFilter || 'all'} onValueChange={(v) => onOccupationChange(v === 'all' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Все типы" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Все типы</SelectItem>
+                <SelectItem value="all">Все типы</SelectItem>
                 {OCCUPATION_TYPES.map(t => (
                   <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                 ))}
