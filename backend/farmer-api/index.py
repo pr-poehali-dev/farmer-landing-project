@@ -53,6 +53,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'save_diagnosis':
                 assets = body_data.get('assets', [])
+                print(f"📥 save_diagnosis: user_id={user_id}, assets={assets}")
                 
                 if assets and len(assets) > 0:
                     asset_data = assets[0]
@@ -65,15 +66,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     employees_permanent = asset_data.get('employees_permanent', 0)
                     employees_seasonal = asset_data.get('employees_seasonal', 0)
                     
+                    print(f"💾 Данные для сохранения: land={land_area}, animals={len(asset_data.get('animals', []))}, equipment={len(asset_data.get('equipment', []))}")
+                    
                     user_id_int = int(user_id)
+                    print(f"🔑 user_id_int={user_id_int}")
                     
                     cur.execute(
                         f"""SELECT id FROM {schema}.farm_diagnostics WHERE user_id = %s""",
                         (user_id_int,)
                     )
                     existing = cur.fetchone()
+                    print(f"🔍 Existing record: {existing}")
                     
                     if existing:
+                        print("📝 UPDATE existing record")
                         cur.execute(
                             f"""UPDATE {schema}.farm_diagnostics 
                                SET land_area = %s, land_owned = %s, land_rented = %s,
@@ -85,6 +91,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                              employees_permanent, employees_seasonal, user_id_int)
                         )
                     else:
+                        print("✨ INSERT new record")
                         cur.execute(
                             f"""INSERT INTO {schema}.farm_diagnostics 
                                (user_id, land_area, land_owned, land_rented, animals, equipment, crops,
@@ -95,6 +102,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         )
                     
                     conn.commit()
+                    print("✅ Committed to DB successfully")
                 
                 try:
                     import requests

@@ -126,6 +126,8 @@ export default function FarmDiagnostics() {
         employees_seasonal: employeesSeasonal,
       };
 
+      console.log('🚀 Сохранение данных:', { userId: user.id, assets });
+
       const response = await fetch(FARMER_API, {
         method: 'POST',
         headers: {
@@ -138,16 +140,18 @@ export default function FarmDiagnostics() {
         })
       });
 
+      console.log('📡 Ответ сервера:', response.status, response.statusText);
+      const data = await response.json();
+      console.log('📦 Данные ответа:', data);
+
       if (response.ok) {
-        toast.success('Диагностика сохранена! Рейтинг пересчитывается...');
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        toast.success('✅ Данные сохранены! Обновляю рейтинг...');
+        await loadDiagnostics();
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Ошибка сохранения');
+        toast.error(data.error || 'Ошибка сохранения');
       }
     } catch (error) {
+      console.error('❌ Ошибка сохранения:', error);
       toast.error('Ошибка соединения');
     } finally {
       setLoading(false);
