@@ -8,6 +8,8 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
+type SocialNetwork = 'vk' | 'telegram' | 'instagram' | 'youtube';
+
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
 export default function OwnerProfile() {
@@ -28,6 +30,14 @@ export default function OwnerProfile() {
   });
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [selectedSocials, setSelectedSocials] = useState<SocialNetwork[]>([]);
+
+  const socialNetworks: { id: SocialNetwork; icon: string; label: string; placeholder: string }[] = [
+    { id: 'vk', icon: 'MessageCircle', label: 'ВКонтакте', placeholder: 'https://vk.com/your_page' },
+    { id: 'telegram', icon: 'Send', label: 'Telegram', placeholder: 'https://t.me/your_channel' },
+    { id: 'instagram', icon: 'Camera', label: 'Instagram', placeholder: 'https://instagram.com/your_profile' },
+    { id: 'youtube', icon: 'Video', label: 'YouTube', placeholder: 'https://youtube.com/@your_channel' },
+  ];
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -36,6 +46,15 @@ export default function OwnerProfile() {
       setLoadingData(false);
     }
   }, [authLoading, user]);
+
+  useEffect(() => {
+    const activeSocials: SocialNetwork[] = [];
+    if (profile.vk_link) activeSocials.push('vk');
+    if (profile.telegram_link) activeSocials.push('telegram');
+    if (profile.instagram_link) activeSocials.push('instagram');
+    if (profile.youtube_link) activeSocials.push('youtube');
+    setSelectedSocials(activeSocials);
+  }, [profile.vk_link, profile.telegram_link, profile.instagram_link, profile.youtube_link]);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -205,51 +224,55 @@ export default function OwnerProfile() {
               <Icon name="Link" size={16} />
               Социальные сети
             </h4>
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              {socialNetworks.map((social) => {
+                const isSelected = selectedSocials.includes(social.id);
+                return (
+                  <Button
+                    key={social.id}
+                    type="button"
+                    variant={isSelected ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedSocials(selectedSocials.filter(s => s !== social.id));
+                        setProfile({...profile, [`${social.id}_link`]: ''});
+                      } else {
+                        setSelectedSocials([...selectedSocials, social.id]);
+                      }
+                    }}
+                    className="gap-2"
+                  >
+                    <Icon name={social.icon} size={14} />
+                    {social.label}
+                    {isSelected && <Icon name="X" size={12} />}
+                  </Button>
+                );
+              })}
+            </div>
+
             <div className="space-y-3">
-              <div>
-                <Label className="text-sm flex items-center gap-1">
-                  <Icon name="MessageCircle" size={14} />
-                  ВКонтакте
-                </Label>
-                <Input 
-                  value={profile.vk_link} 
-                  onChange={(e) => setProfile({...profile, vk_link: e.target.value})} 
-                  placeholder="https://vk.com/your_page"
-                />
-              </div>
-              <div>
-                <Label className="text-sm flex items-center gap-1">
-                  <Icon name="Send" size={14} />
-                  Telegram
-                </Label>
-                <Input 
-                  value={profile.telegram_link} 
-                  onChange={(e) => setProfile({...profile, telegram_link: e.target.value})} 
-                  placeholder="https://t.me/your_channel"
-                />
-              </div>
-              <div>
-                <Label className="text-sm flex items-center gap-1">
-                  <Icon name="Camera" size={14} />
-                  Instagram
-                </Label>
-                <Input 
-                  value={profile.instagram_link} 
-                  onChange={(e) => setProfile({...profile, instagram_link: e.target.value})} 
-                  placeholder="https://instagram.com/your_profile"
-                />
-              </div>
-              <div>
-                <Label className="text-sm flex items-center gap-1">
-                  <Icon name="Video" size={14} />
-                  YouTube
-                </Label>
-                <Input 
-                  value={profile.youtube_link} 
-                  onChange={(e) => setProfile({...profile, youtube_link: e.target.value})} 
-                  placeholder="https://youtube.com/@your_channel"
-                />
-              </div>
+              {selectedSocials.map((socialId) => {
+                const social = socialNetworks.find(s => s.id === socialId);
+                if (!social) return null;
+                
+                const fieldKey = `${social.id}_link` as keyof typeof profile;
+                
+                return (
+                  <div key={social.id}>
+                    <Label className="text-sm flex items-center gap-1">
+                      <Icon name={social.icon} size={14} />
+                      {social.label}
+                    </Label>
+                    <Input 
+                      value={profile[fieldKey]} 
+                      onChange={(e) => setProfile({...profile, [fieldKey]: e.target.value})} 
+                      placeholder={social.placeholder}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
