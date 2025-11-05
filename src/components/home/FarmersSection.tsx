@@ -154,11 +154,11 @@ const FarmersSection = () => {
 
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-farmer-green/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Icon name="Users" size={20} className="text-farmer-green" />
+                  <Icon name="Trophy" size={20} className="text-farmer-green" />
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Сообщество</h4>
-                  <p className="text-sm text-gray-600">Общайся с другими инвесторами, обменивайся опытом и находи новые возможности для вложений</p>
+                  <p className="text-sm text-gray-600">Соревнуйся, чья цифровая ферма круче — сравнивай портфели, делись успехами и находи лучшие инвестиции</p>
                 </div>
               </div>
             </div>
