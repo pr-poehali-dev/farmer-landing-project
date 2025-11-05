@@ -13,6 +13,7 @@ import FarmerRating from '@/components/farmer/FarmerRating';
 import InvestorRequests from '@/components/farmer/InvestorRequests';
 import DetailedRating from '@/components/farmer/DetailedRating';
 import RatingDashboard from '@/components/farmer/rating/RatingDashboard';
+import PublicLeaderboard from '@/components/farmer/rating/PublicLeaderboard';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -105,7 +106,12 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="rating" className="mt-6">
-            <RatingDashboard />
+            <div className="space-y-8">
+              <RatingDashboard />
+              <div className="border-t pt-8">
+                <PublicLeaderboard />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
