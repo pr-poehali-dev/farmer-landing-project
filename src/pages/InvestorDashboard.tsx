@@ -282,10 +282,19 @@ const InvestorDashboard = () => {
               <p className="text-sm text-gray-600">{user?.name || user?.email}</p>
             </div>
           </div>
-          <Button onClick={() => { logout(); navigate('/'); }} variant="outline">
-            <Icon name="LogOut" size={18} className="mr-2" />
-            Выйти
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={() => setActiveTab('profile')} 
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Icon name="User" size={18} className="mr-2" />
+              Мой профиль
+            </Button>
+            <Button onClick={() => { logout(); navigate('/'); }} variant="outline">
+              <Icon name="LogOut" size={18} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -298,7 +307,7 @@ const InvestorDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="portfolio">
               <Icon name="Sprout" size={18} className="mr-2" />
               Моя виртуальная ферма
@@ -306,10 +315,6 @@ const InvestorDashboard = () => {
             <TabsTrigger value="proposals">
               <Icon name="Package" size={18} className="mr-2" />
               Маркет предложений
-            </TabsTrigger>
-            <TabsTrigger value="profile">
-              <Icon name="User" size={18} className="mr-2" />
-              Мой профиль
             </TabsTrigger>
           </TabsList>
 
