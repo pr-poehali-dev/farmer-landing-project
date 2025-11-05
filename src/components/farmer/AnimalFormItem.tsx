@@ -33,38 +33,79 @@ export default function AnimalFormItem({ animal, index, onUpdate, onRemove }: Pr
           <Icon name="X" size={16} />
         </Button>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div>
-          <Label className="text-xs">Вид</Label>
-          <Select value={animal.type} onValueChange={(val) => onUpdate(index, 'type', val)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ANIMAL_TYPES.filter(t => t.value !== 'hives').map(type => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <Label className="text-xs">Вид</Label>
+            <Select value={animal.type} onValueChange={(val) => onUpdate(index, 'type', val)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ANIMAL_TYPES.filter(t => t.value !== 'hives').map(type => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Количество</Label>
+            <Input
+              type="number"
+              value={animal.count}
+              onChange={(e) => onUpdate(index, 'count', parseInt(e.target.value) || 0)}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Порода (опционально)</Label>
+            <Input
+              type="text"
+              placeholder="Например: Симментальская"
+              value={animal.breed || ''}
+              onChange={(e) => onUpdate(index, 'breed', e.target.value)}
+            />
+          </div>
         </div>
-        <div>
-          <Label className="text-xs">Количество</Label>
-          <Input
-            type="number"
-            value={animal.count}
-            onChange={(e) => onUpdate(index, 'count', parseInt(e.target.value) || 0)}
-          />
-        </div>
-        <div>
-          <Label className="text-xs">Порода (опционально)</Label>
-          <Input
-            type="text"
-            placeholder="Например: Симментальская"
-            value={animal.breed || ''}
-            onChange={(e) => onUpdate(index, 'breed', e.target.value)}
-          />
+        
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <Label className="text-xs">Направление</Label>
+            <Select value={animal.direction || 'other'} onValueChange={(val) => onUpdate(index, 'direction', val)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="meat">Мясное</SelectItem>
+                <SelectItem value="milk">Молочное</SelectItem>
+                <SelectItem value="mixed">Смешанное</SelectItem>
+                <SelectItem value="other">Другое</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {(animal.direction === 'milk' || animal.direction === 'mixed') && (
+            <div>
+              <Label className="text-xs">Надой (л/гол/год)</Label>
+              <Input
+                type="number"
+                placeholder="5000"
+                value={animal.milkYield || ''}
+                onChange={(e) => onUpdate(index, 'milkYield', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
+          {(animal.direction === 'meat' || animal.direction === 'mixed') && (
+            <div>
+              <Label className="text-xs">Выход мяса (кг/гол/год)</Label>
+              <Input
+                type="number"
+                placeholder="300"
+                value={animal.meatYield || ''}
+                onChange={(e) => onUpdate(index, 'meatYield', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </Card>

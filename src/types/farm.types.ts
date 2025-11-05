@@ -31,6 +31,9 @@ export interface Animal {
   type: string;
   count: number;
   breed?: string;
+  direction?: 'meat' | 'milk' | 'mixed' | 'other';
+  meatYield?: number;
+  milkYield?: number;
 }
 
 export interface Equipment {

@@ -25,6 +25,8 @@ export default function FarmDiagnostics() {
   const [loadingData, setLoadingData] = useState(true);
   
   const [landArea, setLandArea] = useState('');
+  const [landOwned, setLandOwned] = useState('');
+  const [landRented, setLandRented] = useState('');
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [crops, setCrops] = useState<Crop[]>([]);
@@ -51,6 +53,8 @@ export default function FarmDiagnostics() {
       if (data.diagnosis && data.diagnosis.assets && data.diagnosis.assets.length > 0) {
         const info = data.diagnosis.assets[0];
         setLandArea(info.land_area || '');
+        setLandOwned(info.land_owned || '');
+        setLandRented(info.land_rented || '');
         setAnimals(info.animals || []);
         setEquipment(info.equipment || []);
         setCrops(info.crops || []);
@@ -65,7 +69,7 @@ export default function FarmDiagnostics() {
   };
 
   const addAnimal = () => {
-    setAnimals([...animals, { type: 'cows', count: 0, breed: '' }]);
+    setAnimals([...animals, { type: 'cows', count: 0, breed: '', direction: 'other' }]);
   };
 
   const removeAnimal = (index: number) => {
@@ -113,6 +117,8 @@ export default function FarmDiagnostics() {
     try {
       const assets = {
         land_area: landArea,
+        land_owned: landOwned,
+        land_rented: landRented,
         animals,
         equipment,
         crops,
@@ -179,17 +185,37 @@ export default function FarmDiagnostics() {
             </div>
           </AccordionTrigger>
           <AccordionContent className="space-y-4 pt-4">
-            <div>
-              <Label>Площадь земли (га)</Label>
-              <Input
-                type="text"
-                placeholder="Например: 50"
-                value={landArea}
-                onChange={(e) => setLandArea(e.target.value)}
-              />
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>Общая площадь земли (га)</Label>
+                <Input
+                  type="text"
+                  placeholder="50"
+                  value={landArea}
+                  onChange={(e) => setLandArea(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>В собственности (га)</Label>
+                <Input
+                  type="text"
+                  placeholder="30"
+                  value={landOwned}
+                  onChange={(e) => setLandOwned(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>В аренде (га)</Label>
+                <Input
+                  type="text"
+                  placeholder="20"
+                  value={landRented}
+                  onChange={(e) => setLandRented(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-2">
                 <Label>Животные</Label>
                 <Button onClick={addAnimal} variant="outline" size="sm">
