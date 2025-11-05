@@ -130,12 +130,12 @@ export default function Leaderboard() {
               </div>
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-2">Регион</label>
-                <Select value={region} onValueChange={setRegion}>
+                <Select value={region || 'all'} onValueChange={(val) => setRegion(val === 'all' ? '' : val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Все регионы" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Все регионы</SelectItem>
+                    <SelectItem value="all">Все регионы</SelectItem>
                     {regions.map(r => (
                       <SelectItem key={r} value={r}>{r}</SelectItem>
                     ))}
