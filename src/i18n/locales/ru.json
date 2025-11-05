@@ -48,7 +48,8 @@
     "role": "Роль",
     "farmer": "Фермер",
     "investor": "Инвестор",
-    "seller": "Продавец"
+    "seller": "Продавец",
+    "or_continue_with": "Или войти через"
   },
   "dashboard": {
     "profile": "Профиль",

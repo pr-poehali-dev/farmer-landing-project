@@ -56,7 +56,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Telegram использует Telegram Login Widget
         # Пользователь перенаправляется на специальную страницу с виджетом
-        telegram_auth_url = f"{frontend_url}/oauth/telegram-callback"
+        telegram_auth_url = f"{frontend_url}/oauth/telegram"
         
         return {
             'statusCode': 302,
@@ -64,7 +64,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Location': telegram_auth_url,
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     # === ЯНДЕКС ID ===
@@ -100,10 +101,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user_data = user_response.json()
             yandex_id = user_data['id']
             email = user_data.get('default_email', f'yandex_{yandex_id}@oauth.local')
+            first_name = user_data.get('first_name', '')
+            last_name = user_data.get('last_name', '')
             name = user_data.get('display_name', user_data.get('real_name', 'Пользователь'))
+            photo_url = ''
+            if 'default_avatar_id' in user_data and user_data['default_avatar_id']:
+                photo_url = f"https://avatars.yandex.net/get-yapic/{user_data['default_avatar_id']}/islands-200"
             
             # Создание/вход пользователя
-            token = create_or_login_oauth_user(db_url, jwt_secret, 'yandex', yandex_id, email, name)
+            token = create_or_login_oauth_user(db_url, jwt_secret, 'yandex', yandex_id, email, name, first_name, last_name, photo_url)
             
             # Редирект на фронтенд с токеном
             return {
@@ -112,7 +118,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Location': f'{frontend_url}/oauth/callback?token={token}',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': ''
+                'body': '',
+                'isBase64Encoded': False
             }
         
         # Первичный редирект на Яндекс
@@ -132,7 +139,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Location': auth_url,
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': ''
+                'body': '',
+                'isBase64Encoded': False
             }
     
     # === VK ===
@@ -170,10 +178,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             })
             
             user_data = user_response.json()['response'][0]
-            name = f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip() or 'Пользователь'
+            first_name = user_data.get('first_name', '')
+            last_name = user_data.get('last_name', '')
+            name = f"{first_name} {last_name}".strip() or 'Пользователь'
+            photo_url = user_data.get('photo_200', '')
             
             # Создание/вход пользователя
-            token = create_or_login_oauth_user(db_url, jwt_secret, 'vk', str(vk_user_id), email, name)
+            token = create_or_login_oauth_user(db_url, jwt_secret, 'vk', str(vk_user_id), email, name, first_name, last_name, photo_url)
             
             # Редирект на фронтенд с токеном
             return {
@@ -182,7 +193,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Location': f'{frontend_url}/oauth/callback?token={token}',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': ''
+                'body': '',
+                'isBase64Encoded': False
             }
         
         # Первичный редирект на VK
@@ -205,13 +217,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Location': auth_url,
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': ''
+                'body': '',
+                'isBase64Encoded': False
             }
     
     return error_response('Неизвестный провайдер')
 
 
-def create_or_login_oauth_user(db_url: str, jwt_secret: str, provider: str, provider_id: str, email: str, name: str) -> str:
+def create_or_login_oauth_user(db_url: str, jwt_secret: str, provider: str, provider_id: str, email: str, name: str, first_name: str = '', last_name: str = '', photo_url: str = '') -> str:
     '''Создает или авторизует пользователя через OAuth'''
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
@@ -224,25 +237,32 @@ def create_or_login_oauth_user(db_url: str, jwt_secret: str, provider: str, prov
     user = cur.fetchone()
     
     if user:
-        # Пользователь уже существует
+        # Пользователь уже существует - обновляем его данные
         user_id, email, role, name = user
+        cur.execute(
+            f"UPDATE {schema}.users SET first_name = %s, last_name = %s, photo_url = %s WHERE id = %s",
+            (first_name, last_name, photo_url, user_id)
+        )
+        conn.commit()
     else:
         # Проверяем email
         cur.execute(f"SELECT id, role, name FROM {schema}.users WHERE LOWER(email) = %s", (email.lower(),))
         existing = cur.fetchone()
         
         if existing:
-            # Email уже занят, привязываем OAuth
+            # Email уже занят, привязываем OAuth и обновляем данные
             user_id, role, name = existing
-            cur.execute(f"UPDATE {schema}.users SET oauth_provider = %s, oauth_provider_id = %s WHERE id = %s",
-                       (provider, provider_id, user_id))
+            cur.execute(
+                f"UPDATE {schema}.users SET oauth_provider = %s, oauth_provider_id = %s, first_name = %s, last_name = %s, photo_url = %s WHERE id = %s",
+                (provider, provider_id, first_name, last_name, photo_url, user_id)
+            )
             conn.commit()
         else:
             # Создаем нового пользователя
             role = 'farmer'  # По умолчанию farmer
             cur.execute(
-                f"INSERT INTO {schema}.users (email, role, name, oauth_provider, oauth_provider_id) VALUES (%s, %s, %s, %s, %s) RETURNING id",
-                (email, role, name, provider, provider_id)
+                f"INSERT INTO {schema}.users (email, role, name, first_name, last_name, photo_url, oauth_provider, oauth_provider_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                (email, role, name, first_name, last_name, photo_url, provider, provider_id)
             )
             user_id = cur.fetchone()[0]
             conn.commit()
@@ -268,5 +288,6 @@ def error_response(message: str) -> Dict[str, Any]:
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
         },
-        'body': json.dumps({'error': message})
+        'body': json.dumps({'error': message}),
+        'isBase64Encoded': False
     }

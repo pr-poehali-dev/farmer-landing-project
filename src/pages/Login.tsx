@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -119,6 +119,52 @@ const Login = () => {
             )}
           </Button>
         </form>
+        
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-muted-foreground">{t('auth.or_continue_with')}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              window.location.href = 'https://functions.poehali.dev/oauth?provider=telegram';
+            }}
+          >
+            <Icon name="Send" size={18} />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              window.location.href = 'https://functions.poehali.dev/oauth?provider=vk';
+            }}
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <path d="M12.785 16.241s.288-.032.436-.194c.136-.148.132-.427.132-.427s-.02-1.304.567-1.497c.579-.19 1.321 1.26 2.108 1.818.595.422 1.048.33 1.048.33l2.106-.03s1.102-.07.579-.967c-.043-.074-.306-.665-1.575-1.882-1.329-1.275-1.15-1.069.449-3.273.974-1.341 1.363-2.16 1.241-2.51-.116-.334-.832-.246-.832-.246l-2.371.015s-.176-.025-.306.056c-.127.078-.209.262-.209.262s-.373 1.027-.871 1.9c-1.05 1.84-1.471 1.938-1.643 1.823-.4-.267-.3-1.073-.3-1.645 0-1.788.262-2.532-.511-2.725-.257-.064-.446-.106-1.103-.113-.843-.009-1.556.003-1.96.207-.268.136-.475.439-.349.456.156.022.509.098.696.361.242.34.233 1.104.233 1.104s.139 2.104-.324 2.366c-.318.18-.754-.187-1.69-1.865-.479-.853-.841-1.797-.841-1.797s-.07-.176-.194-.271c-.151-.114-.362-.15-.362-.15l-2.253.015s-.338.01-.462.161c-.11.134-.009.412-.009.412s1.754 4.237 3.738 6.373c1.821 1.958 3.888 1.828 3.888 1.828h.938z"/>
+            </svg>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              window.location.href = 'https://functions.poehali.dev/oauth?provider=yandex';
+            }}
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm3.863 17.202h-2.511l-3.306-5.369v5.369H7.535V6.798h2.511v4.985l3.205-4.985h2.612l-3.306 5.063 3.306 5.341z"/>
+            </svg>
+          </Button>
+        </div>
         
         <div className="mt-4 text-center">
           <Button

@@ -39,7 +39,7 @@ const TelegramAuth = () => {
             hash: user.hash
           });
 
-          window.location.href = `https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?${params.toString()}`;
+          window.location.href = `https://functions.poehali.dev/oauth-telegram?${params.toString()}`;
         };
 
         const script = document.createElement('script');

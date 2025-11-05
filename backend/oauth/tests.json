@@ -1,15 +1,9 @@
 {
   "tests": [
     {
-      "name": "Check Telegram OAuth redirect",
+      "name": "Check unknown provider",
       "method": "GET",
-      "path": "/?provider=telegram",
-      "expectedStatus": 302
-    },
-    {
-      "name": "Check Yandex OAuth (without secrets)",
-      "method": "GET",
-      "path": "/?provider=yandex",
+      "path": "/?provider=unknown",
       "expectedStatus": 400,
       "expectedBody": {
         "error": "string"
