@@ -31,9 +31,6 @@ const Header = () => {
             <Button onClick={() => navigate('/login')} variant="ghost" className="text-farmer-green">
               Войти
             </Button>
-            <Button onClick={() => navigate('/register')} className="bg-farmer-green hover:bg-farmer-green-dark text-white">
-              Регистрация
-            </Button>
           </nav>
         </div>
       </div>
