@@ -18,6 +18,7 @@ interface LeaderboardEntry {
 
 export default function Leaderboard() {
   const navigate = useNavigate();
+  const [role, setRole] = useState<'farmer' | 'investor'>('farmer');
   const [nomination, setNomination] = useState('total');
   const [region, setRegion] = useState('');
   const [data, setData] = useState<LeaderboardEntry[]>([]);
@@ -25,13 +26,16 @@ export default function Leaderboard() {
 
   useEffect(() => {
     loadLeaderboard();
-  }, [nomination, region]);
+  }, [nomination, region, role]);
 
   const loadLeaderboard = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append('nomination', nomination);
+      params.append('role', role);
+      if (role === 'farmer') {
+        params.append('nomination', nomination);
+      }
       if (region) params.append('region', region);
       
       const response = await fetch(`${LEADERBOARD_URL}?${params}`);
@@ -88,54 +92,77 @@ export default function Leaderboard() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6 space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Номинация</label>
-              <Select value={nomination} onValueChange={setNomination}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {nominations.map(nom => (
-                    <SelectItem key={nom.value} value={nom.value}>
-                      {nom.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Регион</label>
-              <Select value={region} onValueChange={setRegion}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Все регионы" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Все регионы</SelectItem>
-                  {regions.map(r => (
-                    <SelectItem key={r} value={r}>{r}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={role === 'farmer' ? 'default' : 'outline'}
+              onClick={() => setRole('farmer')}
+              className="flex-1"
+            >
+              <Icon name="Tractor" size={18} className="mr-2" />
+              Топ-5 хозяйств
+            </Button>
+            <Button
+              variant={role === 'investor' ? 'default' : 'outline'}
+              onClick={() => setRole('investor')}
+              className="flex-1"
+            >
+              <Icon name="TrendingUp" size={18} className="mr-2" />
+              Топ-5 инвесторов
+            </Button>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {nominations.map(nom => (
-              <Button
-                key={nom.value}
-                variant={nomination === nom.value ? 'default' : 'outline'}
-                onClick={() => setNomination(nom.value)}
-                className="whitespace-nowrap"
-              >
-                <Icon name={nom.icon as any} size={16} className="mr-2" />
-                {nom.label}
-              </Button>
-            ))}
-          </div>
+          {role === 'farmer' && (
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-2">Номинация</label>
+                <Select value={nomination} onValueChange={setNomination}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {nominations.map(nom => (
+                      <SelectItem key={nom.value} value={nom.value}>
+                        {nom.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-2">Регион</label>
+                <Select value={region} onValueChange={setRegion}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Все регионы" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Все регионы</SelectItem>
+                    {regions.map(r => (
+                      <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {role === 'farmer' && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {nominations.map(nom => (
+                <Button
+                  key={nom.value}
+                  variant={nomination === nom.value ? 'default' : 'outline'}
+                  onClick={() => setNomination(nom.value)}
+                  className="whitespace-nowrap"
+                >
+                  <Icon name={nom.icon as any} size={16} className="mr-2" />
+                  {nom.label}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {currentNomination && (
+        {role === 'farmer' && currentNomination && (
           <Card className={`p-6 mb-6 ${currentNomination.color} text-white`}>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -150,6 +177,20 @@ export default function Leaderboard() {
                   {nomination === 'мясо' && 'Максимальный выход мяса'}
                   {nomination === 'техника' && 'Самые технологичные хозяйства'}
                 </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {role === 'investor' && (
+          <Card className="p-6 mb-6 bg-gradient-to-r from-green-600 to-emerald-700 text-white">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <Icon name="TrendingUp" size={32} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Топ инвесторов</h2>
+                <p className="opacity-90">Инвесторы с наибольшими вложениями в фермерство</p>
               </div>
             </div>
           </Card>
@@ -186,12 +227,16 @@ export default function Leaderboard() {
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{entry.score}</div>
-                    <div className="text-xs text-gray-500">баллов</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {role === 'investor' ? `${entry.score.toLocaleString()} ₽` : entry.score}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {role === 'investor' ? 'вложено' : 'баллов'}
+                    </div>
                   </div>
                 </div>
                 
-                {entry.details && (
+                {role === 'farmer' && entry.details && (
                   <div className="mt-3 pt-3 border-t flex gap-4 text-sm text-gray-600">
                     {nomination === 'земля' && (
                       <>

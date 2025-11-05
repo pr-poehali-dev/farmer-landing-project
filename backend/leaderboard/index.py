@@ -41,11 +41,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     params = event.get('queryStringParameters') or {}
     nomination = params.get('nomination', 'total')
     region = params.get('region', '')
+    role = params.get('role', 'farmer')
     
     conn = psycopg2.connect(db_url)
     
     try:
-        if nomination in ('total', 'overall'):
+        if role == 'investor':
+            result = get_investor_leaderboard(conn, region)
+        elif nomination in ('total', 'overall'):
             result = get_total_leaderboard(conn, region)
         elif nomination in ('земля', 'crop_master'):
             result = get_crop_masters(conn, region)
@@ -87,8 +90,8 @@ def get_total_leaderboard(conn, region: str) -> List[dict]:
         
         query = f'''
             SELECT 
-                u.id::text as "userId",
-                COALESCE(fd.farm_name, u.farm_name, u.name, 'Ферма №' || u.id) as "farmName",
+                u.id::text as user_id,
+                COALESCE(fd.farm_name, u.farm_name, u.name, 'Ферма №' || u.id) as farm_name,
                 COALESCE(fd.region, 'Не указан') as region,
                 COALESCE(fs.total_score, 0) as score,
                 ROW_NUMBER() OVER (ORDER BY COALESCE(fs.total_score, 0) DESC) as rank
@@ -98,7 +101,7 @@ def get_total_leaderboard(conn, region: str) -> List[dict]:
             WHERE u.role = 'farmer'
             {region_filter}
             ORDER BY score DESC
-            LIMIT 100
+            LIMIT 5
         '''
         
         cur.execute(query, params)
@@ -123,3 +126,38 @@ def get_meat_leaders(conn, region: str) -> List[dict]:
 def get_tech_farmers(conn, region: str) -> List[dict]:
     '''Get "Техно-Фермер" leaderboard'''
     return get_total_leaderboard(conn, region)
+
+
+def get_investor_leaderboard(conn, region: str) -> List[dict]:
+    '''Get investor leaderboard based on total investments'''
+    schema = 't_p53065890_farmer_landing_proje'
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        query = f'''
+            SELECT 
+                u.id::text as user_id,
+                COALESCE(u.name, u.email, 'Инвестор №' || u.id) as investor_name,
+                COUNT(DISTINCT i.id) as investments_count,
+                COALESCE(SUM(i.amount), 0) as total_invested,
+                ROW_NUMBER() OVER (ORDER BY COALESCE(SUM(i.amount), 0) DESC) as rank
+            FROM {schema}.users u
+            LEFT JOIN {schema}.investments i ON u.id = i.user_id AND i.status = 'active'
+            WHERE u.role = 'investor'
+            GROUP BY u.id, u.name, u.email
+            ORDER BY total_invested DESC
+            LIMIT 5
+        '''
+        
+        cur.execute(query)
+        rows = cur.fetchall()
+        
+        result = []
+        for row in rows:
+            result.append({
+                'user_id': row['user_id'],
+                'farm_name': row['investor_name'],
+                'region': f"{row['investments_count']} инвестиций",
+                'score': int(row['total_invested']),
+                'rank': row['rank']
+            })
+        
+        return result
