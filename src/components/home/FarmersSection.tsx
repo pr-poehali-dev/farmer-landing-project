@@ -123,8 +123,8 @@ const FarmersSection = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-farmer-orange/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Icon name="ShoppingBag" size={20} className="text-farmer-orange" />
+                <div className="w-10 h-10 bg-farmer-green/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Icon name="ShoppingBag" size={20} className="text-farmer-green" />
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Продукт</h4>
@@ -133,8 +133,8 @@ const FarmersSection = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Icon name="Eye" size={20} className="text-blue-600" />
+                <div className="w-10 h-10 bg-farmer-green/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Icon name="Eye" size={20} className="text-farmer-green" />
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">Патронаж</h4>
