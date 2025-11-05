@@ -13,6 +13,7 @@ import ProductsManager from '@/components/seller/ProductsManager';
 import AdsManager from '@/components/seller/AdsManager';
 import FarmersList from '@/components/seller/FarmersList';
 import AnalyticsPanel from '@/components/seller/AnalyticsPanel';
+import ProductRequests from '@/components/seller/ProductRequests';
 import { SELLER_API, Profile, ProfileForm, ProductForm, AdForm, Analytics } from '@/types/seller.types';
 
 const SellerDashboard = () => {
@@ -312,7 +313,7 @@ const SellerDashboard = () => {
         </Card>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <Icon name="User" size={16} />
               Профиль
@@ -320,6 +321,10 @@ const SellerDashboard = () => {
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Icon name="Package" size={16} />
               Товары
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2">
+              <Icon name="MessageSquare" size={16} />
+              Заявки
             </TabsTrigger>
             <TabsTrigger value="ads" className="flex items-center gap-2">
               <Icon name="MonitorPlay" size={16} />
@@ -353,6 +358,10 @@ const SellerDashboard = () => {
               onAddProduct={addProduct}
               onDeleteProduct={deleteProduct}
             />
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <ProductRequests />
           </TabsContent>
 
           <TabsContent value="ads">

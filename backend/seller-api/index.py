@@ -226,6 +226,61 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'get_all_products':
+                cur.execute(
+                    f"""SELECT u.id, u.first_name, u.last_name, 
+                              sd.company_name, sd.region, sd.city, sd.products
+                       FROM {schema}.users u
+                       LEFT JOIN {schema}.seller_data sd ON sd.user_id = u.id
+                       WHERE u.role = 'seller' AND sd.products IS NOT NULL"""
+                )
+                rows = cur.fetchall()
+                
+                all_products = []
+                for row in rows:
+                    seller_id = row[0]
+                    seller_name = row[3] or f"{row[1] or ''} {row[2] or ''}".strip() or 'Продавец'
+                    seller_region = row[4]
+                    seller_city = row[5]
+                    products = row[6] or []
+                    
+                    for product in products:
+                        if product.get('status') == 'active':
+                            all_products.append({
+                                'id': product.get('id'),
+                                'seller_id': seller_id,
+                                'seller_name': seller_name,
+                                'seller_region': seller_region,
+                                'seller_city': seller_city,
+                                'type': product.get('type'),
+                                'name': product.get('name'),
+                                'price': product.get('price'),
+                                'description': product.get('description'),
+                                'photo_url': product.get('photo_url')
+                            })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'products': all_products}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'get_product_requests':
+                cur.execute(
+                    f"""SELECT product_requests FROM {schema}.seller_data WHERE user_id = %s""",
+                    (user_id,)
+                )
+                result = cur.fetchone()
+                requests = result[0] if result and result[0] else []
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests}),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'get_balance':
                 cur.execute(
                     f"""SELECT balance FROM {schema}.users WHERE id = %s""",
@@ -477,6 +532,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'request_product':
+                product_id = body_data.get('product_id', '')
+                seller_id = body_data.get('seller_id', '')
+                farmer_name = body_data.get('farmer_name', '')
+                farmer_phone = body_data.get('farmer_phone', '')
+                farmer_region = body_data.get('farmer_region', '')
+                product_name = body_data.get('product_name', '')
+                message = body_data.get('message', '')
+                
+                cur.execute(
+                    f"""SELECT product_requests FROM {schema}.seller_data WHERE user_id = %s""",
+                    (seller_id,)
+                )
+                row = cur.fetchone()
+                requests = row[0] if row and row[0] else []
+                
+                new_request = {
+                    'id': str(int(time.time() * 1000)),
+                    'product_id': product_id,
+                    'product_name': product_name,
+                    'farmer_id': user_id,
+                    'farmer_name': farmer_name,
+                    'farmer_phone': farmer_phone,
+                    'farmer_region': farmer_region,
+                    'message': message,
+                    'created_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'status': 'new'
+                }
+                
+                requests.append(new_request)
+                
+                cur.execute(
+                    f"""UPDATE {schema}.seller_data SET product_requests = %s::jsonb WHERE user_id = %s""",
+                    (json.dumps(requests), seller_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'request_id': new_request['id']}),
                     'isBase64Encoded': False
                 }
         
