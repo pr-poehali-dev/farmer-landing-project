@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "name": "VK OAuth redirect (without secrets)",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400
+    }
+  ]
+}

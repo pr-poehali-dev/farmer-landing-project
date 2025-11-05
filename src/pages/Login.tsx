@@ -154,7 +154,7 @@ const Login = () => {
             type="button"
             variant="outline"
             className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
-            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=vk'}
+            onClick={() => window.location.href = 'https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b'}
           >
             <span className="mr-2 text-lg font-bold">VK</span>
             ВКонтакте
