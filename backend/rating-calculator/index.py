@@ -165,6 +165,24 @@ def calculate_rating(conn, farmer_id: str, headers: dict) -> dict:
             meat_points = (animal['meat_head_count'] or 0) * meat_coefficient * 40
             rating_yield += int(meat_points)
         
+        # Пчеловодство
+        cur.execute('''
+            SELECT * FROM farm_animals 
+            WHERE farmer_data_id = %s AND direction = 'Мёд'
+        ''', (farmer_data['id'],))
+        honey_animals = cur.fetchall()
+        
+        for animal in honey_animals:
+            hive_count = animal['dairy_head_count'] or 0
+            honey_per_hive = animal['avg_milk_yield_per_head'] or 0
+            
+            # Средняя медопродуктивность - 30 кг/улей
+            avg_honey = 30.0
+            honey_coefficient = (honey_per_hive / avg_honey) if avg_honey > 0 and honey_per_hive > 0 else 1.0
+            
+            honey_points = hive_count * honey_coefficient * 20
+            rating_yield += int(honey_points)
+        
         # === 2. ТЕХНОЛОГИЧНОСТЬ (Technology Score) ===
         rating_technology = 0
         

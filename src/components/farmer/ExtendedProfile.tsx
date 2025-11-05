@@ -365,6 +365,7 @@ export default function ExtendedProfile({ userId }: { userId: string }) {
                 <p className="text-sm text-gray-600">
                   {animal.direction === 'Молочное' && `Надой: ${animal.avg_milk_yield_per_head} л/год, Голов: ${animal.dairy_head_count}`}
                   {animal.direction === 'Мясное' && `Выход мяса: ${animal.avg_meat_yield_per_head} кг, Голов: ${animal.meat_head_count}`}
+                  {animal.direction === 'Мёд' && `Мёд: ${animal.avg_milk_yield_per_head} кг/улей, Ульев: ${animal.dairy_head_count}`}
                 </p>
               </div>
             ))}
@@ -384,16 +385,18 @@ export default function ExtendedProfile({ userId }: { userId: string }) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label>Направление</Label>
-                  <Select value={newAnimal.direction} onValueChange={(v) => setNewAnimal({...newAnimal, direction: v})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Молочное">Молочное</SelectItem>
-                      <SelectItem value="Мясное">Мясное</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {newAnimal.category !== 'Пчеловодство' && (
+                  <div>
+                    <Label>Направление</Label>
+                    <Select value={newAnimal.direction} onValueChange={(v) => setNewAnimal({...newAnimal, direction: v})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Молочное">Молочное</SelectItem>
+                        <SelectItem value="Мясное">Мясное</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               {newAnimal.direction === 'Молочное' && (
                 <div className="grid grid-cols-2 gap-3">
@@ -420,6 +423,20 @@ export default function ExtendedProfile({ userId }: { userId: string }) {
                     <Label>Выход мяса с головы (кг)</Label>
                     <Input type="number" value={newAnimal.avg_meat_yield_per_head} 
                       onChange={(e) => setNewAnimal({...newAnimal, avg_meat_yield_per_head: Number(e.target.value)})} />
+                  </div>
+                </div>
+              )}
+              {newAnimal.category === 'Пчеловодство' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Количество ульев</Label>
+                    <Input type="number" value={newAnimal.dairy_head_count} 
+                      onChange={(e) => setNewAnimal({...newAnimal, dairy_head_count: Number(e.target.value), direction: 'Мёд'})} />
+                  </div>
+                  <div>
+                    <Label>Мёд с улья (кг/год)</Label>
+                    <Input type="number" value={newAnimal.avg_milk_yield_per_head} 
+                      onChange={(e) => setNewAnimal({...newAnimal, avg_milk_yield_per_head: Number(e.target.value), direction: 'Мёд'})} />
                   </div>
                 </div>
               )}
