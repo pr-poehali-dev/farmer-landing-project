@@ -35,7 +35,7 @@ const InvestorDashboard = () => {
   const [investing, setInvesting] = useState(false);
   const [balance, setBalance] = useState(0);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'table' | 'farm'>('farm');
+
   const [activeTab, setActiveTab] = useState('portfolio');
   const [marketAssetFilter, setMarketAssetFilter] = useState<'all' | 'animal' | 'crop' | 'beehive'>('all');
   const [profileData, setProfileData] = useState({
@@ -337,88 +337,13 @@ const InvestorDashboard = () => {
               </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="flex gap-2 mb-4">
-                <Button
-                  variant={viewMode === 'farm' ? 'default' : 'outline'}
-                  onClick={() => setViewMode('farm')}
-                  className="flex items-center gap-2"
-                >
-                  <span>🌾</span>
-                  Вид фермы
-                </Button>
-                <Button
-                  variant={viewMode === 'table' ? 'default' : 'outline'}
-                  onClick={() => setViewMode('table')}
-                  className="flex items-center gap-2"
-                >
-                  <Icon name="List" size={18} />
-                  Таблица
-                </Button>
-              </div>
-
-              {viewMode === 'farm' ? (
-                <VirtualFarm 
-                  investments={portfolio} 
-                  onNavigateToMarket={(assetType) => {
-                    setMarketAssetFilter(assetType);
-                    setActiveTab('proposals');
-                  }}
-                />
-              ) : (
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Список инвестиций</h2>
-                  {portfolio.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">Пока нет оплаченных инвестиций</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {portfolio.map((investment) => {
-                        const status = investment.status || 'pending';
-                        const statusText = status === 'pending' ? 'Ждем подтверждение фермера' : 
-                                         status === 'active' ? 'Вы в деле' :
-                                         status === 'rejected' ? 'Отклонено фермером' :
-                                         'Отменено';
-                        const statusColor = status === 'active' ? 'text-green-600' :
-                                          status === 'pending' ? 'text-yellow-600' :
-                                          'text-red-600';
-                        
-                        return (
-                          <Card key={investment.id} className="p-4 border">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <p className="font-medium text-gray-900">{investment.proposal_description}</p>
-                                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor} bg-opacity-10`}>
-                                    {statusText}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-600 mt-1">Фермер: {investment.farmer_name}</p>
-                                <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                                  <span>Сумма: {investment.amount} ₽</span>
-                                  <span>Тип: {investment.proposal_type}</span>
-                                  <span>Дата: {new Date(investment.date).toLocaleDateString()}</span>
-                                </div>
-                              </div>
-                              {status === 'pending' && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => cancelInvestment(investment.id)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <Icon name="X" size={16} className="mr-1" />
-                                  Отказаться
-                                </Button>
-                              )}
-                            </div>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  )}
-                </Card>
-              )}
-            </div>
+            <VirtualFarm 
+              investments={portfolio} 
+              onNavigateToMarket={(assetType) => {
+                setMarketAssetFilter(assetType);
+                setActiveTab('proposals');
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="profile">
