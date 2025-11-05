@@ -150,7 +150,7 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
                 </div>
               )}
               
-              <p className="text-sm text-gray-600 mb-2">{proposal.description}</p>
+              <p className="text-sm text-gray-600 mb-2">{proposal.description || 'Молоко у нас всегда свежее и пользуется спросом'}</p>
               
               {proposal.income_details && (
                 <Card className="p-3 bg-blue-50 border-blue-200 mb-2 text-xs space-y-1">
