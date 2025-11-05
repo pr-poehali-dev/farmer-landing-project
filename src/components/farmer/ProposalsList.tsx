@@ -1,8 +1,5 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { Proposal, FARMER_API } from './proposal-types';
@@ -17,10 +14,6 @@ interface Props {
 }
 
 const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
-  const [deleteReason, setDeleteReason] = useState('');
-  const [deleting, setDeleting] = useState(false);
   const getLivestockLabel = (value: string, type: 'type' | 'breed' | 'direction') => {
     if (type === 'type') {
       return LIVESTOCK_TYPES.find(t => t.value === value)?.label || value;
@@ -43,16 +36,9 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
     return allVarieties.find(v => v.value === value)?.label || value;
   };
 
-  const handleDeleteClick = (proposalId: number) => {
-    setSelectedProposal(proposalId);
-    setShowDeleteModal(true);
-    setDeleteReason('');
-  };
+  const handleDelete = async (proposalId: number) => {
+    if (!confirm('Удалить это предложение?')) return;
 
-  const handleDeleteConfirm = async () => {
-    if (!selectedProposal) return;
-    
-    setDeleting(true);
     try {
       const response = await fetch(FARMER_API, {
         method: 'POST',
@@ -61,29 +47,19 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
           'X-User-Id': userId
         },
         body: JSON.stringify({
-          action: 'request_proposal_deletion',
-          proposal_id: selectedProposal,
-          reason: deleteReason
+          action: 'delete_proposal',
+          proposal_id: proposalId
         })
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.immediate) {
-          toast.success('Предложение удалено');
-        } else {
-          toast.success(`Запрос отправлен ${data.investors_count} инвесторам. Ожидайте подтверждения.`);
-        }
-        setShowDeleteModal(false);
+        toast.success('Предложение удалено');
         onDelete();
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Ошибка удаления');
+        toast.error('Ошибка удаления');
       }
     } catch (error) {
       toast.error('Ошибка соединения');
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -110,8 +86,7 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
   }
 
   return (
-    <>
-      <div className="grid gap-4">
+    <div className="grid gap-4">
       {proposals.map(proposal => (
         <Card key={proposal.id} className="p-4">
           <div className="flex items-start justify-between gap-4">
@@ -175,7 +150,7 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
                 </div>
               )}
               
-              <p className="text-sm text-gray-600 mb-2">{proposal.description || 'Молоко у нас всегда свежее и пользуется спросом'}</p>
+              <p className="text-sm text-gray-600 mb-2">{proposal.description}</p>
               
               {proposal.income_details && (
                 <Card className="p-3 bg-blue-50 border-blue-200 mb-2 text-xs space-y-1">
@@ -210,7 +185,7 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleDeleteClick(proposal.id)}
+              onClick={() => handleDelete(proposal.id)}
               className="text-red-600 hover:text-red-700 hover:bg-red-50"
             >
               <Icon name="Trash2" size={18} />
@@ -218,66 +193,7 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
           </div>
         </Card>
       ))}
-      </div>
-
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-lg w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Icon name="AlertTriangle" size={24} className="text-red-600" />
-                Удалить предложение?
-              </h3>
-              <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)}>
-                <Icon name="X" size={20} />
-              </Button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-sm text-amber-900">
-                  <Icon name="Info" size={16} className="inline mr-2" />
-                  Если у этого предложения есть активные инвесторы, им будет отправлен запрос на подтверждение удаления. 
-                  Предложение будет удалено только после согласия всех инвесторов.
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Причина удаления (необязательно)</Label>
-                <Textarea
-                  value={deleteReason}
-                  onChange={(e) => setDeleteReason(e.target.value)}
-                  placeholder="Например: Животное продано, изменились условия..."
-                  rows={3}
-                />
-              </div>
-              
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowDeleteModal(false)}
-                  className="flex-1"
-                  disabled={deleting}
-                >
-                  Отмена
-                </Button>
-                <Button 
-                  onClick={handleDeleteConfirm}
-                  className="flex-1 bg-red-600 hover:bg-red-700"
-                  disabled={deleting}
-                >
-                  {deleting ? (
-                    <><Icon name="Loader2" size={16} className="mr-2 animate-spin" /> Отправка...</>
-                  ) : (
-                    <><Icon name="Trash2" size={16} className="mr-2" /> Удалить</>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 

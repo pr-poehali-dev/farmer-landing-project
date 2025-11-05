@@ -17,7 +17,6 @@ import BalanceWidget from '@/components/BalanceWidget';
 import TopUpModal from '@/components/TopUpModal';
 import OffersList from '@/components/investor/OffersList';
 import { VirtualFarm } from '@/components/investor/VirtualFarm';
-import DeletionRequests from '@/components/investor/DeletionRequests';
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
@@ -308,24 +307,16 @@ const InvestorDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="portfolio">
               <Icon name="Sprout" size={18} className="mr-2" />
               Моя виртуальная ферма
-            </TabsTrigger>
-            <TabsTrigger value="deletion-requests">
-              <Icon name="AlertTriangle" size={18} className="mr-2" />
-              Запросы на удаление
             </TabsTrigger>
             <TabsTrigger value="proposals">
               <Icon name="Package" size={18} className="mr-2" />
               Маркет предложений
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="deletion-requests">
-            <DeletionRequests userId={user!.id.toString()} />
-          </TabsContent>
 
           <TabsContent value="proposals">
             <ProposalsViewer 
