@@ -189,6 +189,10 @@ const AdminDashboard = () => {
               <h1 className="text-lg font-bold text-gray-900 sm:hidden">Админ</h1>
             </div>
             <div className="flex items-center gap-2">
+              <Button onClick={() => navigate('/b2b')} variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-50 hidden md:flex">
+                <Icon name="Search" size={18} className="mr-2" />
+                B2B Панель
+              </Button>
               <Button onClick={() => navigate('/admin/metrics')} variant="outline" size="sm" className="text-farmer-green border-farmer-green hover:bg-green-50 hidden md:flex">
                 <Icon name="BarChart3" size={18} className="mr-2" />
                 Бизнес-метрики

@@ -20,6 +20,8 @@ import FAQ from "./pages/FAQ";
 import Contacts from "./pages/Contacts";
 import TestAccounts from "./pages/TestAccounts";
 import NotFound from "./pages/NotFound";
+import Leaderboard from "./pages/Leaderboard";
+import B2BPanel from "./pages/B2BPanel";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ const App = () => (
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/test" element={<TestAccounts />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/b2b" element={<B2BPanel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

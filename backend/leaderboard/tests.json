@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Get total leaderboard",
+      "method": "GET",
+      "path": "/?nomination=total",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get crop masters leaderboard",
+      "method": "GET",
+      "path": "/?nomination=земля",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

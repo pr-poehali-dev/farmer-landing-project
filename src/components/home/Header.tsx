@@ -15,6 +15,10 @@ const Header = () => {
             <span className="text-3xl">🌾</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
+            <Button onClick={() => navigate('/leaderboard')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
+              <Icon name="Trophy" size={16} className="mr-1" />
+              Лидеры
+            </Button>
             <Button onClick={() => navigate('/about')} variant="ghost" className="text-gray-700 hover:text-farmer-green">
               О нас
             </Button>

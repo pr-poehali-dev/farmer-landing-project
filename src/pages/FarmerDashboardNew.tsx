@@ -11,6 +11,8 @@ import OwnerProfile from '@/components/farmer/OwnerProfile';
 import SellerMarketplace from '@/components/farmer/SellerMarketplace';
 import FarmerRating from '@/components/farmer/FarmerRating';
 import InvestorRequests from '@/components/farmer/InvestorRequests';
+import ExtendedProfile from '@/components/farmer/ExtendedProfile';
+import DetailedRating from '@/components/farmer/DetailedRating';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -95,7 +97,14 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">
-            <OwnerProfile userId={user?.id || ''} />
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div>
+                <OwnerProfile userId={user?.id || ''} />
+              </div>
+              <div>
+                <ExtendedProfile userId={user?.id || ''} />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="marketplace" className="mt-6">
@@ -103,7 +112,14 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="rating" className="mt-6">
-            <FarmerRating userId={user?.id || ''} />
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div>
+                <DetailedRating userId={user?.id || ''} />
+              </div>
+              <div>
+                <FarmerRating userId={user?.id || ''} />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
