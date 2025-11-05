@@ -141,13 +141,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if fd_exists:
                     cur.execute(
-                        f"""UPDATE {schema}.farmer_data SET region = %s WHERE user_id = %s""",
-                        (region, user_id)
+                        f"""UPDATE {schema}.farmer_data SET region = %s, farm_name = %s WHERE user_id = %s""",
+                        (region, farm_name, user_id)
                     )
                 else:
                     cur.execute(
-                        f"""INSERT INTO {schema}.farmer_data (user_id, region) VALUES (%s, %s)""",
-                        (user_id, region)
+                        f"""INSERT INTO {schema}.farmer_data (user_id, region, farm_name) VALUES (%s, %s, %s)""",
+                        (user_id, region, farm_name)
                     )
                 
                 conn.commit()
