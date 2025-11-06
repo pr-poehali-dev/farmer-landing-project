@@ -51,31 +51,22 @@ const TelegramAuth = () => {
         const callbackUrl = `https://farmer-landing-project.poehali.dev/oauth/telegram?role=${role}`;
         console.log('🔗 Callback URL:', callbackUrl);
 
-        const script = document.createElement('script');
-        script.src = 'https://telegram.org/js/telegram-widget.js?22';
-        script.setAttribute('data-telegram-login', botUsername);
-        script.setAttribute('data-size', 'large');
-        script.setAttribute('data-auth-url', callbackUrl);
-        script.setAttribute('data-request-access', 'write');
-        script.async = true;
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://oauth.telegram.org/auth?bot_id=YOUR_BOT_ID&origin=${encodeURIComponent('https://farmer-landing-project.poehali.dev')}&request_access=write&return_to=${encodeURIComponent(callbackUrl)}`;
+        iframe.width = '100%';
+        iframe.height = '186';
+        iframe.style.border = 'none';
+        iframe.scrolling = 'no';
         
-        script.onerror = () => {
-          console.error('❌ Ошибка загрузки Telegram виджета');
-          setError('Не удалось загрузить виджет Telegram');
-          setLoading(false);
-        };
-        
-        script.onload = () => {
-          console.log('✅ Telegram виджет загружен');
-          setLoading(false);
-        };
-
         const container = document.getElementById('telegram-login-container');
         if (container) {
-          container.appendChild(script);
-          console.log('📦 Виджет добавлен в DOM');
+          container.appendChild(iframe);
+          console.log('📦 Telegram iframe добавлен');
+          setLoading(false);
         } else {
-          console.error('❌ Контейнер для виджета не найден');
+          console.error('❌ Контейнер для iframe не найден');
+          setError('Ошибка загрузки');
+          setLoading(false);
         }
       } catch (err: any) {
         console.error('❌ Ошибка:', err);
