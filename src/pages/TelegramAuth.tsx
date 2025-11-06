@@ -52,7 +52,6 @@ const TelegramAuth = () => {
         script.setAttribute('data-size', 'large');
         script.setAttribute('data-onauth', 'onTelegramAuth(user)');
         script.setAttribute('data-request-access', 'write');
-        script.setAttribute('data-auth-url', 'https://farmer-landing-project.poehali.dev/oauth/telegram');
         script.async = true;
         
         script.onerror = () => {
