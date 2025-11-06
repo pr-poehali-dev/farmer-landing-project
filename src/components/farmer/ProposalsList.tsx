@@ -37,12 +37,24 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
   };
 
   const handleDelete = async (proposalId: number, hasInvestments: boolean) => {
-    if (hasInvestments) {
-      toast.error('Нельзя удалить предложение с активными заявками инвесторов');
-      return;
-    }
+    let forceDelete = false;
 
-    if (!confirm('Удалить это предложение?')) return;
+    if (hasInvestments) {
+      const confirmed = confirm(
+        '⚠️ ВНИМАНИЕ!\n\n' +
+        'У этого предложения есть активные заявки от инвесторов.\n\n' +
+        'При удалении предложения:\n' +
+        '• Все активные заявки будут автоматически отменены\n' +
+        '• Инвесторы получат уведомление об отмене\n' +
+        '• Данные заявок сохранятся в истории\n\n' +
+        'Вы уверены, что хотите удалить это предложение?'
+      );
+      
+      if (!confirmed) return;
+      forceDelete = true;
+    } else {
+      if (!confirm('Удалить это предложение?')) return;
+    }
 
     try {
       const response = await fetch(FARMER_API, {
@@ -53,16 +65,26 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
         },
         body: JSON.stringify({
           action: 'delete_proposal',
-          proposal_id: proposalId
+          proposal_id: proposalId,
+          force_delete: forceDelete
         })
       });
 
       if (response.ok) {
-        toast.success('Предложение удалено');
+        const result = await response.json();
+        if (result.cancelled_investments > 0) {
+          toast.success(`Предложение удалено. Отменено заявок: ${result.cancelled_investments}`);
+        } else {
+          toast.success('Предложение удалено');
+        }
         onDelete();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Ошибка удаления');
+        if (error.error === 'has_active_investments') {
+          toast.error(`У предложения ${error.count} активных заявок. Требуется подтверждение.`);
+        } else {
+          toast.error(error.message || 'Ошибка удаления');
+        }
       }
     } catch (error) {
       toast.error('Ошибка соединения');
@@ -199,12 +221,11 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
               size="sm"
               onClick={() => handleDelete(proposal.id, proposal.has_investments || false)}
               className={proposal.has_investments 
-                ? "text-gray-400 cursor-not-allowed" 
+                ? "text-orange-600 hover:text-orange-700 hover:bg-orange-50" 
                 : "text-red-600 hover:text-red-700 hover:bg-red-50"}
-              disabled={proposal.has_investments}
-              title={proposal.has_investments ? "Нельзя удалить: есть активные заявки инвесторов" : "Удалить предложение"}
+              title={proposal.has_investments ? "Удалить с отменой заявок инвесторов" : "Удалить предложение"}
             >
-              <Icon name={proposal.has_investments ? "Lock" : "Trash2"} size={18} />
+              <Icon name={proposal.has_investments ? "AlertTriangle" : "Trash2"} size={18} />
             </Button>
           </div>
         </Card>

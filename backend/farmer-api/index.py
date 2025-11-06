@@ -425,6 +425,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'delete_proposal':
                 proposal_id = body_data.get('proposal_id')
+                force_delete = body_data.get('force_delete', False)
                 
                 if not proposal_id:
                     return {
@@ -434,30 +435,58 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cur.execute(
+                    f"""SELECT p.id FROM {schema}.proposals p
+                       WHERE p.id = %s AND p.user_id = %s""",
+                    (proposal_id, user_id)
+                )
+                if not cur.fetchone():
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Предложение не найдено'})
+                    }
+                
+                cur.execute(
                     f"""SELECT COUNT(*) FROM {schema}.investments 
-                       WHERE proposal_id = %s""",
+                       WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
                     (proposal_id,)
                 )
-                investments_count = cur.fetchone()[0]
+                active_investments_count = cur.fetchone()[0]
                 
-                if investments_count > 0:
+                if active_investments_count > 0 and not force_delete:
                     return {
-                        'statusCode': 400,
+                        'statusCode': 409,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Нельзя удалить предложение с активными заявками'})
+                        'body': json.dumps({
+                            'error': 'has_active_investments',
+                            'count': active_investments_count,
+                            'message': f'У предложения есть {active_investments_count} активных заявок'
+                        })
                     }
+                
+                if force_delete and active_investments_count > 0:
+                    cur.execute(
+                        f"""UPDATE {schema}.investments 
+                           SET status = 'cancelled'
+                           WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
+                        (proposal_id,)
+                    )
                 
                 cur.execute(
                     f"""DELETE FROM {schema}.proposals 
                        WHERE id = %s AND user_id = %s""",
                     (proposal_id, user_id)
                 )
+                
                 conn.commit()
                 
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True})
+                    'body': json.dumps({
+                        'success': True,
+                        'cancelled_investments': active_investments_count if force_delete else 0
+                    })
                 }
         
         elif method == 'GET':
