@@ -422,6 +422,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'profile': profile})
                 }
+            
+            elif action == 'get_deletion_requests':
+                schema = 't_p53065890_farmer_landing_proje'
+                cur.execute(
+                    f"""SELECT dc.id, dc.deletion_request_id, dc.confirmed, dr.proposal_id,
+                              p.description, u.first_name, u.last_name, u.farm_name, dr.created_at
+                       FROM {schema}.deletion_confirmations dc
+                       JOIN {schema}.deletion_requests dr ON dr.id = dc.deletion_request_id
+                       JOIN {schema}.proposals p ON p.id = dr.proposal_id
+                       JOIN {schema}.users u ON u.id = dr.farmer_id
+                       WHERE dc.investor_id = %s AND dr.status = 'pending'
+                       ORDER BY dr.created_at DESC""",
+                    (user_id,)
+                )
+                
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'deletion_request_id': row[1],
+                        'confirmed': row[2],
+                        'proposal_id': row[3],
+                        'proposal_description': row[4],
+                        'farmer_name': f"{row[5] or ''} {row[6] or ''}".strip() or row[7] or 'Фермер',
+                        'created_at': row[8].isoformat() if row[8] else None
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
+                }
         
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
@@ -592,6 +624,95 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True})
+                }
+            
+            elif action == 'confirm_deletion':
+                schema = 't_p53065890_farmer_landing_proje'
+                confirmation_id = body_data.get('confirmation_id')
+                
+                if not confirmation_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется confirmation_id'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT dc.deletion_request_id, dc.investor_id, dc.confirmed
+                       FROM {schema}.deletion_confirmations dc
+                       WHERE dc.id = %s""",
+                    (confirmation_id,)
+                )
+                conf = cur.fetchone()
+                
+                if not conf:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Подтверждение не найдено'})
+                    }
+                
+                if str(conf[1]) != str(user_id):
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Нет доступа'})
+                    }
+                
+                if conf[2]:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Уже подтверждено'})
+                    }
+                
+                deletion_request_id = conf[0]
+                
+                cur.execute(
+                    f"""UPDATE {schema}.deletion_confirmations 
+                       SET confirmed = TRUE, confirmed_at = CURRENT_TIMESTAMP
+                       WHERE id = %s""",
+                    (confirmation_id,)
+                )
+                
+                cur.execute(
+                    f"""UPDATE {schema}.deletion_requests 
+                       SET confirmed_investors = confirmed_investors + 1
+                       WHERE id = %s
+                       RETURNING total_investors, confirmed_investors, proposal_id, farmer_id""",
+                    (deletion_request_id,)
+                )
+                dr_result = cur.fetchone()
+                
+                conn.commit()
+                
+                total = dr_result[0]
+                confirmed = dr_result[1]
+                proposal_id = dr_result[2]
+                farmer_id = dr_result[3]
+                
+                if confirmed >= total:
+                    try:
+                        import requests
+                        farmer_api_url = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e'
+                        requests.post(
+                            farmer_api_url,
+                            json={'action': 'delete_proposal', 'proposal_id': proposal_id},
+                            headers={'X-User-Id': str(farmer_id), 'Content-Type': 'application/json'},
+                            timeout=10
+                        )
+                    except:
+                        pass
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'all_confirmed': confirmed >= total,
+                        'confirmed': confirmed,
+                        'total': total
+                    })
                 }
             
             elif action == 'invest_virtual':

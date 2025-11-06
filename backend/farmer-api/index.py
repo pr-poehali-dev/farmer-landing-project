@@ -423,9 +423,92 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'success': True, 'proposal_id': proposal_id})
                 }
             
+            elif action == 'request_delete_proposal':
+                proposal_id = body_data.get('proposal_id')
+                
+                if not proposal_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется proposal_id'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT p.id FROM {schema}.proposals p
+                       WHERE p.id = %s AND p.user_id = %s""",
+                    (proposal_id, user_id)
+                )
+                if not cur.fetchone():
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Предложение не найдено'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT DISTINCT i.user_id 
+                       FROM {schema}.investments i
+                       WHERE i.proposal_id = %s AND i.status NOT IN ('cancelled', 'rejected')""",
+                    (proposal_id,)
+                )
+                active_investors = [row[0] for row in cur.fetchall()]
+                
+                if len(active_investors) == 0:
+                    cur.execute(
+                        f"""DELETE FROM {schema}.proposals WHERE id = %s AND user_id = %s""",
+                        (proposal_id, user_id)
+                    )
+                    conn.commit()
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'success': True, 'deleted_immediately': True})
+                    }
+                
+                cur.execute(
+                    f"""SELECT id FROM {schema}.deletion_requests 
+                       WHERE proposal_id = %s AND status = 'pending'""",
+                    (proposal_id,)
+                )
+                existing = cur.fetchone()
+                
+                if existing:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Запрос на удаление уже создан'})
+                    }
+                
+                cur.execute(
+                    f"""INSERT INTO {schema}.deletion_requests 
+                       (proposal_id, farmer_id, total_investors, status)
+                       VALUES (%s, %s, %s, 'pending') RETURNING id""",
+                    (proposal_id, user_id, len(active_investors))
+                )
+                request_id = cur.fetchone()[0]
+                
+                for investor_id in active_investors:
+                    cur.execute(
+                        f"""INSERT INTO {schema}.deletion_confirmations 
+                           (deletion_request_id, investor_id)
+                           VALUES (%s, %s)""",
+                        (request_id, investor_id)
+                    )
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'request_id': request_id,
+                        'waiting_for': len(active_investors)
+                    })
+                }
+            
             elif action == 'delete_proposal':
                 proposal_id = body_data.get('proposal_id')
-                force_delete = body_data.get('force_delete', False)
                 
                 if not proposal_id:
                     return {
@@ -453,18 +536,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 )
                 active_investments_count = cur.fetchone()[0]
                 
-                if active_investments_count > 0 and not force_delete:
-                    return {
-                        'statusCode': 409,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({
-                            'error': 'has_active_investments',
-                            'count': active_investments_count,
-                            'message': f'У предложения есть {active_investments_count} активных заявок'
-                        })
-                    }
-                
-                if force_delete and active_investments_count > 0:
+                if active_investments_count > 0:
                     cur.execute(
                         f"""UPDATE {schema}.investments 
                            SET status = 'cancelled'
@@ -478,6 +550,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     (proposal_id, user_id)
                 )
                 
+                cur.execute(
+                    f"""UPDATE {schema}.deletion_requests 
+                       SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+                       WHERE proposal_id = %s""",
+                    (proposal_id,)
+                )
+                
                 conn.commit()
                 
                 return {
@@ -485,7 +564,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
                         'success': True,
-                        'cancelled_investments': active_investments_count if force_delete else 0
+                        'cancelled_investments': active_investments_count
                     })
                 }
         
@@ -698,6 +777,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'proposals': proposals})
+                }
+            
+            elif action == 'get_deletion_requests':
+                cur.execute(
+                    f"""SELECT dr.id, dr.proposal_id, dr.status, dr.total_investors, 
+                              dr.confirmed_investors, dr.created_at,
+                              p.description
+                       FROM {schema}.deletion_requests dr
+                       JOIN {schema}.proposals p ON p.id = dr.proposal_id
+                       WHERE dr.farmer_id = %s AND dr.status = 'pending'
+                       ORDER BY dr.created_at DESC""",
+                    (user_id,)
+                )
+                
+                requests = []
+                for row in cur.fetchall():
+                    requests.append({
+                        'id': row[0],
+                        'proposal_id': row[1],
+                        'status': row[2],
+                        'total_investors': row[3],
+                        'confirmed_investors': row[4],
+                        'created_at': row[5].isoformat() if row[5] else None,
+                        'proposal_description': row[6]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'requests': requests})
                 }
             
             elif action == 'get_balance':

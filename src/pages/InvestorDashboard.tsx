@@ -17,6 +17,7 @@ import BalanceWidget from '@/components/BalanceWidget';
 import TopUpModal from '@/components/TopUpModal';
 import OffersList from '@/components/investor/OffersList';
 import { VirtualFarm } from '@/components/investor/VirtualFarm';
+import DeletionConfirmations from '@/components/investor/DeletionConfirmations';
 
 const INVESTOR_API = 'https://functions.poehali.dev/d4ed65bb-a05a-48e5-b2f9-78e2c3750ef5';
 
@@ -299,6 +300,8 @@ const InvestorDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <DeletionConfirmations userId={user?.id?.toString() || ''} />
+        
         <div className="mb-6">
           <BalanceWidget 
             balance={balance} 

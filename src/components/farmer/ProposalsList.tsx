@@ -37,22 +37,7 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
   };
 
   const handleDelete = async (proposalId: number, hasInvestments: boolean) => {
-    let forceDelete = false;
-
-    if (hasInvestments) {
-      const confirmed = confirm(
-        '⚠️ ВНИМАНИЕ!\n\n' +
-        'У этого предложения есть активные заявки от инвесторов.\n\n' +
-        'При удалении предложения:\n' +
-        '• Все активные заявки будут автоматически отменены\n' +
-        '• Инвесторы получат уведомление об отмене\n' +
-        '• Данные заявок сохранятся в истории\n\n' +
-        'Вы уверены, что хотите удалить это предложение?'
-      );
-      
-      if (!confirmed) return;
-      forceDelete = true;
-    } else {
+    if (!hasInvestments) {
       if (!confirm('Удалить это предложение?')) return;
     }
 
@@ -64,27 +49,26 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
           'X-User-Id': userId
         },
         body: JSON.stringify({
-          action: 'delete_proposal',
-          proposal_id: proposalId,
-          force_delete: forceDelete
+          action: 'request_delete_proposal',
+          proposal_id: proposalId
         })
       });
 
       if (response.ok) {
         const result = await response.json();
-        if (result.cancelled_investments > 0) {
-          toast.success(`Предложение удалено. Отменено заявок: ${result.cancelled_investments}`);
-        } else {
+        if (result.deleted_immediately) {
           toast.success('Предложение удалено');
+          onDelete();
+        } else if (result.waiting_for > 0) {
+          toast.success(
+            `Запрос на удаление отправлен! Ожидаем подтверждения от ${result.waiting_for} инвесторов`,
+            { duration: 5000 }
+          );
+          onDelete();
         }
-        onDelete();
       } else {
         const error = await response.json();
-        if (error.error === 'has_active_investments') {
-          toast.error(`У предложения ${error.count} активных заявок. Требуется подтверждение.`);
-        } else {
-          toast.error(error.message || 'Ошибка удаления');
-        }
+        toast.error(error.error || 'Ошибка удаления');
       }
     } catch (error) {
       toast.error('Ошибка соединения');

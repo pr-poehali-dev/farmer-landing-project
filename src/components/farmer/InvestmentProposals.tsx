@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { Proposal, FARMER_API } from './proposal-types';
 import ProposalForm from './ProposalForm';
 import ProposalsList from './ProposalsList';
+import DeletionRequests from './DeletionRequests';
 
 interface Props {
   userId: string;
@@ -50,6 +51,8 @@ const InvestmentProposals = ({ userId, onProposalCreated }: Props) => {
 
   return (
     <div className="space-y-6">
+      <DeletionRequests userId={userId} />
+      
       <ProposalForm userId={userId} onSuccess={handleProposalCreated} />
 
       <div>
