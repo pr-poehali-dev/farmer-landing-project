@@ -19,12 +19,15 @@ const TelegramAuth = () => {
     const loadTelegramWidget = async () => {
       try {
         console.log('🔵 Загрузка Telegram виджета...');
-        const botUsername = 'farmer_platform_bot';
-        const urlParams = new URLSearchParams(window.location.search);
-        const role = urlParams.get('role') || 'farmer';
         
-        console.log('📱 Бот:', botUsername);
-        console.log('👤 Роль:', role);
+        setError('Для входа через Telegram нужно настроить бота. Инструкция:\n\n1. Откройте @BotFather в Telegram\n2. Отправьте /newbot\n3. Назовите бота (например: Farmer Platform)\n4. Выберите username (например: your_farmer_bot)\n5. Скопируйте токен\n6. Отправьте /setdomain и укажите: farmer-landing-project.poehali.dev\n\nПока используйте вход через ВКонтакте или Яндекс.');
+        setLoading(false);
+        
+        setTimeout(() => {
+          navigate('/login');
+        }, 8000);
+        
+        return;
 
         window.onTelegramAuth = async (user: any) => {
           console.log('✅ Telegram авторизация успешна!');
