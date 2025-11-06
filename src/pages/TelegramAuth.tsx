@@ -12,15 +12,68 @@ declare global {
 
 const TelegramAuth = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const urlParams = new URLSearchParams(window.location.search);
-  const role = urlParams.get('role') || 'farmer';
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleTelegramAuth = () => {
-    const botUrl = `https://t.me/ImFarmer_bot?start=auth_${role}`;
-    console.log('🔗 Открытие Telegram бота:', botUrl);
-    window.open(botUrl, '_blank');
-  };
+  useEffect(() => {
+    const loadTelegramWidget = async () => {
+      try {
+        console.log('🔵 Загрузка Telegram виджета...');
+        const botUsername = 'ImFarmer_bot';
+        const urlParams = new URLSearchParams(window.location.search);
+        const role = urlParams.get('role') || 'farmer';
+        
+        console.log('📱 Бот:', botUsername);
+        console.log('👤 Роль:', role);
+
+        window.onTelegramAuth = async (user: any) => {
+          console.log('✅ Telegram авторизация успешна!');
+          console.log('👤 Данные пользователя:', user);
+          
+          const params = new URLSearchParams({
+            id: user.id,
+            first_name: user.first_name || '',
+            last_name: user.last_name || '',
+            username: user.username || '',
+            photo_url: user.photo_url || '',
+            auth_date: user.auth_date,
+            hash: user.hash,
+            role: role
+          });
+
+          const callbackUrl = `https://functions.poehali.dev/33163ee7-3ed1-48f9-bba0-99a0cd3088af?${params.toString()}`;
+          console.log('🔗 Редирект на:', callbackUrl);
+          window.location.href = callbackUrl;
+        };
+
+        const container = document.getElementById('telegram-login-container');
+        if (container) {
+          container.innerHTML = `
+            <script async src="https://telegram.org/js/telegram-widget.js?22" 
+              data-telegram-login="${botUsername}" 
+              data-size="large" 
+              data-onauth="onTelegramAuth(user)" 
+              data-request-access="write">
+            </script>
+          `;
+          console.log('📦 Виджет добавлен в DOM');
+          
+          setTimeout(() => {
+            setLoading(false);
+            console.log('✅ Telegram виджет должен загрузиться');
+          }, 1000);
+        } else {
+          console.error('❌ Контейнер для виджета не найден');
+        }
+      } catch (err: any) {
+        console.error('❌ Ошибка:', err);
+        setError('Не удалось загрузить виджет Telegram');
+        setLoading(false);
+      }
+    };
+
+    loadTelegramWidget();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-farmer-green/5 to-farmer-orange/5 flex items-center justify-center px-4 py-12">
@@ -34,24 +87,16 @@ const TelegramAuth = () => {
           Вход через Telegram
         </h2>
         <p className="text-center text-gray-600 mb-6">
-          Для входа через Telegram откройте бота и следуйте инструкциям
+          {loading ? 'Загрузка виджета...' : error || 'Нажмите кнопку ниже для входа'}
         </p>
         
-        <div className="mb-6">
-          <button
-            onClick={handleTelegramAuth}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center gap-3 transition-colors"
-          >
-            <Icon name="Send" size={24} />
-            <span>Открыть Telegram бот</span>
-          </button>
-        </div>
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-center">
+            {error}
+          </div>
+        )}
         
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-blue-800 text-center">
-            После авторизации в боте вернитесь на сайт и войдите в личный кабинет
-          </p>
-        </div>
+        <div id="telegram-login-container" className="flex justify-center mb-6"></div>
         
         <button
           onClick={() => navigate('/login')}
