@@ -16,57 +16,61 @@ const TelegramAuth = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const telegramData = urlParams.get('id');
-    
-    if (telegramData) {
-      console.log('✅ Получены данные от Telegram, отправка в backend...');
-      const role = urlParams.get('role') || 'farmer';
-      const params = new URLSearchParams({
-        id: urlParams.get('id') || '',
-        first_name: urlParams.get('first_name') || '',
-        last_name: urlParams.get('last_name') || '',
-        username: urlParams.get('username') || '',
-        photo_url: urlParams.get('photo_url') || '',
-        auth_date: urlParams.get('auth_date') || '',
-        hash: urlParams.get('hash') || '',
-        role: role
-      });
-      
-      const backendUrl = `https://functions.poehali.dev/33163ee7-3ed1-48f9-bba0-99a0cd3088af?${params.toString()}`;
-      console.log('🔗 Редирект на backend:', backendUrl);
-      window.location.href = backendUrl;
-      return;
-    }
-    
     const loadTelegramWidget = async () => {
       try {
         console.log('🔵 Загрузка Telegram виджета...');
         const botUsername = 'ImFarmer_bot';
+        const urlParams = new URLSearchParams(window.location.search);
         const role = urlParams.get('role') || 'farmer';
         
         console.log('📱 Бот:', botUsername);
         console.log('👤 Роль:', role);
 
-        const callbackUrl = `https://farmer-landing-project.poehali.dev/oauth/telegram?role=${role}`;
-        console.log('🔗 Callback URL:', callbackUrl);
+        window.onTelegramAuth = async (user: any) => {
+          console.log('✅ Telegram авторизация успешна!');
+          console.log('👤 Данные пользователя:', user);
+          
+          const params = new URLSearchParams({
+            id: user.id,
+            first_name: user.first_name || '',
+            last_name: user.last_name || '',
+            username: user.username || '',
+            photo_url: user.photo_url || '',
+            auth_date: user.auth_date,
+            hash: user.hash,
+            role: role
+          });
 
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://oauth.telegram.org/auth?bot_id=8090661548&origin=${encodeURIComponent('https://farmer-landing-project.poehali.dev')}&request_access=write&return_to=${encodeURIComponent(callbackUrl)}`;
-        iframe.width = '100%';
-        iframe.height = '186';
-        iframe.style.border = 'none';
-        iframe.scrolling = 'no';
+          const callbackUrl = `https://functions.poehali.dev/33163ee7-3ed1-48f9-bba0-99a0cd3088af?${params.toString()}`;
+          console.log('🔗 Редирект на:', callbackUrl);
+          window.location.href = callbackUrl;
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.setAttribute('data-telegram-login', botUsername);
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+        script.setAttribute('data-request-access', 'write');
+        script.async = true;
         
+        script.onerror = () => {
+          console.error('❌ Ошибка загрузки Telegram виджета');
+          setError('Не удалось загрузить виджет Telegram');
+          setLoading(false);
+        };
+        
+        script.onload = () => {
+          console.log('✅ Telegram виджет загружен');
+          setLoading(false);
+        };
+
         const container = document.getElementById('telegram-login-container');
         if (container) {
-          container.appendChild(iframe);
-          console.log('📦 Telegram iframe добавлен');
-          setLoading(false);
+          container.appendChild(script);
+          console.log('📦 Виджет добавлен в DOM');
         } else {
-          console.error('❌ Контейнер для iframe не найден');
-          setError('Ошибка загрузки');
-          setLoading(false);
+          console.error('❌ Контейнер для виджета не найден');
         }
       } catch (err: any) {
         console.error('❌ Ошибка:', err);
