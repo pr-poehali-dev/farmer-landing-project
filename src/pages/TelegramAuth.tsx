@@ -19,7 +19,7 @@ const TelegramAuth = () => {
     const loadTelegramWidget = async () => {
       try {
         console.log('🔵 Загрузка Telegram виджета...');
-        const botUsername = 'ImFarmer_bot';
+        const botUsername = 'FarmerAuth_bot';
         const urlParams = new URLSearchParams(window.location.search);
         const role = urlParams.get('role') || 'farmer';
         
