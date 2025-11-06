@@ -545,16 +545,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     )
                 
                 cur.execute(
-                    f"""DELETE FROM {schema}.proposals 
-                       WHERE id = %s AND user_id = %s""",
-                    (proposal_id, user_id)
+                    f"""SELECT id FROM {schema}.deletion_requests WHERE proposal_id = %s""",
+                    (proposal_id,)
+                )
+                deletion_request_ids = [row[0] for row in cur.fetchall()]
+                
+                for dr_id in deletion_request_ids:
+                    cur.execute(
+                        f"""DELETE FROM {schema}.deletion_confirmations 
+                           WHERE deletion_request_id = %s""",
+                        (dr_id,)
+                    )
+                
+                cur.execute(
+                    f"""DELETE FROM {schema}.deletion_requests WHERE proposal_id = %s""",
+                    (proposal_id,)
                 )
                 
                 cur.execute(
-                    f"""UPDATE {schema}.deletion_requests 
-                       SET status = 'completed', completed_at = CURRENT_TIMESTAMP
-                       WHERE proposal_id = %s""",
-                    (proposal_id,)
+                    f"""DELETE FROM {schema}.proposals 
+                       WHERE id = %s AND user_id = %s""",
+                    (proposal_id, user_id)
                 )
                 
                 conn.commit()
