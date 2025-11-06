@@ -38,10 +38,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'GET':
         params = event.get('queryStringParameters', {})
         code = params.get('code')
+        role = params.get('role', 'farmer')
         
         if not code:
             redirect_uri = f"{FRONTEND_URL}/oauth/callback?provider=yandex"
-            yandex_auth_url = f"https://oauth.yandex.ru/authorize?response_type=code&client_id={YANDEX_CLIENT_ID}&redirect_uri={redirect_uri}"
+            yandex_auth_url = f"https://oauth.yandex.ru/authorize?response_type=code&client_id={YANDEX_CLIENT_ID}&redirect_uri={redirect_uri}&state={role}"
             
             return {
                 'statusCode': 302,
@@ -120,7 +121,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 (email, name, first_name, last_name, role, oauth_provider, oauth_id, oauth_access_token, avatar_url, created_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                 RETURNING id, email, role, name
-            """, (email, display_name, first_name, last_name, 'investor', 'yandex', str(yandex_user_id), access_token, avatar_url))
+            """, (email, display_name, first_name, last_name, role, 'yandex', str(yandex_user_id), access_token, avatar_url))
             
             user = cur.fetchone()
             user_id, email, role, name = user

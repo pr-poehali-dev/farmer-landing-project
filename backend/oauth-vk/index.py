@@ -40,6 +40,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return error_response('VK не настроен')
     
     params = event.get('queryStringParameters') or {}
+    role = params.get('role', 'farmer')
     
     if 'code' in params:
         code = params['code']
@@ -69,7 +70,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         user_data = user_response.json()['response'][0]
         name = f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip() or 'Пользователь'
         
-        token = create_or_login_oauth_user(db_url, jwt_secret, 'vk', str(vk_user_id), email, name)
+        token = create_or_login_oauth_user(db_url, jwt_secret, 'vk', str(vk_user_id), email, name, role)
         
         return {
             'statusCode': 302,
@@ -89,7 +90,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'display': 'page',
             'scope': 'email',
             'response_type': 'code',
-            'v': '5.131'
+            'v': '5.131',
+            'state': role
         }
         auth_url = f"https://oauth.vk.com/authorize?{urlencode(auth_params)}"
         
@@ -103,12 +105,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
 
-def create_or_login_oauth_user(db_url: str, jwt_secret: str, provider: str, provider_id: str, email: str, name: str) -> str:
+def create_or_login_oauth_user(db_url: str, jwt_secret: str, provider: str, provider_id: str, email: str, name: str, role: str = 'farmer') -> str:
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
+    schema = 't_p53065890_farmer_landing_proje'
+    
     cur.execute(
-        "SELECT id, email, name, role FROM users WHERE oauth_provider = %s AND oauth_provider_id = %s",
+        f"SELECT id, email, name, role FROM {schema}.users WHERE oauth_provider = %s AND oauth_provider_id = %s",
         (provider, provider_id)
     )
     user = cur.fetchone()
@@ -117,8 +121,8 @@ def create_or_login_oauth_user(db_url: str, jwt_secret: str, provider: str, prov
         user_id, email, name, role = user
     else:
         cur.execute(
-            "INSERT INTO users (email, name, password_hash, role, oauth_provider, oauth_provider_id, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id, role",
-            (email, name, '', 'farmer', provider, provider_id, datetime.now())
+            f"INSERT INTO {schema}.users (email, name, role, oauth_provider, oauth_provider_id) VALUES (%s, %s, %s, %s, %s) RETURNING id, role",
+            (email, name, role, provider, provider_id)
         )
         user_id, role = cur.fetchone()
         conn.commit()

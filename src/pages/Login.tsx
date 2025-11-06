@@ -22,6 +22,8 @@ const Login = () => {
   
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,37 +131,123 @@ const Login = () => {
           </div>
         </div>
         
-        <div className="space-y-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
-            onClick={() => window.location.href = 'https://functions.poehali.dev/ebc8e0ec-088f-41d7-990f-30fc299e264f'}
-          >
-            <span className="mr-2 text-lg font-bold">VK</span>
-            ВКонтакте
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-red-500 text-red-600 hover:bg-red-50"
-            onClick={() => window.location.href = 'https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0'}
-          >
-            <span className="mr-2 text-lg font-bold">Я</span>
-            Яндекс ID
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-            onClick={() => navigate('/oauth/telegram')}
-          >
-            <Icon name="Send" size={18} className="mr-2" />
-            Telegram
-          </Button>
-        </div>
+        {!showRoleSelect ? (
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
+              onClick={() => {
+                setSelectedProvider('vk');
+                setShowRoleSelect(true);
+              }}
+            >
+              <span className="mr-2 text-lg font-bold">VK</span>
+              ВКонтакте
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-red-500 text-red-600 hover:bg-red-50"
+              onClick={() => {
+                setSelectedProvider('yandex');
+                setShowRoleSelect(true);
+              }}
+            >
+              <span className="mr-2 text-lg font-bold">Я</span>
+              Яндекс ID
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+              onClick={() => {
+                setSelectedProvider('telegram');
+                setShowRoleSelect(true);
+              }}
+            >
+              <Icon name="Send" size={18} className="mr-2" />
+              Telegram
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="text-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowRoleSelect(false)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <Icon name="ArrowLeft" size={16} className="mr-1" />
+                Назад
+              </Button>
+            </div>
+            
+            <h3 className="text-lg font-semibold text-center text-gray-900 mb-4">
+              Выберите вашу роль
+            </h3>
+            
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-green-600 text-green-700 hover:bg-green-50 h-20 flex flex-col items-center justify-center"
+              onClick={() => {
+                const role = 'farmer';
+                if (selectedProvider === 'vk') {
+                  window.location.href = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                } else if (selectedProvider === 'yandex') {
+                  window.location.href = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                } else {
+                  navigate(`/oauth/telegram?role=${role}`);
+                }
+              }}
+            >
+              <Icon name="Sprout" size={24} className="mb-1" />
+              <span className="font-semibold">Фермер</span>
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-blue-600 text-blue-700 hover:bg-blue-50 h-20 flex flex-col items-center justify-center"
+              onClick={() => {
+                const role = 'investor';
+                if (selectedProvider === 'vk') {
+                  window.location.href = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                } else if (selectedProvider === 'yandex') {
+                  window.location.href = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                } else {
+                  navigate(`/oauth/telegram?role=${role}`);
+                }
+              }}
+            >
+              <Icon name="TrendingUp" size={24} className="mb-1" />
+              <span className="font-semibold">Инвестор</span>
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-orange-600 text-orange-700 hover:bg-orange-50 h-20 flex flex-col items-center justify-center"
+              onClick={() => {
+                const role = 'seller';
+                if (selectedProvider === 'vk') {
+                  window.location.href = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                } else if (selectedProvider === 'yandex') {
+                  window.location.href = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                } else {
+                  navigate(`/oauth/telegram?role=${role}`);
+                }
+              }}
+            >
+              <Icon name="ShoppingCart" size={24} className="mb-1" />
+              <span className="font-semibold">Продавец</span>
+            </Button>
+          </div>
+        )}
         
         <div className="mt-4 text-center">
           <Button

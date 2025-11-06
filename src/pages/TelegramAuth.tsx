@@ -19,6 +19,8 @@ const TelegramAuth = () => {
     const loadTelegramWidget = async () => {
       try {
         const botUsername = 'farmer_platform_bot';
+        const urlParams = new URLSearchParams(window.location.search);
+        const role = urlParams.get('role') || 'farmer';
 
         window.onTelegramAuth = async (user: any) => {
           const params = new URLSearchParams({
@@ -28,10 +30,11 @@ const TelegramAuth = () => {
             username: user.username || '',
             photo_url: user.photo_url || '',
             auth_date: user.auth_date,
-            hash: user.hash
+            hash: user.hash,
+            role: role
           });
 
-          window.location.href = `https://functions.poehali.dev/ded46eea-60bf-416b-abd9-63b9dbf7126a?${params.toString()}`;
+          window.location.href = `https://functions.poehali.dev/33163ee7-3ed1-48f9-bba0-99a0cd3088af?${params.toString()}`;
         };
 
         const script = document.createElement('script');

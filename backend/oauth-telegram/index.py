@@ -29,6 +29,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     params = event.get('queryStringParameters') or {}
+    role = params.get('role', 'farmer')
     
     db_url = os.environ.get('DATABASE_URL')
     jwt_secret = os.environ.get('JWT_SECRET')
@@ -57,7 +58,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     token = create_or_login_oauth_user(
         db_url, jwt_secret, 'telegram', telegram_id, 
-        email, name, first_name, last_name, photo_url
+        email, name, first_name, last_name, photo_url, role
     )
     
     return {
@@ -90,7 +91,7 @@ def verify_telegram_auth(params: Dict[str, str], bot_token: str) -> bool:
 
 def create_or_login_oauth_user(
     db_url: str, jwt_secret: str, provider: str, provider_id: str, 
-    email: str, name: str, first_name: str = '', last_name: str = '', photo_url: str = ''
+    email: str, name: str, first_name: str = '', last_name: str = '', photo_url: str = '', role: str = 'farmer'
 ) -> str:
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
@@ -122,7 +123,6 @@ def create_or_login_oauth_user(
             )
             conn.commit()
         else:
-            role = 'farmer'
             cur.execute(
                 f"INSERT INTO {schema}.users (email, role, name, first_name, last_name, photo_url, oauth_provider, oauth_provider_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
                 (email, role, name, first_name, last_name, photo_url, provider, provider_id)
