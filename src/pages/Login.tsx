@@ -138,6 +138,7 @@ const Login = () => {
               variant="outline"
               className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
               onClick={() => {
+                console.log('🔵 Выбран провайдер: ВКонтакте');
                 setSelectedProvider('vk');
                 setShowRoleSelect(true);
               }}
@@ -151,6 +152,7 @@ const Login = () => {
               variant="outline"
               className="w-full border-red-500 text-red-600 hover:bg-red-50"
               onClick={() => {
+                console.log('🔴 Выбран провайдер: Яндекс');
                 setSelectedProvider('yandex');
                 setShowRoleSelect(true);
               }}
@@ -194,11 +196,17 @@ const Login = () => {
               className="w-full border-green-600 text-green-700 hover:bg-green-50 h-20 flex flex-col items-center justify-center"
               onClick={() => {
                 const role = 'farmer';
+                console.log(`🌱 Выбрана роль: Фермер (${selectedProvider})`);
                 if (selectedProvider === 'vk') {
-                  window.location.href = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                  const url = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                  console.log('🔗 Редирект на VK:', url);
+                  window.location.href = url;
                 } else if (selectedProvider === 'yandex') {
-                  window.location.href = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                  const url = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                  console.log('🔗 Редирект на Яндекс:', url);
+                  window.location.href = url;
                 } else {
+                  console.log('🔗 Редирект на Telegram');
                   navigate(`/oauth/telegram?role=${role}`);
                 }
               }}
@@ -213,11 +221,17 @@ const Login = () => {
               className="w-full border-blue-600 text-blue-700 hover:bg-blue-50 h-20 flex flex-col items-center justify-center"
               onClick={() => {
                 const role = 'investor';
+                console.log(`📈 Выбрана роль: Инвестор (${selectedProvider})`);
                 if (selectedProvider === 'vk') {
-                  window.location.href = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                  const url = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                  console.log('🔗 Редирект на VK:', url);
+                  window.location.href = url;
                 } else if (selectedProvider === 'yandex') {
-                  window.location.href = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                  const url = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                  console.log('🔗 Редирект на Яндекс:', url);
+                  window.location.href = url;
                 } else {
+                  console.log('🔗 Редирект на Telegram');
                   navigate(`/oauth/telegram?role=${role}`);
                 }
               }}
@@ -232,11 +246,17 @@ const Login = () => {
               className="w-full border-orange-600 text-orange-700 hover:bg-orange-50 h-20 flex flex-col items-center justify-center"
               onClick={() => {
                 const role = 'seller';
+                console.log(`🛒 Выбрана роль: Продавец (${selectedProvider})`);
                 if (selectedProvider === 'vk') {
-                  window.location.href = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                  const url = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
+                  console.log('🔗 Редирект на VK:', url);
+                  window.location.href = url;
                 } else if (selectedProvider === 'yandex') {
-                  window.location.href = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                  const url = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
+                  console.log('🔗 Редирект на Яндекс:', url);
+                  window.location.href = url;
                 } else {
+                  console.log('🔗 Редирект на Telegram');
                   navigate(`/oauth/telegram?role=${role}`);
                 }
               }}
