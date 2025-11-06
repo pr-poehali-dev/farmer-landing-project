@@ -319,6 +319,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'success': True})
                 }
             
+            elif action == 'moderate_proposal_request':
+                request_id = body_data.get('request_id')
+                action_type = body_data.get('action_type')
+                
+                if not request_id or action_type not in ['approve', 'reject']:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Неверные параметры'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT i.id, i.user_id, i.proposal_id, i.status, p.user_id
+                       FROM {schema}.investments i
+                       JOIN {schema}.proposals p ON p.id = i.proposal_id
+                       WHERE i.id = %s""",
+                    (request_id,)
+                )
+                row = cur.fetchone()
+                
+                if not row or row[4] != int(user_id):
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заявка не найдена'})
+                    }
+                
+                if row[3] not in ['pending', None]:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заявка уже обработана'})
+                    }
+                
+                new_status = 'approved' if action_type == 'approve' else 'rejected'
+                
+                cur.execute(
+                    f"""UPDATE {schema}.investments SET status = %s WHERE id = %s""",
+                    (new_status, request_id)
+                )
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
+                }
+            
             elif action == 'create_proposal':
                 proposal_type = body_data.get('type', 'income')
                 asset = body_data.get('asset', {})

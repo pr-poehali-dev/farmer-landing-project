@@ -31,13 +31,27 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
 
   const fetchRequests = async () => {
     try {
-      // Временно загружаем из localStorage - все заявки для этого фермера
-      const allRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
+      const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
       
-      // В реальности нужно фильтровать по фермеру, но для теста берём все
-      setRequests(allRequests);
+      const response = await fetch(
+        `${FARMER_API}?action=get_proposal_requests`,
+        { 
+          headers: { 
+            'X-User-Id': userId,
+            'Content-Type': 'application/json'
+          } 
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки заявок');
+      }
+      
+      const data = await response.json();
+      setRequests(data.requests || []);
     } catch (error) {
       console.error('Ошибка загрузки заявок:', error);
+      toast.error('Не удалось загрузить заявки');
       setRequests([]);
     } finally {
       setLoading(false);
@@ -46,18 +60,27 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
 
   const handleRequestAction = async (requestId: string, action: 'approve' | 'reject') => {
     try {
-      // Обновляем статус в localStorage
-      const allRequests = JSON.parse(localStorage.getItem('investor_requests') || '[]');
-      const updatedRequests = allRequests.map((req: any) => 
-        req.id === requestId 
-          ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' }
-          : req
-      );
-      localStorage.setItem('investor_requests', JSON.stringify(updatedRequests));
+      const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
+      
+      const response = await fetch(FARMER_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({
+          action: 'moderate_proposal_request',
+          request_id: requestId,
+          action_type: action
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка обработки заявки');
+      }
 
       toast.success(action === 'approve' ? 'Заявка одобрена! Ожидаем оплату от инвестора' : 'Заявка отклонена');
       
-      // Обновляем локальное состояние
       setRequests(prev => 
         prev.map(req => 
           req.id === requestId 
