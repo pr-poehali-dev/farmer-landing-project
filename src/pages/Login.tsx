@@ -164,12 +164,15 @@ const Login = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50 opacity-50 cursor-not-allowed"
-              disabled
-              title="Требуется настройка бота"
+              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+              onClick={() => {
+                console.log('📱 Выбран провайдер: Telegram');
+                setSelectedProvider('telegram');
+                setShowRoleSelect(true);
+              }}
             >
               <Icon name="Send" size={18} className="mr-2" />
-              Telegram (настройка)
+              Telegram
             </Button>
           </div>
         ) : (
