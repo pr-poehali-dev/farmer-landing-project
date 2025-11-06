@@ -136,15 +136,13 @@ const Login = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
+              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
               onClick={() => {
-                console.log('🔵 Выбран провайдер: ВКонтакте');
-                setSelectedProvider('vk');
-                setShowRoleSelect(true);
+                window.open('https://t.me/FarmerAuth_bot', '_blank');
               }}
             >
-              <span className="mr-2 text-lg font-bold">VK</span>
-              ВКонтакте
+              <Icon name="Send" size={18} className="mr-2" />
+              Telegram
             </Button>
           </div>
         ) : (
