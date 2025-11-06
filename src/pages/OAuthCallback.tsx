@@ -10,22 +10,23 @@ export default function OAuthCallback() {
 
   useEffect(() => {
     const token = searchParams.get('token');
+    const role = searchParams.get('role');
+    const provider = searchParams.get('provider');
     
     if (token) {
-      // Сохраняем токен
       localStorage.setItem('token', token);
       
-      // Обновляем состояние auth
       if (setAuthToken) {
         setAuthToken(token);
       }
       
-      // Перенаправляем на дашборд
       setTimeout(() => {
-        navigate('/dashboard/farmer');
+        if (role === 'farmer') navigate('/dashboard/farmer');
+        else if (role === 'investor') navigate('/dashboard/investor');
+        else if (role === 'seller') navigate('/dashboard/seller');
+        else navigate('/dashboard/investor');
       }, 1000);
     } else {
-      // Ошибка авторизации
       setTimeout(() => {
         navigate('/login');
       }, 2000);

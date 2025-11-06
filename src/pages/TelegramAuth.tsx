@@ -18,18 +18,10 @@ const TelegramAuth = () => {
   useEffect(() => {
     const loadTelegramWidget = async () => {
       try {
-        const response = await fetch('https://functions.poehali.dev/f26c71ea-c1d2-434a-8aa1-f64bbb2bc129');
-        const config = await response.json();
-
-        if (!config.telegram?.enabled || !config.telegram?.bot_username) {
-          setError('Telegram вход не настроен. Обратитесь к администратору.');
-          setLoading(false);
-          return;
-        }
+        const botUsername = 'farmer_platform_bot';
 
         window.onTelegramAuth = async (user: any) => {
           const params = new URLSearchParams({
-            provider: 'telegram',
             id: user.id,
             first_name: user.first_name || '',
             last_name: user.last_name || '',
@@ -39,12 +31,12 @@ const TelegramAuth = () => {
             hash: user.hash
           });
 
-          window.location.href = `https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?${params.toString()}`;
+          window.location.href = `https://functions.poehali.dev/ded46eea-60bf-416b-abd9-63b9dbf7126a?${params.toString()}`;
         };
 
         const script = document.createElement('script');
         script.src = 'https://telegram.org/js/telegram-widget.js?22';
-        script.setAttribute('data-telegram-login', config.telegram.bot_username);
+        script.setAttribute('data-telegram-login', botUsername);
         script.setAttribute('data-size', 'large');
         script.setAttribute('data-onauth', 'onTelegramAuth(user)');
         script.setAttribute('data-request-access', 'write');

@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Should redirect to VK auth page when no code provided",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 302,
+      "expectedHeaders": {
+        "Location": "string"
+      }
+    },
+    {
+      "name": "Should handle OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

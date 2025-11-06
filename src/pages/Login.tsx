@@ -133,18 +133,18 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-            onClick={() => navigate('/oauth/telegram')}
+            className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
+            onClick={() => window.location.href = 'https://functions.poehali.dev/ebc8e0ec-088f-41d7-990f-30fc299e264f'}
           >
-            <Icon name="Send" size={18} className="mr-2" />
-            Telegram
+            <span className="mr-2 text-lg font-bold">VK</span>
+            ВКонтакте
           </Button>
           
           <Button
             type="button"
             variant="outline"
             className="w-full border-red-500 text-red-600 hover:bg-red-50"
-            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=yandex'}
+            onClick={() => window.location.href = 'https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0'}
           >
             <span className="mr-2 text-lg font-bold">Я</span>
             Яндекс ID
@@ -153,11 +153,11 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
-            onClick={() => window.location.href = 'https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b'}
+            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+            onClick={() => navigate('/oauth/telegram')}
           >
-            <span className="mr-2 text-lg font-bold">VK</span>
-            ВКонтакте
+            <Icon name="Send" size={18} className="mr-2" />
+            Telegram
           </Button>
         </div>
         
