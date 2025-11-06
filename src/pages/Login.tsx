@@ -146,34 +146,6 @@ const Login = () => {
               <span className="mr-2 text-lg font-bold">VK</span>
               ВКонтакте
             </Button>
-            
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-red-500 text-red-600 hover:bg-red-50"
-              onClick={() => {
-                console.log('🔴 Выбран провайдер: Яндекс');
-                setSelectedProvider('yandex');
-                setShowRoleSelect(true);
-              }}
-            >
-              <span className="mr-2 text-lg font-bold">Я</span>
-              Яндекс ID
-            </Button>
-            
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-              onClick={() => {
-                console.log('📱 Выбран провайдер: Telegram');
-                setSelectedProvider('telegram');
-                setShowRoleSelect(true);
-              }}
-            >
-              <Icon name="Send" size={18} className="mr-2" />
-              Telegram
-            </Button>
           </div>
         ) : (
           <div className="space-y-4">
