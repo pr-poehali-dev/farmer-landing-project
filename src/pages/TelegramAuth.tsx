@@ -52,7 +52,7 @@ const TelegramAuth = () => {
         console.log('🔗 Callback URL:', callbackUrl);
 
         const iframe = document.createElement('iframe');
-        iframe.src = `https://oauth.telegram.org/auth?bot_id=YOUR_BOT_ID&origin=${encodeURIComponent('https://farmer-landing-project.poehali.dev')}&request_access=write&return_to=${encodeURIComponent(callbackUrl)}`;
+        iframe.src = `https://oauth.telegram.org/auth?bot_id=8090661548&origin=${encodeURIComponent('https://farmer-landing-project.poehali.dev')}&request_access=write&return_to=${encodeURIComponent(callbackUrl)}`;
         iframe.width = '100%';
         iframe.height = '186';
         iframe.style.border = 'none';
