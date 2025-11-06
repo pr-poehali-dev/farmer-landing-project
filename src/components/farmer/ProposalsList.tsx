@@ -36,7 +36,12 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
     return allVarieties.find(v => v.value === value)?.label || value;
   };
 
-  const handleDelete = async (proposalId: number) => {
+  const handleDelete = async (proposalId: number, hasInvestments: boolean) => {
+    if (hasInvestments) {
+      toast.error('Нельзя удалить предложение с активными заявками инвесторов');
+      return;
+    }
+
     if (!confirm('Удалить это предложение?')) return;
 
     try {
@@ -56,7 +61,8 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
         toast.success('Предложение удалено');
         onDelete();
       } else {
-        toast.error('Ошибка удаления');
+        const error = await response.json();
+        toast.error(error.error || 'Ошибка удаления');
       }
     } catch (error) {
       toast.error('Ошибка соединения');
@@ -107,6 +113,12 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
                 <span className="text-sm px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                   {proposal.status === 'active' ? 'Активно' : 'Черновик'}
                 </span>
+                {proposal.has_investments && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
+                    <Icon name="Users" size={14} />
+                    Есть заявки
+                  </span>
+                )}
               </div>
               <h4 className="font-bold mb-1">{proposal.asset?.name || 'Актив'}</h4>
               
@@ -185,10 +197,14 @@ const ProposalsList = ({ proposals, loading, userId, onDelete }: Props) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleDelete(proposal.id)}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={() => handleDelete(proposal.id, proposal.has_investments || false)}
+              className={proposal.has_investments 
+                ? "text-gray-400 cursor-not-allowed" 
+                : "text-red-600 hover:text-red-700 hover:bg-red-50"}
+              disabled={proposal.has_investments}
+              title={proposal.has_investments ? "Нельзя удалить: есть активные заявки инвесторов" : "Удалить предложение"}
             >
-              <Icon name="Trash2" size={18} />
+              <Icon name={proposal.has_investments ? "Lock" : "Trash2"} size={18} />
             </Button>
           </div>
         </Card>

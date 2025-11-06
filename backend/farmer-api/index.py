@@ -434,6 +434,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cur.execute(
+                    f"""SELECT COUNT(*) FROM {schema}.investments 
+                       WHERE proposal_id = %s""",
+                    (proposal_id,)
+                )
+                investments_count = cur.fetchone()[0]
+                
+                if investments_count > 0:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Нельзя удалить предложение с активными заявками'})
+                    }
+                
+                cur.execute(
                     f"""DELETE FROM {schema}.proposals 
                        WHERE id = %s AND user_id = %s""",
                     (proposal_id, user_id)
@@ -623,9 +637,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'get_proposals':
                 cur.execute(
-                    f"""SELECT id, description, price, shares, type, asset, 
-                              expected_product, update_frequency, status, created_at, income_details
-                       FROM {schema}.proposals WHERE user_id = %s ORDER BY created_at DESC""",
+                    f"""SELECT p.id, p.description, p.price, p.shares, p.type, p.asset, 
+                              p.expected_product, p.update_frequency, p.status, p.created_at, p.income_details,
+                              COUNT(i.id) as investments_count
+                       FROM {schema}.proposals p
+                       LEFT JOIN {schema}.investments i ON i.proposal_id = p.id
+                       WHERE p.user_id = %s 
+                       GROUP BY p.id, p.description, p.price, p.shares, p.type, p.asset, 
+                                p.expected_product, p.update_frequency, p.status, p.created_at, p.income_details
+                       ORDER BY p.created_at DESC""",
                     (user_id,)
                 )
                 proposals = []
@@ -641,7 +661,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'update_frequency': row[7],
                         'status': row[8],
                         'created_at': row[9].isoformat() if row[9] else None,
-                        'income_details': row[10] if row[10] else None
+                        'income_details': row[10] if row[10] else None,
+                        'has_investments': row[11] > 0
                     })
                 
                 return {

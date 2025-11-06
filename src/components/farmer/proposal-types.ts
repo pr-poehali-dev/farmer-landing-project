@@ -38,6 +38,7 @@ export interface Proposal {
   income_details?: IncomeDetails;
   status: string;
   created_at: string;
+  has_investments?: boolean;
 }
 
 export const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
