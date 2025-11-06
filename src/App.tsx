@@ -24,7 +24,6 @@ import Leaderboard from "./pages/Leaderboard";
 import B2BPanel from "./pages/B2BPanel";
 import OAuthCallback from "./pages/OAuthCallback";
 import TelegramAuth from "./pages/TelegramAuth";
-import LiveLogs from "./components/LiveLogs";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +32,6 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <LiveLogs />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
