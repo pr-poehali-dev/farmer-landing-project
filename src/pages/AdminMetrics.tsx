@@ -177,7 +177,7 @@ const AdminMetrics = () => {
                 <div className="flex items-center justify-between mb-2">
                   <Icon name="DollarSign" size={28} className="text-farmer-green" />
                   <span className="text-2xl font-bold text-gray-900">
-                    {metrics.financial.total_revenue.toLocaleString('ru-RU')} ₽
+                    {(metrics.financial.total_revenue || 0).toLocaleString('ru-RU')} ₽
                   </span>
                 </div>
                 <p className="text-gray-600 font-medium">Total Revenue</p>
@@ -188,7 +188,7 @@ const AdminMetrics = () => {
                 <div className="flex items-center justify-between mb-2">
                   <Icon name="TrendingUp" size={28} className="text-farmer-orange" />
                   <span className="text-2xl font-bold text-gray-900">
-                    {metrics.financial.avg_investment.toLocaleString('ru-RU')} ₽
+                    {(metrics.financial.avg_investment || 0).toLocaleString('ru-RU')} ₽
                   </span>
                 </div>
                 <p className="text-gray-600 font-medium">Avg Investment</p>
