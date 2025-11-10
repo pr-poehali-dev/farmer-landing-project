@@ -161,8 +161,9 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     # === 1. ПРОДУКТИВНОСТЬ ===
     productivity_score = 0
     
-    animals = farmer_data.get('animals') or []
-    crops = farmer_data.get('crops') or []
+    # Безопасное получение данных (может быть None если нет farm_diagnostics)
+    animals = farmer_data.get('animals') if farmer_data.get('animals') is not None else []
+    crops = farmer_data.get('crops') if farmer_data.get('crops') is not None else []
     
     # Безопасная проверка типов данных
     if not isinstance(animals, list):
@@ -229,7 +230,7 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     # === 2. ТЕХНОЛОГИЧНОСТЬ ===
     tech_score = 0
     
-    equipment_list = farmer_data.get('equipment') or []
+    equipment_list = farmer_data.get('equipment') if farmer_data.get('equipment') is not None else []
     
     # Безопасная проверка типа данных
     if not isinstance(equipment_list, list):
