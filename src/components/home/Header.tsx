@@ -40,9 +40,6 @@ const Header = () => {
             <Button onClick={() => navigate('/about')} variant="ghost" className="text-xs text-gray-700 px-2">
               О нас
             </Button>
-            <Button onClick={() => navigate('/login')} variant="ghost" className="text-xs text-farmer-green px-2">
-              Войти
-            </Button>
           </div>
         </div>
       </div>
