@@ -20,14 +20,8 @@ export const useAuth = () => {
   );
 
   useEffect(() => {
-    if (token && user) {
-      setLoading(false);
-    } else if (token) {
-      verifyToken(token);
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+    setLoading(false);
+  }, [token, user]);
 
   const verifyToken = async (authToken: string) => {
     try {
@@ -41,16 +35,14 @@ export const useAuth = () => {
         const data = await response.json();
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
-      } else {
+      } else if (response.status === 401 || response.status === 403) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
         setToken(null);
+        setUser(null);
       }
     } catch (error) {
-      console.error('Token verification failed:', error);
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
-      setToken(null);
+      console.warn('Не удалось проверить токен (сеть), работаем с кэшем:', error);
     } finally {
       setLoading(false);
     }
