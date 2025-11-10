@@ -50,6 +50,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
             action = body_data.get('action')
+            print(f"📨 POST action: {action}, user_id: {user_id}")
             
             if action == 'save_diagnosis':
                 assets = body_data.get('assets', [])
@@ -514,6 +515,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'delete_proposal':
                 proposal_id = body_data.get('proposal_id')
+                print(f"🗑️ delete_proposal: proposal_id={proposal_id}, user_id={user_id}")
                 
                 if not proposal_id:
                     return {
@@ -523,6 +525,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 try:
+                    print(f"✅ Начинаем удаление предложения {proposal_id}")
                     cur.execute(
                         f"""SELECT p.id FROM {schema}.proposals p
                            WHERE p.id = %s AND p.user_id = %s""",
