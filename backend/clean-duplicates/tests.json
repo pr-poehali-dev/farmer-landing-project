@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Clean duplicates for farmer",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "farmer_id": 11,
+        "keep_count": 3
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "farmer_id": 11
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
