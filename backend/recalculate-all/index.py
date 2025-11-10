@@ -164,9 +164,25 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     animals = farmer_data.get('animals') or []
     crops = farmer_data.get('crops') or []
     
+    # Безопасная проверка типов данных
+    if not isinstance(animals, list):
+        animals = []
+    if not isinstance(crops, list):
+        crops = []
+    
     for animal in animals:
+        if not isinstance(animal, dict):
+            continue
+            
         animal_type = animal.get('type', '')
         count = animal.get('count', 0)
+        
+        # Безопасное преобразование count в int
+        try:
+            count = int(count) if count else 0
+        except (ValueError, TypeError):
+            count = 0
+        
         direction = animal.get('direction', '')
         
         if animal_type == 'cows':
@@ -189,8 +205,23 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
             productivity_score += count * 20
     
     for crop in crops:
+        if not isinstance(crop, dict):
+            continue
+            
         area = crop.get('area', 0)
         crop_yield = crop.get('yield', 0)
+        
+        # Безопасное преобразование в числа
+        try:
+            area = float(area) if area else 0
+        except (ValueError, TypeError):
+            area = 0
+        
+        try:
+            crop_yield = float(crop_yield) if crop_yield else 0
+        except (ValueError, TypeError):
+            crop_yield = 0
+        
         productivity_score += int(area * 10)
         if crop_yield > 0:
             productivity_score += int(area * (crop_yield / 100))
@@ -199,11 +230,23 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     tech_score = 0
     
     equipment_list = farmer_data.get('equipment') or []
+    
+    # Безопасная проверка типа данных
+    if not isinstance(equipment_list, list):
+        equipment_list = []
+    
     current_year = datetime.now().year
     
     for equip in equipment_list:
         year = equip.get('year', current_year)
-        age = current_year - year
+        
+        # Безопасное преобразование года в int
+        try:
+            year_int = int(year) if year else current_year
+        except (ValueError, TypeError):
+            year_int = current_year
+        
+        age = current_year - year_int
         
         base_points = 100
         
