@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Recalculate</title>
+</head>
+<body>
+    <h1>Запуск массового пересчёта рейтинга...</h1>
+    <pre id="result"></pre>
+    
+    <script>
+        const RATING_API = 'https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8';
+        
+        fetch(RATING_API, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: 'recalculate_all' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            console.log('✅ Результат:', data);
+        })
+        .catch(err => {
+            document.getElementById('result').textContent = 'ERROR: ' + err.message;
+            console.error('❌ Ошибка:', err);
+        });
+    </script>
+</body>
+</html>
