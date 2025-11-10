@@ -91,10 +91,10 @@ def get_total_leaderboard(conn, region: str) -> List[dict]:
         query = f'''
             SELECT 
                 u.id::text as user_id,
-                COALESCE(fd.farm_name, u.farm_name, u.name, 'Ферма №' || u.id) as farm_name,
-                COALESCE(fd.region, 'Не указан') as region,
-                COALESCE(fs.total_score, 0) as score,
-                ROW_NUMBER() OVER (ORDER BY COALESCE(fs.total_score, 0) DESC) as rank
+                COALESCE(u.farm_name, CONCAT(u.first_name, ' ', u.last_name), u.name, 'Ферма №' || u.id) as farm_name,
+                COALESCE(TRIM(fd.region), 'Не указан') as region,
+                COALESCE(fd.gamification_points, fs.total_score, 0) as score,
+                ROW_NUMBER() OVER (ORDER BY COALESCE(fd.gamification_points, fs.total_score, 0) DESC) as rank
             FROM {schema}.users u
             LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
             LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS TEXT) = fs.user_id
