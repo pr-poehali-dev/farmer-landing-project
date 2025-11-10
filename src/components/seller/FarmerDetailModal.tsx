@@ -17,8 +17,8 @@ export default function FarmerDetailModal({ farmer, isOpen, onClose, tier }: Pro
   const animals = farmer.assets?.filter((a: any) => a.type === 'animal') || [];
   const beehives = farmer.assets?.filter((a: any) => a.type === 'beehive') || [];
 
-  const hasBasicAccess = tier === 'basic' || tier === 'premium';
-  const hasPremiumAccess = tier === 'premium';
+  const hasBasicAccess = true;
+  const hasPremiumAccess = true;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
