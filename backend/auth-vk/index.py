@@ -22,6 +22,10 @@ JWT_SECRET = os.environ.get('JWT_SECRET')
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
+    print(f"[VK Auth] Method: {method}")
+    print(f"[VK Auth] FRONTEND_URL: {FRONTEND_URL}")
+    print(f"[VK Auth] VK_CLIENT_ID: {VK_CLIENT_ID}")
+    
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -42,6 +46,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if not code:
             redirect_uri = f"{FRONTEND_URL}/oauth/callback?provider=vk"
             vk_auth_url = f"https://oauth.vk.com/authorize?client_id={VK_CLIENT_ID}&redirect_uri={redirect_uri}&display=page&scope=email&response_type=code&v=5.131"
+            
+            print(f"[VK Auth] Redirect URI: {redirect_uri}")
+            print(f"[VK Auth] VK Auth URL: {vk_auth_url}")
             
             return {
                 'statusCode': 302,
