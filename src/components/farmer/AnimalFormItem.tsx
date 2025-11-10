@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ANIMAL_TYPES, Animal } from '@/types/farm.types';
+import { Animal } from '@/types/farm.types';
+import { LIVESTOCK_TYPES, LIVESTOCK_DIRECTIONS, LIVESTOCK_BREEDS } from '@/data/livestock';
 
 interface Props {
   animal: Animal;
@@ -42,7 +43,7 @@ export default function AnimalFormItem({ animal, index, onUpdate, onRemove }: Pr
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ANIMAL_TYPES.filter(t => t.value !== 'hives').map(type => (
+                {LIVESTOCK_TYPES.map(type => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
                   </SelectItem>
@@ -60,31 +61,41 @@ export default function AnimalFormItem({ animal, index, onUpdate, onRemove }: Pr
           </div>
           <div>
             <Label className="text-xs">Порода (опционально)</Label>
-            <Input
-              type="text"
-              placeholder="Например: Симментальская"
-              value={animal.breed || ''}
-              onChange={(e) => onUpdate(index, 'breed', e.target.value)}
-            />
+            <Select 
+              value={animal.breed || ''} 
+              onValueChange={(val) => onUpdate(index, 'breed', val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите породу" />
+              </SelectTrigger>
+              <SelectContent>
+                {animal.type && LIVESTOCK_BREEDS[animal.type]?.map(breed => (
+                  <SelectItem key={breed.value} value={breed.value}>
+                    {breed.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         
         <div className="grid grid-cols-3 gap-3">
           <div>
             <Label className="text-xs">Направление</Label>
-            <Select value={animal.direction || 'other'} onValueChange={(val) => onUpdate(index, 'direction', val)}>
+            <Select value={animal.direction || ''} onValueChange={(val) => onUpdate(index, 'direction', val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Выберите" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="meat">Мясное</SelectItem>
-                <SelectItem value="milk">Молочное</SelectItem>
-                <SelectItem value="mixed">Смешанное</SelectItem>
-                <SelectItem value="other">Другое</SelectItem>
+                {LIVESTOCK_DIRECTIONS.map(dir => (
+                  <SelectItem key={dir.value} value={dir.value}>
+                    {dir.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
-          {(animal.direction === 'milk' || animal.direction === 'mixed') && (
+          {(animal.direction === 'dairy' || animal.direction === 'meat_dairy') && (
             <div>
               <Label className="text-xs">Надой (л/гол/год)</Label>
               <Input
@@ -95,7 +106,7 @@ export default function AnimalFormItem({ animal, index, onUpdate, onRemove }: Pr
               />
             </div>
           )}
-          {(animal.direction === 'meat' || animal.direction === 'mixed') && (
+          {(animal.direction === 'meat' || animal.direction === 'meat_dairy' || animal.direction === 'meat_wool') && (
             <div>
               <Label className="text-xs">Выход мяса (кг/гол/год)</Label>
               <Input
