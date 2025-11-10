@@ -20,7 +20,9 @@ export const useAuth = () => {
   );
 
   useEffect(() => {
-    if (token) {
+    if (token && user) {
+      setLoading(false);
+    } else if (token) {
       verifyToken(token);
     } else {
       setLoading(false);
