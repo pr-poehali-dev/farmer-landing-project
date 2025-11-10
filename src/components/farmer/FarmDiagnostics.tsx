@@ -18,6 +18,7 @@ import HivesInput from './HivesInput';
 import CropFormItem from './CropFormItem';
 import EquipmentFormItem from './EquipmentFormItem';
 import ProFeatureCard from './ProFeatureCard';
+import SubsidiesTab from './SubsidiesTab';
 
 export default function FarmDiagnostics() {
   const { user, loading: authLoading } = useAuth();
@@ -356,6 +357,18 @@ export default function FarmDiagnostics() {
                 onRemove={removeEquipment}
               />
             ))}
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="subsidies" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center gap-3">
+              <Icon name="BadgeDollarSign" size={20} className="text-green-600" />
+              <span className="font-semibold">Субсидии и гранты</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pt-4">
+            <SubsidiesTab />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
