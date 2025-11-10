@@ -103,6 +103,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     })
                     
                 except Exception as e:
+                    import traceback
+                    error_msg = f"{str(e)}\n{traceback.format_exc()}"
+                    print(f"ERROR farmer {farmer_id}: {error_msg}")
                     error_count += 1
                     results.append({
                         'farmer_id': farmer_id,
@@ -242,6 +245,9 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     current_year = datetime.now().year
     
     for equip in equipment_list:
+        if not isinstance(equip, dict):
+            continue
+        
         year = equip.get('year', current_year)
         
         # Безопасное преобразование года в int
