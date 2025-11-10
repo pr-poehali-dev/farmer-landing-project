@@ -107,9 +107,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 try:
                     import requests
                     rating_url = 'https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8'
-                    requests.post(rating_url, json={'action': 'calculate', 'profileId': user_id}, timeout=3)
-                except:
-                    pass
+                    requests.post(
+                        rating_url, 
+                        json={'action': 'calculate_scores'},
+                        headers={'X-User-Id': str(user_id)},
+                        timeout=3
+                    )
+                except Exception as e:
+                    print(f"⚠️ Не удалось обновить рейтинг: {e}")
                 
                 return {
                     'statusCode': 200,
