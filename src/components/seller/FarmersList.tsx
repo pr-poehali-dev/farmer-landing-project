@@ -8,6 +8,14 @@ import Icon from '@/components/ui/icon';
 import { LIVESTOCK_TYPES } from '@/data/livestock';
 import { CROP_TYPES } from '@/data/crops';
 
+const getLivestockLabel = (value: string): string => {
+  return LIVESTOCK_TYPES.find(t => t.value === value)?.label || value;
+};
+
+const getCropLabel = (value: string): string => {
+  return CROP_TYPES.find(t => t.value === value)?.label || value;
+};
+
 interface Props {
   tier: string;
   farmers: any[];
@@ -283,7 +291,7 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                           <div className="flex flex-wrap gap-1">
                             {crops.map((crop: string, idx: number) => (
                               <span key={idx} className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                                {crop}
+                                {getCropLabel(crop)}
                               </span>
                             ))}
                           </div>
@@ -299,7 +307,7 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                           <div className="flex flex-wrap gap-1">
                             {animals.map((animal: string, idx: number) => (
                               <span key={idx} className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                                {animal}
+                                {getLivestockLabel(animal)}
                               </span>
                             ))}
                           </div>
