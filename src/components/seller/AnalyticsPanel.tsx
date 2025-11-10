@@ -10,19 +10,6 @@ interface Props {
 }
 
 export default function AnalyticsPanel({ tier, analytics, onRefresh }: Props) {
-  if (tier === 'none') {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-12">
-          <Icon name="Lock" className="mx-auto mb-4 text-gray-400" size={48} />
-          <h3 className="text-xl font-bold mb-2">Аналитика</h3>
-          <p className="text-gray-600 mb-4">Отслеживайте эффективность ваших товаров и рекламы</p>
-          <p className="text-sm text-red-600">Доступно с подпиской Basic или Premium</p>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <Card className="p-6">
