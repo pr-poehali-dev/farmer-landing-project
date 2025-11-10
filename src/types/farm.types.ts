@@ -1,24 +1,12 @@
 export const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
 
 export const ANIMAL_TYPES = [
-  { value: 'cows', label: 'Коровы' },
-  { value: 'bulls', label: 'Быки' },
-  { value: 'sheep', label: 'Овцы' },
-  { value: 'goats', label: 'Козы' },
-  { value: 'pigs', label: 'Свиньи' },
   { value: 'horses', label: 'Лошади' },
-  { value: 'chickens', label: 'Куры' },
-  { value: 'ducks', label: 'Утки' },
-  { value: 'geese', label: 'Гуси' },
-  { value: 'turkeys', label: 'Индейки' },
-  { value: 'rabbits', label: 'Кролики' },
-  { value: 'llamas', label: 'Ламы' },
-  { value: 'alpacas', label: 'Альпаки' },
-  { value: 'donkeys', label: 'Ослы' },
-  { value: 'camels', label: 'Верблюды' },
-  { value: 'yaks', label: 'Яки' },
+  { value: 'cows', label: 'Коровы' },
   { value: 'deer', label: 'Олени' },
-  { value: 'ostriches', label: 'Страусы' },
+  { value: 'sheep', label: 'Овцы' },
+  { value: 'pigs', label: 'Свиньи' },
+  { value: 'chickens', label: 'Куры' },
   { value: 'hives', label: 'Ульи' },
 ];
 

@@ -761,7 +761,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                               COUNT(i.id) as investments_count
                        FROM {schema}.proposals p
                        LEFT JOIN {schema}.investments i ON i.proposal_id = p.id
-                       WHERE p.user_id = %s AND p.status != 'deleted'
+                       WHERE p.user_id = %s 
                        GROUP BY p.id, p.description, p.price, p.shares, p.type, p.asset, 
                                 p.expected_product, p.update_frequency, p.status, p.created_at, p.income_details
                        ORDER BY p.created_at DESC""",
