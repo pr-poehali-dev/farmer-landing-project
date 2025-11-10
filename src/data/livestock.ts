@@ -16,7 +16,8 @@ export const LIVESTOCK_TYPES = [
   { value: 'camel', label: 'Верблюд' },
   { value: 'yak', label: 'Як' },
   { value: 'deer', label: 'Олень' },
-  { value: 'ostrich', label: 'Страус' }
+  { value: 'ostrich', label: 'Страус' },
+  { value: 'hives', label: 'Пчелосемьи' }
 ] as const;
 
 export const LIVESTOCK_DIRECTIONS = [
