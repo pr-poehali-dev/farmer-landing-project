@@ -126,7 +126,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """
                 
                 if region_filter:
-                    query += f" AND fd.region = '{region_filter}'"
+                    query += f" AND TRIM(fd.region) = '{region_filter}'"
                 
                 query += " ORDER BY u.id"
                 
@@ -140,11 +140,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     has_animals = len(animals) > 0
                     has_crops = len(crops) > 0
+                    has_hives = any(a.get('type') == 'hives' for a in animals)
                     
                     if occupation_filter:
                         if occupation_filter == 'animal' and not has_animals:
                             continue
                         elif occupation_filter == 'crop' and not has_crops:
+                            continue
+                        elif occupation_filter == 'beehive' and not has_hives:
                             continue
                     
                     assets = []
