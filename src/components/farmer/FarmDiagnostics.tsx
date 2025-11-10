@@ -42,26 +42,16 @@ export default function FarmDiagnostics() {
   }, [authLoading, user]);
 
   const loadDiagnostics = async () => {
-    if (!user) {
-      console.log('❌ loadDiagnostics: user не найден');
-      return;
-    }
-    
-    console.log('📡 loadDiagnostics: начинаю загрузку для userId =', user.id);
+    if (!user) return;
     
     try {
       const response = await fetch(`${FARMER_API}?action=get_diagnosis`, {
         headers: { 'X-User-Id': user.id.toString() }
       });
-      
-      console.log('📥 loadDiagnostics: получен ответ, status =', response.status);
-      
       const data = await response.json();
-      console.log('📦 loadDiagnostics: данные =', data);
       
       if (data.diagnosis && data.diagnosis.assets && data.diagnosis.assets.length > 0) {
         const info = data.diagnosis.assets[0];
-        console.log('✅ loadDiagnostics: найдены assets, устанавливаю данные:', info);
         setLandArea(info.land_area || '');
         setLandOwned(info.land_owned || '');
         setLandRented(info.land_rented || '');
@@ -70,14 +60,11 @@ export default function FarmDiagnostics() {
         setCrops(info.crops || []);
         setEmployeesPermanent(info.employees_permanent || 0);
         setEmployeesSeasonal(info.employees_seasonal || 0);
-      } else {
-        console.log('⚠️ loadDiagnostics: assets пустые или отсутствуют');
       }
     } catch (error) {
-      console.error('❌ loadDiagnostics: ошибка загрузки:', error);
+      console.error('Ошибка загрузки диагностики:', error);
     } finally {
       setLoadingData(false);
-      console.log('🏁 loadDiagnostics: завершено');
     }
   };
 

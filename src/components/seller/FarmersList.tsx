@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
-import FarmerDetailModal from './FarmerDetailModal';
 
 interface Props {
   tier: string;
@@ -48,7 +47,6 @@ const OCCUPATION_TYPES = [
 
 export default function FarmersList({ tier, farmers, regionFilter, occupationFilter, onRegionChange, onOccupationChange, onLoadFarmers }: Props) {
   const [sortBy, setSortBy] = useState<'name' | 'region' | 'area'>('name');
-  const [selectedFarmer, setSelectedFarmer] = useState<any>(null);
 
   const sortedFarmers = [...farmers].sort((a, b) => {
     if (sortBy === 'name') {
@@ -76,12 +74,12 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
           </div>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
           <div className="flex gap-3">
-            <Icon name="Check" className="text-green-600 flex-shrink-0 mt-1" size={20} />
-            <div className="text-sm text-green-900">
-              <p className="font-semibold mb-1">Полный бесплатный доступ</p>
-              <p className="text-green-800">База фермеров с контактами, фильтры по региону и типу хозяйства, детальная информация о каждом фермере.</p>
+            <Icon name="Info" className="text-blue-600 flex-shrink-0 mt-1" size={20} />
+            <div className="text-sm text-blue-900">
+              <p className="font-semibold mb-1">Доступ к базе фермеров бесплатный</p>
+              <p className="text-blue-800">Вы можете фильтровать по региону и типу хозяйства, видеть культуры и животных.</p>
             </div>
           </div>
         </div>
@@ -160,11 +158,7 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
               const animals = farmer.assets?.filter((a: any) => a.type === 'animal').map((a: any) => a.livestock_type || a.name) || [];
               
               return (
-                <Card 
-                  key={farmer.id} 
-                  className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => setSelectedFarmer(farmer)}
-                >
+                <Card key={farmer.id} className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow">
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Icon name="User" className="text-white" size={20} />
@@ -233,23 +227,36 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                         </div>
                       )}
 
-                      <div className="mt-3 pt-3 border-t border-green-200 space-y-1">
-                        {farmer.email && (
-                          <p className="text-sm flex items-center gap-2">
-                            <Icon name="Mail" size={14} className="text-green-600" />
-                            <a href={`mailto:${farmer.email}`} className="hover:underline">{farmer.email}</a>
-                          </p>
-                        )}
-                        {farmer.phone && (
-                          <p className="text-sm flex items-center gap-2">
-                            <Icon name="Phone" size={14} className="text-green-600" />
-                            <a href={`tel:${farmer.phone}`} className="hover:underline">{farmer.phone}</a>
-                          </p>
-                        )}
-                        {!farmer.email && !farmer.phone && (
-                          <p className="text-xs text-gray-500 italic">Контакты не указаны</p>
-                        )}
-                      </div>
+                      {tier === 'premium' && (
+                        <div className="mt-3 pt-3 border-t border-green-200 space-y-1">
+                          {farmer.email && (
+                            <p className="text-sm flex items-center gap-2">
+                              <Icon name="Mail" size={14} className="text-green-600" />
+                              <a href={`mailto:${farmer.email}`} className="hover:underline">{farmer.email}</a>
+                            </p>
+                          )}
+                          {farmer.phone && (
+                            <p className="text-sm flex items-center gap-2">
+                              <Icon name="Phone" size={14} className="text-green-600" />
+                              <a href={`tel:${farmer.phone}`} className="hover:underline">{farmer.phone}</a>
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      
+                      {tier === 'basic' && (
+                        <div className="mt-3 p-2 bg-amber-100 border border-amber-300 rounded text-xs text-amber-800 flex items-center gap-2">
+                          <Icon name="Lock" size={12} className="flex-shrink-0" />
+                          <span>Контакты доступны в Premium подписке</span>
+                        </div>
+                      )}
+
+                      {tier === 'none' && (
+                        <div className="mt-3 p-2 bg-blue-100 border border-blue-300 rounded text-xs text-blue-800 flex items-center gap-2">
+                          <Icon name="Info" size={12} className="flex-shrink-0" />
+                          <span>Оформите подписку Basic или Premium для доступа к контактам</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -258,13 +265,6 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
           </div>
         )}
       </Card>
-
-      <FarmerDetailModal 
-        farmer={selectedFarmer}
-        isOpen={!!selectedFarmer}
-        onClose={() => setSelectedFarmer(null)}
-        tier={tier}
-      />
     </div>
   );
 }

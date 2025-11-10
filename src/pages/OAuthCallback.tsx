@@ -10,42 +10,23 @@ export default function OAuthCallback() {
 
   useEffect(() => {
     const token = searchParams.get('token');
-    const role = searchParams.get('role');
-    const provider = searchParams.get('provider');
-    
-    console.log('🔐 OAuth Callback получен');
-    console.log('📦 Параметры:', { token: token ? '✅ есть' : '❌ нет', role, provider });
     
     if (token) {
-      console.log('💾 Сохранение токена в localStorage');
+      // Сохраняем токен
       localStorage.setItem('token', token);
       
+      // Обновляем состояние auth
       if (setAuthToken) {
-        console.log('✅ Установка токена через useAuth');
         setAuthToken(token);
       }
       
-      console.log(`🎯 Роль пользователя: ${role || 'не указана'}`);
-      
+      // Перенаправляем на дашборд
       setTimeout(() => {
-        if (role === 'farmer') {
-          console.log('🚀 Редирект на: /dashboard/farmer');
-          navigate('/dashboard/farmer');
-        } else if (role === 'investor') {
-          console.log('🚀 Редирект на: /dashboard/investor');
-          navigate('/dashboard/investor');
-        } else if (role === 'seller') {
-          console.log('🚀 Редирект на: /dashboard/seller');
-          navigate('/dashboard/seller');
-        } else {
-          console.log('🚀 Редирект на: /dashboard/investor (по умолчанию)');
-          navigate('/dashboard/investor');
-        }
+        navigate('/dashboard/farmer');
       }, 1000);
     } else {
-      console.error('❌ Токен не найден в URL');
+      // Ошибка авторизации
       setTimeout(() => {
-        console.log('🔙 Возврат на страницу входа');
         navigate('/login');
       }, 2000);
     }

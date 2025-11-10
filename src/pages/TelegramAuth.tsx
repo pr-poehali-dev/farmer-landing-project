@@ -18,71 +18,52 @@ const TelegramAuth = () => {
   useEffect(() => {
     const loadTelegramWidget = async () => {
       try {
-        console.log('🔵 Загрузка Telegram виджета...');
-        const botUsername = 'FarmerAuth_bot';
-        const urlParams = new URLSearchParams(window.location.search);
-        const role = urlParams.get('role') || 'farmer';
-        
-        console.log('📱 Бот:', botUsername);
-        console.log('👤 Роль:', role);
+        const response = await fetch('https://functions.poehali.dev/f26c71ea-c1d2-434a-8aa1-f64bbb2bc129');
+        const config = await response.json();
+
+        if (!config.telegram?.enabled || !config.telegram?.bot_username) {
+          setError('Telegram вход не настроен. Обратитесь к администратору.');
+          setLoading(false);
+          return;
+        }
 
         window.onTelegramAuth = async (user: any) => {
-          console.log('✅ Telegram авторизация успешна!');
-          console.log('👤 Данные пользователя:', user);
-          
           const params = new URLSearchParams({
+            provider: 'telegram',
             id: user.id,
             first_name: user.first_name || '',
             last_name: user.last_name || '',
             username: user.username || '',
             photo_url: user.photo_url || '',
             auth_date: user.auth_date,
-            hash: user.hash,
-            role: role
+            hash: user.hash
           });
 
-          const callbackUrl = `https://functions.poehali.dev/33163ee7-3ed1-48f9-bba0-99a0cd3088af?${params.toString()}`;
-          console.log('🔗 Редирект на:', callbackUrl);
-          window.location.href = callbackUrl;
+          window.location.href = `https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?${params.toString()}`;
         };
+
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.setAttribute('data-telegram-login', config.telegram.bot_username);
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+        script.setAttribute('data-request-access', 'write');
+        script.async = true;
 
         const container = document.getElementById('telegram-login-container');
         if (container) {
-          container.innerHTML = '';
-          
-          const script = document.createElement('script');
-          script.src = 'https://telegram.org/js/telegram-widget.js?22';
-          script.setAttribute('data-telegram-login', botUsername);
-          script.setAttribute('data-size', 'large');
-          script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-          script.setAttribute('data-request-access', 'write');
-          script.async = true;
-          
-          script.onload = () => {
-            console.log('✅ Telegram виджет загружен успешно');
-            setLoading(false);
-          };
-          
-          script.onerror = () => {
-            console.error('❌ Ошибка загрузки скрипта Telegram');
-            setError('Не удалось загрузить виджет');
-            setLoading(false);
-          };
-          
           container.appendChild(script);
-          console.log('📦 Виджет добавлен в DOM');
-        } else {
-          console.error('❌ Контейнер для виджета не найден');
+          setLoading(false);
         }
       } catch (err: any) {
-        console.error('❌ Ошибка:', err);
         setError('Не удалось загрузить виджет Telegram');
+        toast.error(err.message);
         setLoading(false);
       }
     };
 
     loadTelegramWidget();
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-farmer-green/5 to-farmer-orange/5 flex items-center justify-center px-4 py-12">
@@ -96,7 +77,7 @@ const TelegramAuth = () => {
           Вход через Telegram
         </h2>
         <p className="text-center text-gray-600 mb-6">
-          {loading ? 'Загрузка виджета...' : error || 'Нажмите кнопку ниже для входа'}
+          {loading ? 'Загрузка...' : error || 'Нажмите кнопку ниже для входа'}
         </p>
         
         {error && (

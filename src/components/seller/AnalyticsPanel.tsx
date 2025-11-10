@@ -14,13 +14,10 @@ export default function AnalyticsPanel({ tier, analytics, onRefresh }: Props) {
     return (
       <Card className="p-6">
         <div className="text-center py-12">
-          <Icon name="Sparkles" className="mx-auto mb-4 text-blue-500" size={48} />
+          <Icon name="Lock" className="mx-auto mb-4 text-gray-400" size={48} />
           <h3 className="text-xl font-bold mb-2">Аналитика</h3>
           <p className="text-gray-600 mb-4">Отслеживайте эффективность ваших товаров и рекламы</p>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-            <Icon name="Clock" size={16} />
-            <span className="font-semibold">Скоро будет доступно</span>
-          </div>
+          <p className="text-sm text-red-600">Доступно с подпиской Basic или Premium</p>
         </div>
       </Card>
     );

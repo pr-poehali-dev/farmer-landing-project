@@ -22,8 +22,6 @@ const Login = () => {
   
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showRoleSelect, setShowRoleSelect] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,114 +129,37 @@ const Login = () => {
           </div>
         </div>
         
-        {!showRoleSelect ? (
-          <div className="space-y-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-              onClick={() => {
-                window.open('https://t.me/FarmerAuth_bot', '_blank');
-              }}
-            >
-              <Icon name="Send" size={18} className="mr-2" />
-              Telegram
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="text-center mb-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowRoleSelect(false)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <Icon name="ArrowLeft" size={16} className="mr-1" />
-                Назад
-              </Button>
-            </div>
-            
-            <h3 className="text-lg font-semibold text-center text-gray-900 mb-4">
-              Выберите вашу роль
-            </h3>
-            
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-green-600 text-green-700 hover:bg-green-50 h-20 flex flex-col items-center justify-center"
-              onClick={() => {
-                const role = 'farmer';
-                console.log(`🌱 Выбрана роль: Фермер (${selectedProvider})`);
-                if (selectedProvider === 'vk') {
-                  const url = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
-                  console.log('🔗 Редирект на VK:', url);
-                  window.location.href = url;
-                } else if (selectedProvider === 'yandex') {
-                  const url = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
-                  console.log('🔗 Редирект на Яндекс:', url);
-                  window.location.href = url;
-                } else {
-                  console.log('🔗 Редирект на Telegram');
-                  navigate(`/oauth/telegram?role=${role}`);
-                }
-              }}
-            >
-              <Icon name="Sprout" size={24} className="mb-1" />
-              <span className="font-semibold">Фермер</span>
-            </Button>
-            
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-blue-600 text-blue-700 hover:bg-blue-50 h-20 flex flex-col items-center justify-center"
-              onClick={() => {
-                const role = 'investor';
-                console.log(`📈 Выбрана роль: Инвестор (${selectedProvider})`);
-                if (selectedProvider === 'vk') {
-                  const url = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
-                  console.log('🔗 Редирект на VK:', url);
-                  window.location.href = url;
-                } else if (selectedProvider === 'yandex') {
-                  const url = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
-                  console.log('🔗 Редирект на Яндекс:', url);
-                  window.location.href = url;
-                } else {
-                  console.log('🔗 Редирект на Telegram');
-                  navigate(`/oauth/telegram?role=${role}`);
-                }
-              }}
-            >
-              <Icon name="TrendingUp" size={24} className="mb-1" />
-              <span className="font-semibold">Инвестор</span>
-            </Button>
-            
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-orange-600 text-orange-700 hover:bg-orange-50 h-20 flex flex-col items-center justify-center"
-              onClick={() => {
-                const role = 'seller';
-                console.log(`🛒 Выбрана роль: Продавец (${selectedProvider})`);
-                if (selectedProvider === 'vk') {
-                  const url = `https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b?role=${role}`;
-                  console.log('🔗 Редирект на VK:', url);
-                  window.location.href = url;
-                } else if (selectedProvider === 'yandex') {
-                  const url = `https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0?role=${role}`;
-                  console.log('🔗 Редирект на Яндекс:', url);
-                  window.location.href = url;
-                } else {
-                  console.log('🔗 Редирект на Telegram');
-                  navigate(`/oauth/telegram?role=${role}`);
-                }
-              }}
-            >
-              <Icon name="ShoppingCart" size={24} className="mb-1" />
-              <span className="font-semibold">Продавец</span>
-            </Button>
-          </div>
-        )}
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+            onClick={() => navigate('/oauth/telegram')}
+          >
+            <Icon name="Send" size={18} className="mr-2" />
+            Telegram
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-red-500 text-red-600 hover:bg-red-50"
+            onClick={() => window.location.href = 'https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?provider=yandex'}
+          >
+            <span className="mr-2 text-lg font-bold">Я</span>
+            Яндекс ID
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-blue-700 text-blue-700 hover:bg-blue-50"
+            onClick={() => window.location.href = 'https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b'}
+          >
+            <span className="mr-2 text-lg font-bold">VK</span>
+            ВКонтакте
+          </Button>
+        </div>
         
         <div className="mt-4 text-center">
           <Button

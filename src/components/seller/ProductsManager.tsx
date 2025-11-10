@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { ProductForm } from '@/types/seller.types';
-import { toast } from 'sonner';
 
 interface Props {
   tier: string;
@@ -29,45 +27,6 @@ const FREE_PRODUCTS_LIMIT = 10;
 export default function ProductsManager({ tier, products, productForm, onFormChange, onAddProduct, onDeleteProduct }: Props) {
   const isFreeUser = tier === 'none';
   const canAddProduct = isFreeUser ? products.length < FREE_PRODUCTS_LIMIT : true;
-  const [uploading, setUploading] = useState(false);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Проверка размера (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Файл слишком большой. Максимум 2 МБ');
-      return;
-    }
-
-    // Проверка типа
-    if (!file.type.startsWith('image/')) {
-      toast.error('Можно загружать только изображения');
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('https://storage.poehali.dev/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Ошибка загрузки');
-
-      const data = await response.json();
-      onFormChange({ photo_url: data.url });
-      toast.success('Фото загружено!');
-    } catch (error) {
-      toast.error('Не удалось загрузить фото');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -140,27 +99,12 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
             </div>
             
             <div className="space-y-2">
-              <Label>Фото товара (до 2 МБ)</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  className="flex-1"
-                />
-                {uploading && (
-                  <div className="flex items-center gap-2 text-sm text-blue-600">
-                    <Icon name="Loader2" size={16} className="animate-spin" />
-                    Загрузка...
-                  </div>
-                )}
-              </div>
-              {productForm.photo_url && (
-                <div className="mt-2">
-                  <img src={productForm.photo_url} alt="Preview" className="w-32 h-32 object-cover rounded-lg border" />
-                </div>
-              )}
+              <Label>URL фото</Label>
+              <Input
+                value={productForm.photo_url}
+                onChange={(e) => onFormChange({ photo_url: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
             </div>
           </div>
           

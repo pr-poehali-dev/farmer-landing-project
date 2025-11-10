@@ -79,7 +79,7 @@ const SellerDashboard = () => {
       });
       const data = await response.json();
       setProfile(data.profile);
-      setTier('premium');
+      setTier(data.profile.subscription_tier || 'none');
       
       setProfileForm({
         company_name: data.profile.company_name || '',
