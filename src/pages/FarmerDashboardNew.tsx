@@ -90,15 +90,15 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-6">
-            <InvestmentProposals userId={user?.id || ''} onProposalCreated={() => setPoints(p => p + 10)} />
+            {user && <InvestmentProposals userId={user.id.toString()} onProposalCreated={() => setPoints(p => p + 10)} />}
           </TabsContent>
 
           <TabsContent value="investors" className="mt-6">
-            <InvestorRequests userId={user?.id || ''} />
+            {user && <InvestorRequests userId={user.id.toString()} />}
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">
-            <OwnerProfile userId={user?.id || ''} />
+            {user && <OwnerProfile userId={user.id.toString()} />}
           </TabsContent>
 
           <TabsContent value="marketplace" className="mt-6">
