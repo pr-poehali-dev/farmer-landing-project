@@ -227,7 +227,7 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                         </div>
                       )}
 
-                      {tier === 'premium' && (
+                      {(farmer.email || farmer.phone) && (
                         <div className="mt-3 pt-3 border-t border-green-200 space-y-1">
                           {farmer.email && (
                             <p className="text-sm flex items-center gap-2">
@@ -241,20 +241,6 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                               <a href={`tel:${farmer.phone}`} className="hover:underline">{farmer.phone}</a>
                             </p>
                           )}
-                        </div>
-                      )}
-                      
-                      {tier === 'basic' && (
-                        <div className="mt-3 p-2 bg-amber-100 border border-amber-300 rounded text-xs text-amber-800 flex items-center gap-2">
-                          <Icon name="Lock" size={12} className="flex-shrink-0" />
-                          <span>Контакты доступны в Premium подписке</span>
-                        </div>
-                      )}
-
-                      {tier === 'none' && (
-                        <div className="mt-3 p-2 bg-blue-100 border border-blue-300 rounded text-xs text-blue-800 flex items-center gap-2">
-                          <Icon name="Info" size={12} className="flex-shrink-0" />
-                          <span>Оформите подписку Basic или Premium для доступа к контактам</span>
                         </div>
                       )}
                     </div>
