@@ -71,6 +71,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if action == 'calculate_scores':
             return calculate_and_update_scores(conn, user_id, headers)
+        elif action == 'recalculate_all':
+            return recalculate_all_farmers(conn, headers)
         elif action == 'complete_quest':
             quest_id = body_data.get('quest_id')
             return complete_quest(conn, user_id, quest_id, headers)
@@ -218,6 +220,32 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
                     'categories_normalized': normalized
                 }
             }
+            
+            # Сохраняем баллы в farmer_scores
+            cur.execute(f'''
+                INSERT INTO {schema}.farmer_scores 
+                    (user_id, productivity_score, tech_score, investment_score, 
+                     expertise_score, community_score, total_score, last_updated)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+                ON CONFLICT (user_id) 
+                DO UPDATE SET
+                    productivity_score = EXCLUDED.productivity_score,
+                    tech_score = EXCLUDED.tech_score,
+                    investment_score = EXCLUDED.investment_score,
+                    expertise_score = EXCLUDED.expertise_score,
+                    community_score = EXCLUDED.community_score,
+                    total_score = EXCLUDED.total_score,
+                    last_updated = NOW()
+            ''', (
+                str(user_id),
+                int(normalized['crop_mastery']),
+                int(normalized['tech_advancement']),
+                int(normalized['livestock_efficiency']),
+                int(normalized['land_power']),
+                int(normalized['business_scale']),
+                int(overall_score)
+            ))
+            conn.commit()
             
             conn.close()
             return {
@@ -386,6 +414,52 @@ def get_achievements(conn, user_id: str, headers: dict) -> dict:
         'statusCode': 200,
         'headers': headers,
         'body': json.dumps(achievements_list, default=str)
+    }
+
+
+def recalculate_all_farmers(conn, headers: dict) -> dict:
+    '''Пересчитать рейтинг для всех фермеров с заполненной диагностикой'''
+    schema = 't_p53065890_farmer_landing_proje'
+    
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        # Получаем всех фермеров с диагностикой
+        cur.execute(f'''
+            SELECT DISTINCT user_id 
+            FROM {schema}.farm_diagnostics
+            WHERE land_area IS NOT NULL AND land_area != ''
+        ''')
+        
+        farmers = cur.fetchall()
+        updated_count = 0
+        errors = []
+        
+        for farmer in farmers:
+            farmer_id = str(farmer['user_id'])
+            try:
+                # Создаём новое подключение для каждого фермера
+                dsn = os.environ.get('DATABASE_URL')
+                farmer_conn = psycopg2.connect(dsn)
+                result = calculate_and_update_scores(farmer_conn, farmer_id, headers)
+                
+                if result.get('statusCode') == 200:
+                    updated_count += 1
+                else:
+                    errors.append(f"Фермер {farmer_id}: {result.get('body')}")
+            except Exception as e:
+                errors.append(f"Фермер {farmer_id}: {str(e)}")
+                print(f"⚠️ Ошибка пересчёта для фермера {farmer_id}: {e}")
+                continue
+    
+    conn.close()
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({
+            'success': True,
+            'updated_farmers': updated_count,
+            'total_farmers': len(farmers),
+            'errors': errors if errors else []
+        })
     }
 
 
