@@ -1,4 +1,8 @@
 {
+  "telegram-bot": "https://functions.poehali.dev/f2fbaff3-4352-45d7-9997-d23ce98bd173",
+  "auth-telegram": "https://functions.poehali.dev/ded46eea-60bf-416b-abd9-63b9dbf7126a",
+  "auth-yandex": "https://functions.poehali.dev/c843c083-1be2-4ae4-956f-8aefe9bbd4c0",
+  "auth-vk": "https://functions.poehali.dev/ebc8e0ec-088f-41d7-990f-30fc299e264f",
   "oauth-telegram": "https://functions.poehali.dev/33163ee7-3ed1-48f9-bba0-99a0cd3088af",
   "oauth-vk": "https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b",
   "oauth-config": "https://functions.poehali.dev/f26c71ea-c1d2-434a-8aa1-f64bbb2bc129",
