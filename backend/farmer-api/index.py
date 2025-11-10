@@ -583,6 +583,58 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'cancelled_investments': active_investments_count
                     })
                 }
+            
+            elif action == 'force_cancel_investment':
+                investment_id = body_data.get('investment_id')
+                admin_code = body_data.get('admin_code')
+                
+                if not investment_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется investment_id'})
+                    }
+                
+                if admin_code != 'ADMIN2024':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Неверный код администратора'})
+                    }
+                
+                cur.execute(
+                    f"""SELECT i.id, i.proposal_id, i.user_id, p.user_id as farmer_id
+                       FROM {schema}.investments i
+                       JOIN {schema}.proposals p ON p.id = i.proposal_id
+                       WHERE i.id = %s""",
+                    (investment_id,)
+                )
+                investment = cur.fetchone()
+                
+                if not investment:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Инвестиция не найдена'})
+                    }
+                
+                cur.execute(
+                    f"""UPDATE {schema}.investments 
+                       SET status = 'force_cancelled', updated_at = NOW()
+                       WHERE id = %s""",
+                    (investment_id,)
+                )
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': 'Инвестиция принудительно отменена администратором'
+                    })
+                }
         
         elif method == 'GET':
             params = event.get('queryStringParameters', {}) or {}

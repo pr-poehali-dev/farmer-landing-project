@@ -24,6 +24,8 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
   const [requests, setRequests] = useState<InvestorRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'pending' | 'approved' | 'paid' | 'active' | 'all'>('pending');
+  const [adminCode, setAdminCode] = useState('');
+  const [showAdminDialog, setShowAdminDialog] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRequests();
@@ -91,6 +93,44 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
     } catch (error) {
       console.error('Ошибка обработки заявки:', error);
       toast.error('Не удалось обработать заявку');
+    }
+  };
+
+  const handleForceCancel = async (investmentId: string) => {
+    if (!adminCode || adminCode.trim() === '') {
+      toast.error('Введите код администратора');
+      return;
+    }
+
+    try {
+      const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
+      
+      const response = await fetch(FARMER_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({
+          action: 'force_cancel_investment',
+          investment_id: investmentId,
+          admin_code: adminCode
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка отмены инвестиции');
+      }
+
+      toast.success('✅ Инвестиция принудительно отменена администратором');
+      setShowAdminDialog(null);
+      setAdminCode('');
+      fetchRequests();
+    } catch (error: any) {
+      console.error('Ошибка принудительной отмены:', error);
+      toast.error(error.message || 'Не удалось отменить инвестицию');
     }
   };
 
@@ -265,17 +305,63 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
                       </Button>
                     </>
                   ) : (
-                    <div className={`px-4 py-2 rounded-lg text-center font-semibold ${
-                      request.status === 'active' ? 'bg-green-100 text-green-700' :
-                      request.status === 'paid' ? 'bg-blue-100 text-blue-700' :
-                      request.status === 'approved' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {request.status === 'active' ? '✓ Активно' :
-                       request.status === 'paid' ? '💳 Оплачено' :
-                       request.status === 'approved' ? '⏳ Ждем оплаты' :
-                       '✗ Отклонено'}
-                    </div>
+                    <>
+                      <div className={`px-4 py-2 rounded-lg text-center font-semibold ${
+                        request.status === 'active' ? 'bg-green-100 text-green-700' :
+                        request.status === 'paid' ? 'bg-blue-100 text-blue-700' :
+                        request.status === 'approved' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {request.status === 'active' ? '✓ Активно' :
+                         request.status === 'paid' ? '💳 Оплачено' :
+                         request.status === 'approved' ? '⏳ Ждем оплаты' :
+                         '✗ Отклонено'}
+                      </div>
+                      {(request.status === 'active' || request.status === 'paid' || request.status === 'approved') && (
+                        showAdminDialog === request.id ? (
+                          <div className="border-2 border-red-300 rounded-lg p-3 space-y-2">
+                            <p className="text-xs text-red-700 font-semibold">⚠️ Принудительная отмена (только для админа)</p>
+                            <input
+                              type="password"
+                              placeholder="Код администратора"
+                              value={adminCode}
+                              onChange={(e) => setAdminCode(e.target.value)}
+                              className="w-full px-3 py-2 border rounded text-sm"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => handleForceCancel(request.id)}
+                                size="sm"
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                              >
+                                Отменить
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setShowAdminDialog(null);
+                                  setAdminCode('');
+                                }}
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                              >
+                                Отмена
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button
+                            onClick={() => setShowAdminDialog(request.id)}
+                            size="sm"
+                            variant="outline"
+                            className="border-red-300 text-red-600 hover:bg-red-50 text-xs"
+                          >
+                            <Icon name="ShieldAlert" size={14} className="mr-1" />
+                            Отменить (админ)
+                          </Button>
+                        )
+                      )}
+                    </>
                   )}
                 </div>
               </div>
