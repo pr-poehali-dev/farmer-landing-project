@@ -118,10 +118,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 query = f"""
                     SELECT u.id, u.first_name, u.last_name, u.farm_name, 
                            fd.region, fd.country, fdiag.animals, fdiag.crops,
-                           u.email, u.phone, fd.gamification_points
+                           u.email, u.phone, COALESCE(fs.total_score, 0) as rating_score
                     FROM {schema}.users u
                     LEFT JOIN {schema}.farmer_data fd ON fd.user_id = u.id
                     LEFT JOIN {schema}.farm_diagnostics fdiag ON fdiag.user_id = u.id
+                    LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS TEXT) = fs.user_id
                     WHERE u.role = 'farmer'
                 """
                 
@@ -178,7 +179,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'assets': assets,
                         'email': row[8],
                         'phone': row[9],
-                        'gamification_points': row[10] or 0
+                        'rating_score': row[10] or 0
                     }
                     
                     farmers.append(farmer)

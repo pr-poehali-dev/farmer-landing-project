@@ -198,10 +198,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if metric_type in ['all', 'engagement']:
                 cur.execute(f"""
                     SELECT 
-                        COALESCE(AVG(gamification_points), 0) as avg_points,
-                        MAX(gamification_points) as max_points
-                    FROM {schema}.farmer_data
-                    WHERE gamification_points > 0
+                        COALESCE(AVG(fs.total_score), 0) as avg_points,
+                        MAX(fs.total_score) as max_points
+                    FROM {schema}.farmer_scores fs
+                    WHERE fs.total_score > 0
                 """)
                 gamif_row = cur.fetchone()
                 
@@ -220,8 +220,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 active_investors = cur.fetchone()[0]
                 
                 metrics['engagement'] = {
-                    'avg_gamification_points': float(gamif_row[0]) if gamif_row else 0,
-                    'max_gamification_points': gamif_row[1] if gamif_row else 0,
+                    'avg_rating_score': float(gamif_row[0]) if gamif_row else 0,
+                    'max_rating_score': gamif_row[1] if gamif_row else 0,
                     'active_farmers_week': active_farmers,
                     'active_investors_week': active_investors
                 }

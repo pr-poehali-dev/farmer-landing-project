@@ -414,13 +414,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     raise
                 proposal_id = cur.fetchone()[0]
                 
-                cur.execute(
-                    f"""UPDATE {schema}.farmer_data 
-                       SET gamification_points = COALESCE(gamification_points, 0) + 30 
-                       WHERE user_id = %s""",
-                    (user_id,)
-                )
-                
                 conn.commit()
                 
                 return {
