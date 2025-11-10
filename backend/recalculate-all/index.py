@@ -287,20 +287,23 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
         investment_score += (offers_data.get('offers_count') or 0) * 30
         investment_score += (offers_data.get('active_offers') or 0) * 20
     
-    cur.execute(f'''
-        SELECT COUNT(DISTINCT i.id) as investments_count,
-               COALESCE(SUM(i.amount), 0) as total_invested
-        FROM {schema}.investments i
-        JOIN {schema}.investment_offers o ON i.offer_id = o.id
-        WHERE o.farmer_id = %s AND i.status = 'active'
-    ''', (farmer_id,))
-    investments_data = cur.fetchone()
-    
-    if investments_data:
-        investments_data = dict(investments_data)
-        investment_score += (investments_data.get('investments_count') or 0) * 50
-        total_invested = investments_data.get('total_invested') or 0
-        investment_score += int(total_invested / 10000)
+    try:
+        cur.execute(f'''
+            SELECT COUNT(DISTINCT i.id) as investments_count,
+                   COALESCE(SUM(i.amount), 0) as total_invested
+            FROM {schema}.investments i
+            JOIN {schema}.investment_offers o ON i.offer_id = o.id
+            WHERE o.farmer_id = %s AND i.status = 'active'
+        ''', (farmer_id,))
+        investments_data = cur.fetchone()
+        
+        if investments_data:
+            investments_data = dict(investments_data)
+            investment_score += (investments_data.get('investments_count') or 0) * 50
+            total_invested = investments_data.get('total_invested') or 0
+            investment_score += int(total_invested / 10000)
+    except Exception:
+        pass
     
     # === 4. ЭКСПЕРТНОСТЬ ===
     expertise_score = 0
