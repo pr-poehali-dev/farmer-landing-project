@@ -113,6 +113,18 @@ const TelegramAuth = () => {
         
         <div id="telegram-login-container" className="flex justify-center mb-6"></div>
         
+        <div className="text-center mb-4">
+          <p className="text-sm text-gray-600 mb-2">Если виджет не работает, используйте прямую ссылку:</p>
+          <a 
+            href={`https://oauth.telegram.org/auth?bot_id=YOUR_BOT_ID&origin=${encodeURIComponent(window.location.origin)}&request_access=write&return_to=${encodeURIComponent(window.location.href)}`}
+            className="text-blue-600 hover:underline text-sm"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Авторизоваться через Telegram напрямую
+          </a>
+        </div>
+        
         <button
           onClick={() => navigate('/login')}
           className="w-full text-center text-sm text-gray-600 hover:text-farmer-green"
