@@ -14,6 +14,7 @@ import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUserDelete from "./pages/AdminUserDelete";
 import AdminMetrics from "./pages/AdminMetrics";
+import AdminRecalculate from "./pages/AdminRecalculate";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/metrics" element={<AdminMetrics />} />
           <Route path="/admin/delete-users" element={<AdminUserDelete />} />
+          <Route path="/admin/recalculate" element={<AdminRecalculate />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />

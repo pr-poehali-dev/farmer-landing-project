@@ -31,6 +31,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Access-Control-Allow-Origin': '*'
     }
     
+    # Для некоторых действий не требуется авторизация
+    body_data = {}
+    if method == 'POST':
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        if action == 'recalculate_all':
+            # Для массового пересчёта не требуется user_id
+            dsn = os.environ.get('DATABASE_URL')
+            if not dsn:
+                return {
+                    'statusCode': 500,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Database not configured'})
+                }
+            conn = psycopg2.connect(dsn)
+            return recalculate_all_farmers(conn, headers)
+    
     user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
     
     if not user_id:
@@ -71,8 +88,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if action == 'calculate_scores':
             return calculate_and_update_scores(conn, user_id, headers)
-        elif action == 'recalculate_all':
-            return recalculate_all_farmers(conn, headers)
         elif action == 'complete_quest':
             quest_id = body_data.get('quest_id')
             return complete_quest(conn, user_id, quest_id, headers)
