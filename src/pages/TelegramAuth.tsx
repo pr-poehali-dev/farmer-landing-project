@@ -38,6 +38,9 @@ const TelegramAuth = () => {
         }
         
         console.log('[TelegramAuth] Конфигурация валидна, загружаем виджет...');
+        console.log('[TelegramAuth] Текущий домен:', window.location.hostname);
+        console.log('[TelegramAuth] Полный URL:', window.location.href);
+        console.log('[TelegramAuth] Origin:', window.location.origin);
 
         window.onTelegramAuth = async (user: any) => {
           console.log('[TelegramAuth] Пользователь авторизован:', user);
