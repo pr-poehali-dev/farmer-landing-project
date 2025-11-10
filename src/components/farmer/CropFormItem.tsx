@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CROP_TYPES, Crop } from '@/types/farm.types';
+import { Crop } from '@/types/farm.types';
+import { CROP_TYPES, CROP_VARIETIES, CROP_PURPOSES } from '@/data/crops';
 
 interface Props {
   crop: Crop;
@@ -33,48 +34,78 @@ export default function CropFormItem({ crop, index, onUpdate, onRemove }: Props)
           <Icon name="X" size={16} />
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs">Культура</Label>
-          <Select value={crop.type} onValueChange={(val) => onUpdate(index, 'type', val)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CROP_TYPES.map(type => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {crop.type === 'other' && (
+      <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-3">
           <div>
-            <Label className="text-xs">Название</Label>
+            <Label className="text-xs">Культура</Label>
+            <Select value={crop.type} onValueChange={(val) => onUpdate(index, 'type', val)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CROP_TYPES.map(type => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Объём (га)</Label>
             <Input
-              type="text"
-              placeholder="Укажите название"
-              value={crop.customName || ''}
-              onChange={(e) => onUpdate(index, 'customName', e.target.value)}
+              type="number"
+              value={crop.area}
+              onChange={(e) => onUpdate(index, 'area', parseFloat(e.target.value) || 0)}
             />
           </div>
-        )}
-        <div>
-          <Label className="text-xs">Объём (га)</Label>
-          <Input
-            type="number"
-            value={crop.area}
-            onChange={(e) => onUpdate(index, 'area', parseFloat(e.target.value) || 0)}
-          />
+          <div>
+            <Label className="text-xs">Урожайность (т/га)</Label>
+            <Input
+              type="number"
+              value={crop.yield}
+              onChange={(e) => onUpdate(index, 'yield', parseFloat(e.target.value) || 0)}
+            />
+          </div>
         </div>
-        <div>
-          <Label className="text-xs">Урожайность (т)</Label>
-          <Input
-            type="number"
-            value={crop.yield}
-            onChange={(e) => onUpdate(index, 'yield', parseFloat(e.target.value) || 0)}
-          />
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Сорт (опционально)</Label>
+            <Select 
+              value={crop.variety || ''} 
+              onValueChange={(val) => onUpdate(index, 'variety', val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите сорт" />
+              </SelectTrigger>
+              <SelectContent>
+                {crop.type && CROP_VARIETIES[crop.type]?.map(variety => (
+                  <SelectItem key={variety.value} value={variety.value}>
+                    {variety.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Назначение (опционально)</Label>
+            <Select 
+              value={crop.purpose || ''} 
+              onValueChange={(val) => onUpdate(index, 'purpose', val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите назначение" />
+              </SelectTrigger>
+              <SelectContent>
+                {CROP_PURPOSES.map(purpose => (
+                  <SelectItem key={purpose.value} value={purpose.value}>
+                    {purpose.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
     </Card>
