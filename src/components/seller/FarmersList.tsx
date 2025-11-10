@@ -268,10 +268,10 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                             {farmer.region}
                           </span>
                         )}
-                        {farmer.occupation && (
+                        {farmer.occupation && farmer.occupation !== 'Неизвестно' && (
                           <span className="inline-flex items-center gap-1 text-xs bg-white px-2 py-1 rounded border border-green-200">
                             <Icon name="Briefcase" size={12} />
-                            {OCCUPATION_TYPES.find(t => t.value === farmer.occupation)?.label}
+                            {OCCUPATION_TYPES.find(t => t.value === farmer.occupation)?.label || farmer.occupation}
                           </span>
                         )}
                         {totalArea > 0 && (
