@@ -314,35 +314,29 @@ const SellerDashboard = () => {
 
         <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
-            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
               <Icon name="User" size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Профиль</span>
-              <span className="sm:hidden">Проф.</span>
+              <span>Профиль</span>
             </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="products" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
               <Icon name="Package" size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Товары</span>
-              <span className="sm:hidden">Тов.</span>
+              <span>Товары</span>
             </TabsTrigger>
-            <TabsTrigger value="requests" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="requests" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
               <Icon name="MessageSquare" size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Заявки</span>
-              <span className="sm:hidden">Заяв.</span>
+              <span>Заявки</span>
             </TabsTrigger>
-            <TabsTrigger value="ads" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="ads" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
               <Icon name="MonitorPlay" size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Реклама</span>
-              <span className="sm:hidden">Рекл.</span>
+              <span>Реклама</span>
             </TabsTrigger>
-            <TabsTrigger value="farms" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="farms" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
               <Icon name="Users" size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Фермеры</span>
-              <span className="sm:hidden">Ферм.</span>
+              <span>Фермеры</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
               <Icon name="BarChart3" size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Аналитика</span>
-              <span className="sm:hidden">Анал.</span>
+              <span>Аналитика</span>
             </TabsTrigger>
           </TabsList>
 
