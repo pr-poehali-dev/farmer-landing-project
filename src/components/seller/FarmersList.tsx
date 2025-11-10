@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
+import { LIVESTOCK_TYPES } from '@/data/livestock';
+import { CROP_TYPES } from '@/data/crops';
 
 interface Props {
   tier: string;
@@ -47,22 +49,50 @@ const OCCUPATION_TYPES = [
 ];
 
 export default function FarmersList({ tier, farmers, regionFilter, occupationFilter, onRegionChange, onOccupationChange, onLoadFarmers }: Props) {
-  const [sortBy, setSortBy] = useState<'name' | 'region' | 'area'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'region' | 'area' | 'animals' | 'crops'>('name');
+  const [animalFilter, setAnimalFilter] = useState('');
+  const [cropFilter, setCropFilter] = useState('');
 
-  const sortedFarmers = [...farmers].sort((a, b) => {
-    if (sortBy === 'name') {
-      return (a.name || '').localeCompare(b.name || '');
+  const filteredAndSortedFarmers = useMemo(() => {
+    let filtered = [...farmers];
+    
+    if (animalFilter) {
+      filtered = filtered.filter(f => 
+        f.assets?.some((a: any) => a.type === 'animal' && a.livestock_type === animalFilter)
+      );
     }
-    if (sortBy === 'region') {
-      return (a.region || '').localeCompare(b.region || '');
+    
+    if (cropFilter) {
+      filtered = filtered.filter(f => 
+        f.assets?.some((a: any) => a.type === 'crop' && a.crop_type === cropFilter)
+      );
     }
-    if (sortBy === 'area') {
-      const aArea = a.assets?.reduce((sum: number, asset: any) => sum + (asset.area || 0), 0) || 0;
-      const bArea = b.assets?.reduce((sum: number, asset: any) => sum + (asset.area || 0), 0) || 0;
-      return bArea - aArea;
-    }
-    return 0;
-  });
+    
+    return filtered.sort((a, b) => {
+      if (sortBy === 'name') {
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (sortBy === 'region') {
+        return (a.region || '').localeCompare(b.region || '');
+      }
+      if (sortBy === 'area') {
+        const aArea = a.assets?.reduce((sum: number, asset: any) => sum + (asset.area || 0), 0) || 0;
+        const bArea = b.assets?.reduce((sum: number, asset: any) => sum + (asset.area || 0), 0) || 0;
+        return bArea - aArea;
+      }
+      if (sortBy === 'animals') {
+        const aCount = a.assets?.filter((asset: any) => asset.type === 'animal').reduce((sum: number, asset: any) => sum + (asset.count || 0), 0) || 0;
+        const bCount = b.assets?.filter((asset: any) => asset.type === 'animal').reduce((sum: number, asset: any) => sum + (asset.count || 0), 0) || 0;
+        return bCount - aCount;
+      }
+      if (sortBy === 'crops') {
+        const aCount = a.assets?.filter((asset: any) => asset.type === 'crop').length || 0;
+        const bCount = b.assets?.filter((asset: any) => asset.type === 'crop').length || 0;
+        return bCount - aCount;
+      }
+      return 0;
+    });
+  }, [farmers, animalFilter, cropFilter, sortBy]);
 
   return (
     <div className="space-y-6">
@@ -85,7 +115,8 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
           </div>
         </div>
         
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="space-y-3 mb-4">
+        <div className="grid grid-cols-4 gap-4">
           <div className="space-y-2">
             <Label>Регион</Label>
             <Select value={regionFilter || 'all'} onValueChange={(v) => onRegionChange(v === 'all' ? '' : v)}>
@@ -116,6 +147,8 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
             </Select>
           </div>
 
+
+          
           <div className="space-y-2">
             <Label>Сортировка</Label>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
@@ -126,6 +159,40 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                 <SelectItem value="name">По имени</SelectItem>
                 <SelectItem value="region">По региону</SelectItem>
                 <SelectItem value="area">По площади</SelectItem>
+                <SelectItem value="animals">По количеству животных</SelectItem>
+                <SelectItem value="crops">По количеству культур</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Вид животного</Label>
+            <Select value={animalFilter} onValueChange={setAnimalFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Все виды" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Все виды</SelectItem>
+                {LIVESTOCK_TYPES.map(t => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Культура</Label>
+            <Select value={cropFilter} onValueChange={setCropFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Все культуры" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Все культуры</SelectItem>
+                {CROP_TYPES.map(t => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -137,23 +204,21 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
             </Button>
           </div>
         </div>
+        </div>
       </Card>
       
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Найдено фермеров: {sortedFarmers.length}</h3>
-          <div className="text-sm text-gray-600">
-            Сортировка: {sortBy === 'name' ? 'По имени' : sortBy === 'region' ? 'По региону' : 'По площади'}
-          </div>
+          <h3 className="font-semibold">Найдено фермеров: {filteredAndSortedFarmers.length}</h3>
         </div>
-        {sortedFarmers.length === 0 ? (
+        {filteredAndSortedFarmers.length === 0 ? (
           <div className="text-center py-12">
             <Icon name="Inbox" size={48} className="mx-auto mb-4 text-gray-400" />
             <p className="text-gray-500 text-sm">Нет фермеров по заданным критериям</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedFarmers.map((farmer) => {
+            {filteredAndSortedFarmers.map((farmer) => {
               const totalArea = farmer.assets?.reduce((sum: number, asset: any) => sum + (asset.area || 0), 0) || 0;
               const crops = farmer.assets?.filter((a: any) => a.type === 'crop').map((a: any) => a.crop_type || a.name) || [];
               const animals = farmer.assets?.filter((a: any) => a.type === 'animal').map((a: any) => a.livestock_type || a.name) || [];

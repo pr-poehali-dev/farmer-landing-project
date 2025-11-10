@@ -117,15 +117,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 query = f"""
                     SELECT u.id, u.first_name, u.last_name, u.farm_name, 
-                           fd.region, fd.country, fd.assets
-                """
-                
-                if tier == 'premium':
-                    query += f""", u.email, u.phone, fd.gamification_points"""
-                
-                query += f"""
+                           fd.region, fd.country, fdiag.animals, fdiag.crops,
+                           u.email, u.phone, fd.gamification_points
                     FROM {schema}.users u
                     LEFT JOIN {schema}.farmer_data fd ON fd.user_id = u.id
+                    LEFT JOIN {schema}.farm_diagnostics fdiag ON fdiag.user_id = u.id
                     WHERE u.role = 'farmer'
                 """
                 
@@ -139,24 +135,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 farmers = []
                 for row in rows:
-                    assets = row[6] or []
+                    animals = row[6] or []
+                    crops = row[7] or []
+                    
+                    has_animals = len(animals) > 0
+                    has_crops = len(crops) > 0
                     
                     if occupation_filter:
-                        has_occupation = False
-                        for asset in assets:
-                            asset_type = asset.get('type', '')
-                            if occupation_filter == 'animal' and asset_type == 'animal':
-                                has_occupation = True
-                                break
-                            elif occupation_filter == 'crop' and asset_type == 'crop':
-                                has_occupation = True
-                                break
-                            elif occupation_filter == 'beehive' and asset_type == 'beehive':
-                                has_occupation = True
-                                break
-                        
-                        if not has_occupation:
+                        if occupation_filter == 'animal' and not has_animals:
                             continue
+                        elif occupation_filter == 'crop' and not has_crops:
+                            continue
+                    
+                    assets = []
+                    for animal in animals:
+                        assets.append({
+                            'type': 'animal',
+                            'livestock_type': animal.get('type'),
+                            'name': animal.get('type'),
+                            'count': animal.get('count', 0)
+                        })
+                    
+                    for crop in crops:
+                        assets.append({
+                            'type': 'crop',
+                            'crop_type': crop.get('type'),
+                            'name': crop.get('type'),
+                            'area': crop.get('area', 0)
+                        })
                     
                     farmer = {
                         'id': row[0],
@@ -165,28 +171,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'farm_name': row[3] or 'Ферма',
                         'region': row[4] or 'Не указан',
                         'country': row[5] or 'Не указана',
-                        'occupation': 'Неизвестно',
-                        'assets': assets
+                        'occupation': 'animal' if has_animals else ('crop' if has_crops else 'Неизвестно'),
+                        'assets': assets,
+                        'email': row[8],
+                        'phone': row[9],
+                        'gamification_points': row[10] or 0
                     }
-                    
-                    if assets and len(assets) > 0:
-                        occupations = []
-                        for asset in assets:
-                            asset_type = asset.get('type', '')
-                            if asset_type == 'animal':
-                                occupations.append('animal')
-                            elif asset_type == 'crop':
-                                occupations.append('crop')
-                            elif asset_type == 'beehive':
-                                occupations.append('beehive')
-                        
-                        if occupations:
-                            farmer['occupation'] = occupations[0]
-                    
-                    if tier == 'premium':
-                        farmer['email'] = row[7]
-                        farmer['phone'] = row[8]
-                        farmer['gamification_points'] = row[9] or 0
                     
                     farmers.append(farmer)
                 
