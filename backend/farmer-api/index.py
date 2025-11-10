@@ -522,67 +522,76 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Требуется proposal_id'})
                     }
                 
-                cur.execute(
-                    f"""SELECT p.id FROM {schema}.proposals p
-                       WHERE p.id = %s AND p.user_id = %s""",
-                    (proposal_id, user_id)
-                )
-                if not cur.fetchone():
-                    return {
-                        'statusCode': 404,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Предложение не найдено'})
-                    }
-                
-                cur.execute(
-                    f"""SELECT COUNT(*) FROM {schema}.investments 
-                       WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
-                    (proposal_id,)
-                )
-                active_investments_count = cur.fetchone()[0]
-                
-                if active_investments_count > 0:
+                try:
                     cur.execute(
-                        f"""UPDATE {schema}.investments 
-                           SET status = 'cancelled'
+                        f"""SELECT p.id FROM {schema}.proposals p
+                           WHERE p.id = %s AND p.user_id = %s""",
+                        (proposal_id, user_id)
+                    )
+                    if not cur.fetchone():
+                        return {
+                            'statusCode': 404,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Предложение не найдено'})
+                        }
+                    
+                    cur.execute(
+                        f"""SELECT COUNT(*) FROM {schema}.investments 
                            WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
                         (proposal_id,)
                     )
-                
-                cur.execute(
-                    f"""SELECT id FROM {schema}.deletion_requests WHERE proposal_id = %s""",
-                    (proposal_id,)
-                )
-                deletion_request_ids = [row[0] for row in cur.fetchall()]
-                
-                for dr_id in deletion_request_ids:
+                    active_investments_count = cur.fetchone()[0]
+                    
+                    if active_investments_count > 0:
+                        cur.execute(
+                            f"""UPDATE {schema}.investments 
+                               SET status = 'cancelled'
+                               WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
+                            (proposal_id,)
+                        )
+                    
                     cur.execute(
-                        f"""DELETE FROM {schema}.deletion_confirmations 
-                           WHERE deletion_request_id = %s""",
-                        (dr_id,)
+                        f"""SELECT id FROM {schema}.deletion_requests WHERE proposal_id = %s""",
+                        (proposal_id,)
                     )
-                
-                cur.execute(
-                    f"""DELETE FROM {schema}.deletion_requests WHERE proposal_id = %s""",
-                    (proposal_id,)
-                )
-                
-                cur.execute(
-                    f"""DELETE FROM {schema}.proposals 
-                       WHERE id = %s AND user_id = %s""",
-                    (proposal_id, user_id)
-                )
-                
-                conn.commit()
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'success': True,
-                        'cancelled_investments': active_investments_count
-                    })
-                }
+                    deletion_request_ids = [row[0] for row in cur.fetchall()]
+                    
+                    for dr_id in deletion_request_ids:
+                        cur.execute(
+                            f"""DELETE FROM {schema}.deletion_confirmations 
+                               WHERE deletion_request_id = %s""",
+                            (dr_id,)
+                        )
+                    
+                    cur.execute(
+                        f"""DELETE FROM {schema}.deletion_requests WHERE proposal_id = %s""",
+                        (proposal_id,)
+                    )
+                    
+                    cur.execute(
+                        f"""DELETE FROM {schema}.proposals 
+                           WHERE id = %s AND user_id = %s""",
+                        (proposal_id, user_id)
+                    )
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({
+                            'success': True,
+                            'cancelled_investments': active_investments_count
+                        })
+                    }
+                except Exception as e:
+                    conn.rollback()
+                    print(f"❌ Ошибка удаления предложения: {e}")
+                    return {
+                        'statusCode': 500,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': f'Ошибка удаления: {str(e)}'})
+                    }
             
             elif action == 'force_cancel_investment':
                 investment_id = body_data.get('investment_id')
