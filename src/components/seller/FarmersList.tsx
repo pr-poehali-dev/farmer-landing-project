@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
+import FarmerDetailModal from './FarmerDetailModal';
 
 interface Props {
   tier: string;
@@ -47,6 +48,7 @@ const OCCUPATION_TYPES = [
 
 export default function FarmersList({ tier, farmers, regionFilter, occupationFilter, onRegionChange, onOccupationChange, onLoadFarmers }: Props) {
   const [sortBy, setSortBy] = useState<'name' | 'region' | 'area'>('name');
+  const [selectedFarmer, setSelectedFarmer] = useState<any>(null);
 
   const sortedFarmers = [...farmers].sort((a, b) => {
     if (sortBy === 'name') {
@@ -158,7 +160,11 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
               const animals = farmer.assets?.filter((a: any) => a.type === 'animal').map((a: any) => a.livestock_type || a.name) || [];
               
               return (
-                <Card key={farmer.id} className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow">
+                <Card 
+                  key={farmer.id} 
+                  className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => setSelectedFarmer(farmer)}
+                >
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Icon name="User" className="text-white" size={20} />
@@ -265,6 +271,13 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
           </div>
         )}
       </Card>
+
+      <FarmerDetailModal 
+        farmer={selectedFarmer}
+        isOpen={!!selectedFarmer}
+        onClose={() => setSelectedFarmer(null)}
+        tier={tier}
+      />
     </div>
   );
 }
