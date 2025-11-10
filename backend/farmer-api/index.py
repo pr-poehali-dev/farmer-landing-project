@@ -620,7 +620,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cur.execute(
                     f"""UPDATE {schema}.investments 
-                       SET status = 'force_cancelled', updated_at = NOW()
+                       SET status = 'force_cancelled'
                        WHERE id = %s""",
                     (investment_id,)
                 )
