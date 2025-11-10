@@ -7,8 +7,7 @@ import '@/i18n/config';
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import FarmerDashboard from "./pages/FarmerDashboard";
-import FarmerDashboardNew from "./pages/FarmerDashboardNew";
+import FarmerDashboard from "./pages/FarmerDashboardNew";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -37,8 +36,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard/farmer" element={<FarmerDashboardNew />} />
-          <Route path="/dashboard/farmer/old" element={<FarmerDashboard />} />
+          <Route path="/dashboard/farmer" element={<FarmerDashboard />} />
           <Route path="/dashboard/investor" element={<InvestorDashboard />} />
           <Route path="/dashboard/seller" element={<SellerDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
