@@ -99,11 +99,31 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
             </div>
             
             <div className="space-y-2">
-              <Label>URL фото</Label>
+              <Label>URL фото 1</Label>
               <Input
                 value={productForm.photo_url}
                 onChange={(e) => onFormChange({ photo_url: e.target.value })}
                 placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>URL фото 2 (опционально)</Label>
+              <Input
+                value={productForm.photo_url_2}
+                onChange={(e) => onFormChange({ photo_url_2: e.target.value })}
+                placeholder="https://example.com/image2.jpg"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>URL фото 3 (опционально)</Label>
+              <Input
+                value={productForm.photo_url_3}
+                onChange={(e) => onFormChange({ photo_url_3: e.target.value })}
+                placeholder="https://example.com/image3.jpg"
               />
             </div>
           </div>
@@ -133,7 +153,7 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
           <div className="space-y-3">
             {products.map((product) => (
               <Card key={product.id} className="p-4 bg-gray-50">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
@@ -142,7 +162,20 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                       <h4 className="font-semibold">{product.name}</h4>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-                    <p className="text-lg font-bold text-blue-600">{product.price.toLocaleString()} ₽</p>
+                    <p className="text-lg font-bold text-blue-600 mb-3">{product.price.toLocaleString()} ₽</p>
+                    {(product.photo_url || product.photo_url_2 || product.photo_url_3) && (
+                      <div className="flex gap-2 flex-wrap">
+                        {product.photo_url && (
+                          <img src={product.photo_url} alt="Фото 1" className="w-20 h-20 object-cover rounded border" />
+                        )}
+                        {product.photo_url_2 && (
+                          <img src={product.photo_url_2} alt="Фото 2" className="w-20 h-20 object-cover rounded border" />
+                        )}
+                        {product.photo_url_3 && (
+                          <img src={product.photo_url_3} alt="Фото 3" className="w-20 h-20 object-cover rounded border" />
+                        )}
+                      </div>
+                    )}
                   </div>
                   <Button
                     variant="ghost"

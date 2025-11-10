@@ -250,7 +250,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'name': product.get('name'),
                                 'price': product.get('price'),
                                 'description': product.get('description'),
-                                'photo_url': product.get('photo_url')
+                                'photo_url': product.get('photo_url'),
+                                'photo_url_2': product.get('photo_url_2', ''),
+                                'photo_url_3': product.get('photo_url_3', '')
                             })
                 
                 return {
@@ -394,6 +396,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 price = body_data.get('price', 0)
                 description = body_data.get('description', '')
                 photo_url = body_data.get('photo_url', '')
+                photo_url_2 = body_data.get('photo_url_2', '')
+                photo_url_3 = body_data.get('photo_url_3', '')
                 target_audience = body_data.get('target_audience', [])
                 
                 if not name or price <= 0:
@@ -411,6 +415,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'price': price,
                     'description': description,
                     'photo_url': photo_url,
+                    'photo_url_2': photo_url_2,
+                    'photo_url_3': photo_url_3,
                     'target_audience': target_audience,
                     'status': 'active'
                 }

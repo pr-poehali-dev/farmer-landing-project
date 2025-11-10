@@ -38,6 +38,8 @@ export interface ProductForm {
   price: number;
   description: string;
   photo_url: string;
+  photo_url_2: string;
+  photo_url_3: string;
   target_audience: string[];
 }
 

@@ -46,6 +46,8 @@ const SellerDashboard = () => {
     price: 0,
     description: '',
     photo_url: '',
+    photo_url_2: '',
+    photo_url_3: '',
     target_audience: []
   });
   
@@ -161,6 +163,8 @@ const SellerDashboard = () => {
           price: 0,
           description: '',
           photo_url: '',
+          photo_url_2: '',
+          photo_url_3: '',
           target_audience: []
         });
         loadProfile();
