@@ -16,12 +16,12 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
   const navigate = useNavigate();
 
   return (
-    <section className="pt-24 pb-16 px-4 bg-gradient-to-br from-farmer-green/10 via-white to-farmer-orange/10 min-h-screen flex items-center">
+    <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 bg-gradient-to-br from-farmer-green/10 via-white to-farmer-orange/10 min-h-screen flex items-center">
       <div className="container mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
           Вернись к корням — почувствуй <span className="text-farmer-green animate-pulse">пульс</span> настоящей жизни
         </h1>
-        <div className="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto mb-8 leading-relaxed space-y-4">
+        <div className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 max-w-4xl mx-auto mb-6 sm:mb-8 leading-relaxed space-y-3 sm:space-y-4">
           <p className="animate-[fadeIn_0.8s_ease-in]">
             Городская суета стерла вкус настоящей земли... Без ферм — лишь бледные тени еды, лишенные силы, 
             и это сокровище может кануть в небытие.
@@ -30,33 +30,33 @@ const HeroSection = ({ stats }: HeroSectionProps) => {
 
 
         </div>
-        <div className="flex justify-center gap-8 mb-8">
+        <div className="flex justify-center gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8">
           <div className="text-center">
-            <div className="text-4xl font-bold text-farmer-green mb-1">{stats.farmers}</div>
-            <div className="text-sm text-gray-600">Фермеров</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-farmer-green mb-1">{stats.farmers}</div>
+            <div className="text-xs sm:text-sm text-gray-600">Фермеров</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-farmer-orange mb-1">{stats.investors}</div>
-            <div className="text-sm text-gray-600">Инвесторов</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-farmer-orange mb-1">{stats.investors}</div>
+            <div className="text-xs sm:text-sm text-gray-600">Инвесторов</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-farmer-green mb-1">{stats.sellers}</div>
-            <div className="text-sm text-gray-600">Продавцов</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-farmer-green mb-1">{stats.sellers}</div>
+            <div className="text-xs sm:text-sm text-gray-600">Продавцов</div>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
           <Button
             onClick={() => navigate('/login')}
             size="lg"
             variant="outline"
-            className="sm:hidden border-2 border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white text-sm px-4 py-4 rounded-full shadow-lg hover:shadow-xl transition-all w-full"
+            className="sm:hidden border-2 border-farmer-green text-farmer-green hover:bg-farmer-green hover:text-white text-xs px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all w-full"
           >
             Войти
           </Button>
           <Button
             onClick={() => navigate('/login')}
             size="lg"
-            className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto max-w-full"
+            className="bg-farmer-orange hover:bg-farmer-orange-dark text-white text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 lg:py-6 rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto max-w-full"
           >
             <span className="hidden sm:inline">Вернись к истокам — зарегистрируйся сейчас!</span>
             <span className="sm:hidden">Зарегистрируйся сейчас!</span>
