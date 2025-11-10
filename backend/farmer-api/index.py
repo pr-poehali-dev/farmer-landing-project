@@ -461,6 +461,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if len(active_investors) == 0:
                     cur.execute(
+                        f"""DELETE FROM {schema}.investments WHERE proposal_id = %s""",
+                        (proposal_id,)
+                    )
+                    
+                    cur.execute(
                         f"""DELETE FROM {schema}.proposals WHERE id = %s AND user_id = %s""",
                         (proposal_id, user_id)
                     )
