@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Получение профиля фермера",
+      "method": "GET",
+      "path": "/?farmer_id=11",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "farmer": {
+          "id": "number",
+          "name": "string",
+          "email": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Ошибка без farmer_id",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Требуется farmer_id"
+      }
+    }
+  ]
+}

@@ -25,6 +25,7 @@ import Leaderboard from "./pages/Leaderboard";
 import B2BPanel from "./pages/B2BPanel";
 import OAuthCallback from "./pages/OAuthCallback";
 import TelegramAuth from "./pages/TelegramAuth";
+import FarmerProfile from "./pages/FarmerProfile";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/b2b" element={<B2BPanel />} />
           <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route path="/oauth/telegram" element={<TelegramAuth />} />
+          <Route path="/farmer/:farmerId" element={<FarmerProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

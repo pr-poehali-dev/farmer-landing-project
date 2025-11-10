@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -158,8 +159,9 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
               const animals = farmer.assets?.filter((a: any) => a.type === 'animal').map((a: any) => a.livestock_type || a.name) || [];
               
               return (
-                <Card key={farmer.id} className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-start gap-3">
+                <Link key={farmer.id} to={`/farmer/${farmer.id}`}>
+                  <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="flex items-start gap-3">
                     <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Icon name="User" className="text-white" size={20} />
                     </div>
@@ -245,7 +247,8 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
                       )}
                     </div>
                   </div>
-                </Card>
+                  </Card>
+                </Link>
               );
             })}
           </div>
