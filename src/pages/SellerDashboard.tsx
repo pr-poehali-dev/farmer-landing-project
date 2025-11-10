@@ -307,36 +307,42 @@ const SellerDashboard = () => {
           <BalanceWidget balance={balance} onTopUp={() => setShowTopUpModal(true)} />
         </div>
 
-        <Card className="p-6 mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <h2 className="text-xl font-bold mb-1">Добро пожаловать в кабинет продавца!</h2>
-          <p className="text-gray-600">Управляйте товарами, рекламой и находите новых клиентов</p>
+        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <h2 className="text-lg sm:text-xl font-bold mb-1">Добро пожаловать в кабинет продавца!</h2>
+          <p className="text-sm sm:text-base text-gray-600">Управляйте товарами, рекламой и находите новых клиентов</p>
         </Card>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <Icon name="User" size={16} />
-              Профиль
+        <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Icon name="User" size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Профиль</span>
+              <span className="sm:hidden">Проф.</span>
             </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-2">
-              <Icon name="Package" size={16} />
-              Товары
+            <TabsTrigger value="products" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Icon name="Package" size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Товары</span>
+              <span className="sm:hidden">Тов.</span>
             </TabsTrigger>
-            <TabsTrigger value="requests" className="flex items-center gap-2">
-              <Icon name="MessageSquare" size={16} />
-              Заявки
+            <TabsTrigger value="requests" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Icon name="MessageSquare" size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Заявки</span>
+              <span className="sm:hidden">Заяв.</span>
             </TabsTrigger>
-            <TabsTrigger value="ads" className="flex items-center gap-2">
-              <Icon name="MonitorPlay" size={16} />
-              Реклама
+            <TabsTrigger value="ads" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Icon name="MonitorPlay" size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Реклама</span>
+              <span className="sm:hidden">Рекл.</span>
             </TabsTrigger>
-            <TabsTrigger value="farms" className="flex items-center gap-2">
-              <Icon name="Users" size={16} />
-              Фермеры
+            <TabsTrigger value="farms" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Icon name="Users" size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Фермеры</span>
+              <span className="sm:hidden">Ферм.</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <Icon name="BarChart3" size={16} />
-              Аналитика
+            <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Icon name="BarChart3" size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Аналитика</span>
+              <span className="sm:hidden">Анал.</span>
             </TabsTrigger>
           </TabsList>
 
