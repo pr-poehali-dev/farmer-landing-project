@@ -34,10 +34,15 @@ export default function FarmDiagnostics() {
   const [employeesSeasonal, setEmployeesSeasonal] = useState(0);
 
   useEffect(() => {
+    console.log('📊 FarmDiagnostics useEffect:', { authLoading, user, userId: user?.id });
     if (!authLoading && user) {
+      console.log('✅ Условие выполнено, вызываем loadDiagnostics');
       loadDiagnostics();
     } else if (!authLoading && !user) {
+      console.log('❌ User отсутствует после загрузки auth');
       setLoadingData(false);
+    } else {
+      console.log('⏳ Ещё загружается auth...');
     }
   }, [authLoading, user]);
 
