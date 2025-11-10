@@ -177,12 +177,12 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label>Вид животного</Label>
-            <Select value={animalFilter} onValueChange={setAnimalFilter}>
+            <Select value={animalFilter || 'all'} onValueChange={(v) => setAnimalFilter(v === 'all' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Все виды" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Все виды</SelectItem>
+                <SelectItem value="all">Все виды</SelectItem>
                 {LIVESTOCK_TYPES.map(t => (
                   <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                 ))}
@@ -192,12 +192,12 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
           
           <div className="space-y-2">
             <Label>Культура</Label>
-            <Select value={cropFilter} onValueChange={setCropFilter}>
+            <Select value={cropFilter || 'all'} onValueChange={(v) => setCropFilter(v === 'all' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Все культуры" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Все культуры</SelectItem>
+                <SelectItem value="all">Все культуры</SelectItem>
                 {CROP_TYPES.map(t => (
                   <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                 ))}
