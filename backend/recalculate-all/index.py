@@ -158,33 +158,15 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     if not farmer_data:
         raise Exception(f'Farmer {farmer_id} not found')
     
-    print(f"DEBUG farmer {farmer_id}: type={type(farmer_data)}, keys={list(farmer_data.keys()) if hasattr(farmer_data, 'keys') else 'no keys'}")
-    
     # Конвертируем RealDictRow в обычный dict для удобства
-    try:
-        farmer_data = dict(farmer_data)
-        print(f"DEBUG farmer {farmer_id}: converted to dict successfully")
-    except Exception as e:
-        print(f"ERROR farmer {farmer_id}: dict conversion failed: {str(e)}")
-        raise
+    farmer_data = dict(farmer_data)
     
     # === 1. ПРОДУКТИВНОСТЬ ===
     productivity_score = 0
     
     # Безопасное получение данных (может быть None если нет farm_diagnostics)
-    try:
-        animals = farmer_data.get('animals') if farmer_data.get('animals') is not None else []
-        print(f"DEBUG farmer {farmer_id}: animals loaded, type={type(animals)}, count={len(animals) if isinstance(animals, list) else 'not a list'}")
-    except Exception as e:
-        print(f"ERROR farmer {farmer_id}: animals get failed: {str(e)}")
-        animals = []
-    
-    try:
-        crops = farmer_data.get('crops') if farmer_data.get('crops') is not None else []
-        print(f"DEBUG farmer {farmer_id}: crops loaded, type={type(crops)}, count={len(crops) if isinstance(crops, list) else 'not a list'}")
-    except Exception as e:
-        print(f"ERROR farmer {farmer_id}: crops get failed: {str(e)}")
-        crops = []
+    animals = farmer_data.get('animals') if farmer_data.get('animals') is not None else []
+    crops = farmer_data.get('crops') if farmer_data.get('crops') is not None else []
     
     # Безопасная проверка типов данных
     if not isinstance(animals, list):
@@ -295,6 +277,7 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     offers_data = cur.fetchone()
     
     if offers_data:
+        offers_data = dict(offers_data)
         investment_score += (offers_data.get('offers_count') or 0) * 30
         investment_score += (offers_data.get('active_offers') or 0) * 20
     
@@ -308,6 +291,7 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     investments_data = cur.fetchone()
     
     if investments_data:
+        investments_data = dict(investments_data)
         investment_score += (investments_data.get('investments_count') or 0) * 50
         total_invested = investments_data.get('total_invested') or 0
         investment_score += int(total_invested / 10000)
