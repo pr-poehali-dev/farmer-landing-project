@@ -454,7 +454,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute(
                     f"""SELECT DISTINCT i.user_id 
                        FROM {schema}.investments i
-                       WHERE i.proposal_id = %s AND i.status NOT IN ('cancelled', 'rejected')""",
+                       WHERE i.proposal_id = %s AND i.status NOT IN ('cancelled', 'rejected', 'force_cancelled')""",
                     (proposal_id,)
                 )
                 active_investors = [row[0] for row in cur.fetchall()]
@@ -540,7 +540,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     cur.execute(
                         f"""SELECT COUNT(*) FROM {schema}.investments 
-                           WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
+                           WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected', 'force_cancelled')""",
                         (proposal_id,)
                     )
                     active_investments_count = cur.fetchone()[0]
@@ -549,7 +549,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         cur.execute(
                             f"""UPDATE {schema}.investments 
                                SET status = 'cancelled'
-                               WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected')""",
+                               WHERE proposal_id = %s AND status NOT IN ('cancelled', 'rejected', 'force_cancelled')""",
                             (proposal_id,)
                         )
                     
