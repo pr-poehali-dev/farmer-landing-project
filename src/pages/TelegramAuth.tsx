@@ -18,16 +18,29 @@ const TelegramAuth = () => {
   useEffect(() => {
     const loadTelegramWidget = async () => {
       try {
+        console.log('[TelegramAuth] Загрузка конфигурации OAuth...');
         const response = await fetch('https://functions.poehali.dev/f26c71ea-c1d2-434a-8aa1-f64bbb2bc129');
+        console.log('[TelegramAuth] Статус ответа:', response.status);
+        
         const config = await response.json();
+        console.log('[TelegramAuth] Полученная конфигурация:', JSON.stringify(config, null, 2));
+        console.log('[TelegramAuth] config.telegram:', config.telegram);
+        console.log('[TelegramAuth] config.telegram?.enabled:', config.telegram?.enabled);
+        console.log('[TelegramAuth] config.telegram?.bot_username:', config.telegram?.bot_username);
 
         if (!config.telegram?.enabled || !config.telegram?.bot_username) {
+          console.error('[TelegramAuth] Telegram не настроен. Причина:');
+          console.error('  - enabled:', config.telegram?.enabled);
+          console.error('  - bot_username:', config.telegram?.bot_username);
           setError('Telegram вход не настроен. Обратитесь к администратору.');
           setLoading(false);
           return;
         }
+        
+        console.log('[TelegramAuth] Конфигурация валидна, загружаем виджет...');
 
         window.onTelegramAuth = async (user: any) => {
+          console.log('[TelegramAuth] Пользователь авторизован:', user);
           const params = new URLSearchParams({
             provider: 'telegram',
             id: user.id,
@@ -39,6 +52,7 @@ const TelegramAuth = () => {
             hash: user.hash
           });
 
+          console.log('[TelegramAuth] Редирект на бэкенд OAuth...');
           window.location.href = `https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791?${params.toString()}`;
         };
 
@@ -50,12 +64,20 @@ const TelegramAuth = () => {
         script.setAttribute('data-request-access', 'write');
         script.async = true;
 
+        console.log('[TelegramAuth] Создан скрипт виджета для бота:', config.telegram.bot_username);
+
         const container = document.getElementById('telegram-login-container');
         if (container) {
+          console.log('[TelegramAuth] Добавляем виджет в контейнер...');
           container.appendChild(script);
           setLoading(false);
+          console.log('[TelegramAuth] Виджет успешно загружен');
+        } else {
+          console.error('[TelegramAuth] Контейнер telegram-login-container не найден!');
         }
       } catch (err: any) {
+        console.error('[TelegramAuth] Ошибка загрузки виджета:', err);
+        console.error('[TelegramAuth] Стек ошибки:', err.stack);
         setError('Не удалось загрузить виджет Telegram');
         toast.error(err.message);
         setLoading(false);
