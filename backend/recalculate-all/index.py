@@ -284,8 +284,11 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     
     if offers_data:
         offers_data = dict(offers_data)
-        investment_score += (offers_data.get('offers_count') or 0) * 30
-        investment_score += (offers_data.get('active_offers') or 0) * 20
+        offers_count = offers_data.get('offers_count') or 0
+        active_offers = offers_data.get('active_offers') or 0
+        print(f"DEBUG farmer {farmer_id}: offers_count={offers_count}, active_offers={active_offers}")
+        investment_score += offers_count * 30
+        investment_score += active_offers * 20
     
     try:
         cur.execute(f'''
