@@ -52,6 +52,14 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
   const [sortBy, setSortBy] = useState<'name' | 'region' | 'area' | 'animals' | 'crops'>('name');
   const [animalFilter, setAnimalFilter] = useState('');
   const [cropFilter, setCropFilter] = useState('');
+  
+  const handleResetFilters = () => {
+    onRegionChange('');
+    onOccupationChange('');
+    setAnimalFilter('');
+    setCropFilter('');
+    setSortBy('name');
+  };
 
   const filteredAndSortedFarmers = useMemo(() => {
     let filtered = [...farmers];
@@ -197,10 +205,14 @@ export default function FarmersList({ tier, farmers, regionFilter, occupationFil
             </Select>
           </div>
           
-          <div className="flex items-end">
-            <Button onClick={onLoadFarmers} className="w-full">
+          <div className="flex items-end gap-2">
+            <Button onClick={onLoadFarmers} className="flex-1">
               <Icon name="Search" size={16} className="mr-2" />
               Найти
+            </Button>
+            <Button onClick={handleResetFilters} variant="outline" className="flex-1">
+              <Icon name="X" size={16} className="mr-2" />
+              Сбросить
             </Button>
           </div>
         </div>
