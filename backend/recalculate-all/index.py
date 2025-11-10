@@ -158,6 +158,9 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     if not farmer_data:
         raise Exception(f'Farmer {farmer_id} not found')
     
+    # Конвертируем RealDictRow в обычный dict для удобства
+    farmer_data = dict(farmer_data)
+    
     # === 1. ПРОДУКТИВНОСТЬ ===
     productivity_score = 0
     
