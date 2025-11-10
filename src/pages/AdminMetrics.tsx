@@ -309,7 +309,7 @@ const AdminMetrics = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Ср. баллы геймиф.:</span>
                   <span className="text-xl font-bold text-gray-900">
-                    {metrics.engagement.avg_gamification_points.toFixed(0)}
+                    {(metrics.engagement.avg_gamification_points || 0).toFixed(0)}
                   </span>
                 </div>
               </div>
