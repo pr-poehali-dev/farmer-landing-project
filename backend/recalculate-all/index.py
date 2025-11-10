@@ -274,6 +274,19 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     # === 3. ИНВЕСТИЦИОННАЯ ПРИВЛЕКАТЕЛЬНОСТЬ ===
     investment_score = 0
     
+    # DEBUG: Показываем все предложения для фермера 11
+    if farmer_id == 11:
+        cur.execute(f'''
+            SELECT id, title, amount_needed, status, created_at
+            FROM {schema}.investment_offers
+            WHERE farmer_id = %s
+            ORDER BY created_at DESC
+        ''', (farmer_id,))
+        all_offers = cur.fetchall()
+        print(f"DEBUG farmer 11 ALL OFFERS ({len(all_offers)} total):")
+        for offer in all_offers:
+            print(f"  ID={offer[0]}, title={offer[1][:30]}, amount={offer[2]}, status={offer[3]}, created={offer[4]}")
+    
     cur.execute(f'''
         SELECT COUNT(DISTINCT id) as offers_count, 
                COUNT(DISTINCT CASE WHEN status = 'published' THEN id END) as active_offers
@@ -287,11 +300,7 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
         offers_count = offers_data.get('offers_count') or 0
         active_offers = offers_data.get('active_offers') or 0
         
-        # Ограничиваем максимум 10 предложений для справедливого рейтинга
-        offers_count = min(offers_count, 10)
-        active_offers = min(active_offers, 10)
-        
-        print(f"DEBUG farmer {farmer_id}: DISTINCT offers={offers_count}, active={active_offers} (capped at 10)")
+        print(f"DEBUG farmer {farmer_id}: DISTINCT offers={offers_count}, active={active_offers}")
         investment_score += offers_count * 30
         investment_score += active_offers * 20
     
