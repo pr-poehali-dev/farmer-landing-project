@@ -175,8 +175,8 @@ def calculate_rating(conn, farmer_id: str, headers: dict) -> dict:
         
         # Проверяем наличие инвестиционных предложений
         cur.execute(f'''
-            SELECT COUNT(*) as offers_count, 
-                   SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) as active_offers
+            SELECT COUNT(DISTINCT id) as offers_count, 
+                   COUNT(DISTINCT CASE WHEN status = 'published' THEN id END) as active_offers
             FROM {schema}.investment_offers
             WHERE farmer_id = %s
         ''', (int(farmer_id),))

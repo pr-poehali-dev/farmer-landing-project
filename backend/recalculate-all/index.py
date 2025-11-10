@@ -275,8 +275,8 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
     investment_score = 0
     
     cur.execute(f'''
-        SELECT COUNT(*) as offers_count, 
-               SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) as active_offers
+        SELECT COUNT(DISTINCT id) as offers_count, 
+               COUNT(DISTINCT CASE WHEN status = 'published' THEN id END) as active_offers
         FROM {schema}.investment_offers
         WHERE farmer_id = %s
     ''', (farmer_id,))
@@ -286,7 +286,7 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
         offers_data = dict(offers_data)
         offers_count = offers_data.get('offers_count') or 0
         active_offers = offers_data.get('active_offers') or 0
-        print(f"DEBUG farmer {farmer_id}: offers_count={offers_count}, active_offers={active_offers}")
+        print(f"DEBUG farmer {farmer_id}: DISTINCT offers={offers_count}, active={active_offers}")
         investment_score += offers_count * 30
         investment_score += active_offers * 20
     
