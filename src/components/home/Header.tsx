@@ -32,9 +32,18 @@ const Header = () => {
               Войти
             </Button>
           </nav>
-          <Button onClick={() => navigate('/login')} variant="ghost" className="md:hidden text-xs text-farmer-green px-2">
-            Войти
-          </Button>
+          <div className="md:hidden flex items-center gap-2">
+            <Button onClick={() => navigate('/leaderboard')} variant="ghost" className="text-xs text-gray-700 px-2">
+              <Icon name="Trophy" size={14} className="mr-0.5" />
+              Лидеры
+            </Button>
+            <Button onClick={() => navigate('/about')} variant="ghost" className="text-xs text-gray-700 px-2">
+              О нас
+            </Button>
+            <Button onClick={() => navigate('/login')} variant="ghost" className="text-xs text-farmer-green px-2">
+              Войти
+            </Button>
+          </div>
         </div>
       </div>
     </header>
