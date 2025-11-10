@@ -286,7 +286,12 @@ def calculate_farmer_rating(cur, schema: str, farmer_id: int) -> dict:
         offers_data = dict(offers_data)
         offers_count = offers_data.get('offers_count') or 0
         active_offers = offers_data.get('active_offers') or 0
-        print(f"DEBUG farmer {farmer_id}: DISTINCT offers={offers_count}, active={active_offers}")
+        
+        # Ограничиваем максимум 10 предложений для справедливого рейтинга
+        offers_count = min(offers_count, 10)
+        active_offers = min(active_offers, 10)
+        
+        print(f"DEBUG farmer {farmer_id}: DISTINCT offers={offers_count}, active={active_offers} (capped at 10)")
         investment_score += offers_count * 30
         investment_score += active_offers * 20
     

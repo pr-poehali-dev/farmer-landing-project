@@ -183,8 +183,10 @@ def calculate_rating(conn, farmer_id: str, headers: dict) -> dict:
         offers_data = cur.fetchone()
         
         if offers_data:
-            investment_score += offers_data.get('offers_count', 0) * 30
-            investment_score += offers_data.get('active_offers', 0) * 20
+            offers_count = min(offers_data.get('offers_count', 0), 10)
+            active_offers = min(offers_data.get('active_offers', 0), 10)
+            investment_score += offers_count * 30
+            investment_score += active_offers * 20
         
         # Проверяем активные инвестиции
         cur.execute(f'''
