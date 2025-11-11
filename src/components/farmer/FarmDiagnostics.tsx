@@ -212,25 +212,37 @@ export default function FarmDiagnostics() {
         employeesSeasonal
       };
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
       const response = await fetch('https://functions.poehali.dev/227c976a-73aa-4e54-a1d5-5ce470416b17', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Id': String(user.id)
         },
-        body: JSON.stringify({ farmData })
+        body: JSON.stringify({ farmData }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error('Ошибка анализа');
+        const errorText = await response.text();
+        console.error('Response error:', response.status, errorText);
+        throw new Error(`Ошибка ${response.status}`);
       }
 
       const data = await response.json();
       setAiAnalysis(data.analysis);
       toast.success('Анализ готов!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI analysis error:', error);
-      toast.error('Не удалось выполнить анализ. Проверьте данные и попробуйте снова.');
+      if (error.name === 'AbortError') {
+        toast.error('Анализ занял слишком много времени. Попробуйте ещё раз.');
+      } else {
+        toast.error('Не удалось выполнить анализ. Попробуйте снова через минуту.');
+      }
       setAiAnalysisOpen(false);
     } finally {
       setAiLoading(false);

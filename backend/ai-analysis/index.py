@@ -123,10 +123,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     {'role': 'user', 'content': prompt}
                 ],
                 'temperature': 0.7,
-                'max_tokens': 2000
+                'max_tokens': 1500
             },
             verify=False,
-            timeout=30
+            timeout=50
         )
         
         if chat_response.status_code != 200:
