@@ -131,7 +131,7 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         try:
             cur.execute(f'''
-                SELECT land_owned, land_rented, animals, equipment, crops, 
+                SELECT land_area, land_owned, land_rented, animals, equipment, crops, 
                        employees_permanent, employees_seasonal
                 FROM {schema}.farm_diagnostics 
                 WHERE CAST(user_id AS TEXT) = %s
@@ -156,6 +156,7 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
                     })
                 }
             
+            land_area = float(farm_data.get('land_area') or 0)
             land_owned = float(farm_data.get('land_owned') or 0)
             land_rented = float(farm_data.get('land_rented') or 0)
             animals = farm_data.get('animals') or []
@@ -164,30 +165,80 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
             permanent = int(farm_data.get('employees_permanent') or 0)
             seasonal = int(farm_data.get('employees_seasonal') or 0)
             
-            land_power = (land_owned * 1.5) + (land_rented * 0.8)
+            # Розрахунок land_power з урахуванням загальної площі та структури власності
+            land_power = (land_owned * 2.0) + (land_rented * 1.0) + (land_area * 0.5)
             
+            # Розрахунок livestock_efficiency з урахуванням ВСІХ типів тварин
             livestock_efficiency = 0.0
+            animal_type_coefficients = {
+                'cows': {'milk': 1.5, 'meat': 1.2, 'mixed': 1.3, 'other': 0.8},
+                'pigs': {'meat': 1.0, 'other': 0.7},
+                'sheep': {'meat': 0.9, 'milk': 0.8, 'mixed': 0.85, 'other': 0.6},
+                'chickens': {'meat': 0.7, 'other': 0.6},
+                'horses': {'other': 1.1},
+                'deer': {'meat': 1.3, 'other': 1.0},
+                'hives': {'other': 1.2}
+            }
+            
             for animal in animals:
+                animal_type = animal.get('type', 'other')
                 direction = animal.get('direction', 'other')
                 count = animal.get('count', 0)
+                
+                type_coef = animal_type_coefficients.get(animal_type, {}).get(direction, 0.5)
+                
                 if direction == 'milk':
                     milk_yield = animal.get('milkYield', 0)
-                    efficiency_ratio = milk_yield / 6000.0 if milk_yield > 0 else 0
-                    livestock_efficiency += efficiency_ratio * count * 1.2
+                    milk_price = animal.get('milkPrice', 30)
+                    efficiency_ratio = (milk_yield / 6000.0) if milk_yield > 0 else 0.5
+                    price_factor = (milk_price / 30.0) if milk_price > 0 else 1.0
+                    livestock_efficiency += efficiency_ratio * count * type_coef * price_factor * 10
+                    
                 elif direction == 'meat':
                     meat_yield = animal.get('meatYield', 0)
-                    efficiency_ratio = meat_yield / 300.0 if meat_yield > 0 else 0
-                    livestock_efficiency += efficiency_ratio * count
+                    meat_price = animal.get('meatPrice', 300)
+                    efficiency_ratio = (meat_yield / 300.0) if meat_yield > 0 else 0.5
+                    price_factor = (meat_price / 300.0) if meat_price > 0 else 1.0
+                    livestock_efficiency += efficiency_ratio * count * type_coef * price_factor * 10
+                    
+                elif direction == 'mixed':
+                    milk_yield = animal.get('milkYield', 0)
+                    meat_yield = animal.get('meatYield', 0)
+                    milk_efficiency = (milk_yield / 6000.0) if milk_yield > 0 else 0.3
+                    meat_efficiency = (meat_yield / 300.0) if meat_yield > 0 else 0.3
+                    livestock_efficiency += (milk_efficiency + meat_efficiency) * count * type_coef * 5
+                    
+                else:
+                    base_value = count * type_coef * 3
+                    if animal_type == 'chickens':
+                        egg_price = animal.get('eggPrice', 5)
+                        base_value *= (egg_price / 5.0) if egg_price > 0 else 1.0
+                    livestock_efficiency += base_value
+            
+            # Розрахунок crop_mastery з урахуванням типу культури та ціни
+            crop_benchmarks = {
+                'beet': 45.0,
+                'cabbage': 40.0,
+                'rapeseed': 2.5,
+                'soy': 2.0,
+                'corn': 7.0,
+                'garlic': 15.0,
+                'other': 3.5
+            }
             
             crop_mastery = 0.0
             for crop in crops:
+                crop_type = crop.get('type', 'other')
                 area = crop.get('area', 0)
                 crop_yield = crop.get('yield', 0)
-                if area > 0:
+                price_per_kg = crop.get('pricePerKg', 10)
+                
+                if area > 0 and crop_yield > 0:
+                    benchmark_yield = crop_benchmarks.get(crop_type, 3.5)
                     calculated_yield = crop_yield / area
-                    benchmark_yield = 3.5
                     yield_ratio = calculated_yield / benchmark_yield
-                    crop_mastery += yield_ratio * area
+                    price_factor = (price_per_kg / 10.0) if price_per_kg > 0 else 1.0
+                    crop_mastery += yield_ratio * area * price_factor * 10
             
             current_year = datetime.now().year
             tech_advancement = 0.0
