@@ -63,6 +63,14 @@ export default function FarmerDashboardNew() {
             <Icon name="Trophy" size={20} className="mr-2" />
             Мой рейтинг
           </Button>
+          <Button 
+            onClick={() => navigate('/smart-farm')}
+            size="lg"
+            className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white shadow-lg"
+          >
+            <Icon name="Sparkles" size={20} className="mr-2" />
+            ИИ-анализ (PRO)
+          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

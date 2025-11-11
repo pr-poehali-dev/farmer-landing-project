@@ -373,30 +373,20 @@ export default function FarmDiagnostics() {
         </AccordionItem>
       </Accordion>
 
-      <div className="flex gap-3">
-        <Button 
-          onClick={handleSave} 
-          className="flex-1"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Icon name="Loader2" className="animate-spin mr-2" size={16} />
-              Сохраняем...
-            </>
-          ) : (
-            'Сохранить'
-          )}
-        </Button>
-        <Button 
-          onClick={() => window.location.href = '/smart-farm'}
-          variant="outline"
-          className="flex-1"
-        >
-          <Icon name="Lock" size={16} className="mr-2" />
-          ИИ-анализ (PRO)
-        </Button>
-      </div>
+      <Button 
+        onClick={handleSave} 
+        className="w-full"
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <Icon name="Loader2" className="animate-spin mr-2" size={16} />
+            Сохраняем...
+          </>
+        ) : (
+          'Сохранить'
+        )}
+      </Button>
 
       <ProFeatureCard />
     </div>
