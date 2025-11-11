@@ -449,22 +449,12 @@ export default function FarmDiagnostics() {
           )}
         </Button>
         <Button 
-          onClick={handleAiAnalysis}
+          onClick={() => window.location.href = '/dashboard/farmer/ai-analytics'}
           variant="outline"
-          className="flex-1"
-          disabled={aiLoading}
+          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-none text-white shadow-lg shadow-purple-500/50"
         >
-          {aiLoading ? (
-            <>
-              <Icon name="Loader2" className="animate-spin mr-2" size={16} />
-              Анализирую...
-            </>
-          ) : (
-            <>
-              <Icon name="Brain" size={16} className="mr-2" />
-              ИИ-анализ
-            </>
-          )}
+          <Icon name="Brain" size={16} className="mr-2" />
+          ИИ-анализ
         </Button>
       </div>
 

@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET with userId",
+      "method": "GET",
+      "path": "/?userId=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "farmData": "object",
+        "regionalStats": "object"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
