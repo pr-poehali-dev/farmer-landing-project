@@ -117,13 +117,18 @@ export default function SmartFarm() {
         const crops: Crop[] = info.crops || [];
         
         const totalCattle = animals
-          .filter((a: Animal) => a.type === 'cows')
+          .filter((a: Animal) => a.type === 'cow' || a.type === 'cows')
           .reduce((sum: number, a: Animal) => sum + (a.count || 0), 0);
         
-        const avgMilkYield = animals
-          .filter((a: Animal) => a.type === 'cows' && a.milkYield)
-          .reduce((sum: number, a: Animal) => sum + (a.milkYield || 0), 0) / 
-          (animals.filter((a: Animal) => a.type === 'cows' && a.milkYield).length || 1);
+        const cowsWithMilk = animals.filter((a: Animal) => (a.type === 'cow' || a.type === 'cows') && a.milkYield);
+        const avgMilkYield = cowsWithMilk.length > 0
+          ? cowsWithMilk.reduce((sum: number, a: Animal) => sum + (a.milkYield || 0), 0) / cowsWithMilk.length
+          : 0;
+        
+        const cowsWithMeat = animals.filter((a: Animal) => (a.type === 'cow' || a.type === 'cows') && a.meatYield);
+        const avgMeatYield = cowsWithMeat.length > 0
+          ? cowsWithMeat.reduce((sum: number, a: Animal) => sum + (a.meatYield || 0), 0) / cowsWithMeat.length
+          : 0;
         
         const avgCropYield = crops.length > 0
           ? crops.reduce((sum: number, c: Crop) => sum + (c.yield || 0), 0) / crops.length
@@ -133,7 +138,7 @@ export default function SmartFarm() {
         
         const healthScore = Math.min(100, Math.round(
           (totalCattle > 0 ? 30 : 0) +
-          (avgMilkYield > 0 ? 30 : 0) +
+          (avgMilkYield > 0 || avgMeatYield > 0 ? 30 : 0) +
           (avgCropYield > 0 ? 20 : 0) +
           (totalArea > 0 ? 20 : 0)
         ));
@@ -145,13 +150,6 @@ export default function SmartFarm() {
           total_area: totalArea,
           health_score: healthScore
         });
-        
-        if (avgMilkYield > 0) {
-          setComparison(prev => ({
-            ...prev,
-            your_value: avgMilkYield
-          }));
-        }
       }
       
       const statsResponse = await fetch(`${FARMER_API}?action=get_market_stats`, {

@@ -729,7 +729,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     if user_data and user_data[0]:
                         for animal in user_data[0]:
-                            if animal.get('type') == 'cows':
+                            if animal.get('type') in ['cow', 'cows']:
                                 user_stats['cattle_count'] += animal.get('count', 0)
                                 if animal.get('meatYield'):
                                     user_stats['meat_yield'] = animal.get('meatYield', 0)
@@ -748,7 +748,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     for row in all_data:
                         if row[0]:
                             for animal in row[0]:
-                                if animal.get('type') == 'cows':
+                                if animal.get('type') in ['cow', 'cows']:
                                     if animal.get('meatYield'):
                                         try:
                                             meat_yields.append(float(animal.get('meatYield')))
