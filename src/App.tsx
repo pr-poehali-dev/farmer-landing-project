@@ -28,7 +28,6 @@ import B2BPanel from "./pages/B2BPanel";
 import OAuthCallback from "./pages/OAuthCallback";
 import TelegramAuth from "./pages/TelegramAuth";
 import FarmerProfile from "./pages/FarmerProfile";
-import AIAnalytics from "./components/farmer/AIAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +43,6 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard/farmer" element={<FarmerDashboardNew />} />
           <Route path="/dashboard/farmer/old" element={<FarmerDashboard />} />
-          <Route path="/dashboard/farmer/ai-analytics" element={<AIAnalytics />} />
           <Route path="/dashboard/investor" element={<InvestorDashboard />} />
           <Route path="/dashboard/seller" element={<SellerDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
