@@ -19,6 +19,21 @@ interface FarmDashboardProps {
 }
 
 export default function FarmDashboard({ metrics, userName, getHealthColor, getHealthText }: FarmDashboardProps) {
+  const getGreetingMessage = () => {
+    if (metrics.cattle_count === 0 && metrics.crop_yield === 0 && metrics.total_area === 0) {
+      return 'Заполните диагностику хозяйства, чтобы увидеть персональные рекомендации!';
+    }
+    if (metrics.milk_productivity > 25) {
+      return 'Отличная продуктивность! Ваше хозяйство показывает высокие результаты!';
+    }
+    if (metrics.crop_yield > 40) {
+      return 'Высокая урожайность! Продолжайте в том же духе!';
+    }
+    if (metrics.health_score >= 80) {
+      return 'Ваше хозяйство в отличном состоянии!';
+    }
+    return 'Есть потенциал для роста. Проверьте рекомендации ниже!';
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -33,8 +48,8 @@ export default function FarmDashboard({ metrics, userName, getHealthColor, getHe
                 Добро пожаловать, {userName || 'Фермер'}!
               </h2>
               <p className="text-green-100 text-lg flex items-center gap-2">
-                <Icon name="TrendingUp" size={20} />
-                Сегодня +10% к молочной продуктивности!
+                <Icon name="Sparkles" size={20} />
+                {getGreetingMessage()}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -49,28 +64,28 @@ export default function FarmDashboard({ metrics, userName, getHealthColor, getHe
                 <Icon name="Beef" size={20} />
                 <span className="text-sm text-green-100">Голов скота</span>
               </div>
-              <p className="text-3xl font-bold">{metrics.cattle_count}</p>
+              <p className="text-3xl font-bold">{metrics.cattle_count > 0 ? metrics.cattle_count : '—'}</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="Milk" size={20} />
                 <span className="text-sm text-green-100">Удойность (кг/день)</span>
               </div>
-              <p className="text-3xl font-bold">{metrics.milk_productivity}</p>
+              <p className="text-3xl font-bold">{metrics.milk_productivity > 0 ? metrics.milk_productivity.toFixed(1) : '—'}</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="Wheat" size={20} />
                 <span className="text-sm text-green-100">Урожайность (ц/га)</span>
               </div>
-              <p className="text-3xl font-bold">{metrics.crop_yield}</p>
+              <p className="text-3xl font-bold">{metrics.crop_yield > 0 ? metrics.crop_yield.toFixed(1) : '—'}</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="Map" size={20} />
                 <span className="text-sm text-green-100">Площадь (га)</span>
               </div>
-              <p className="text-3xl font-bold">{metrics.total_area}</p>
+              <p className="text-3xl font-bold">{metrics.total_area > 0 ? metrics.total_area.toFixed(0) : '—'}</p>
             </div>
           </div>
 

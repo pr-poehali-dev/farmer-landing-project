@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import FarmDashboard from '@/components/smart-farm/FarmDashboard';
 import MarketComparisonPanel from '@/components/smart-farm/MarketComparisonPanel';
 import GigaChatPanel from '@/components/smart-farm/GigaChatPanel';
+import { FARMER_API, Animal, Crop } from '@/types/farm.types';
 
 interface FarmMetrics {
   cattle_count: number;
@@ -91,12 +92,74 @@ export default function SmartFarm() {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [loadingDiagnostics, setLoadingDiagnostics] = useState(true);
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
+    } else {
+      loadDiagnostics();
     }
   }, [user, navigate]);
+
+  const loadDiagnostics = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`${FARMER_API}?action=get_diagnosis`, {
+        headers: { 'X-User-Id': user.id.toString() }
+      });
+      const data = await response.json();
+      
+      if (data.diagnosis && data.diagnosis.assets && data.diagnosis.assets.length > 0) {
+        const info = data.diagnosis.assets[0];
+        const animals: Animal[] = info.animals || [];
+        const crops: Crop[] = info.crops || [];
+        
+        const totalCattle = animals
+          .filter((a: Animal) => a.type === 'cows')
+          .reduce((sum: number, a: Animal) => sum + (a.count || 0), 0);
+        
+        const avgMilkYield = animals
+          .filter((a: Animal) => a.type === 'cows' && a.milkYield)
+          .reduce((sum: number, a: Animal) => sum + (a.milkYield || 0), 0) / 
+          (animals.filter((a: Animal) => a.type === 'cows' && a.milkYield).length || 1);
+        
+        const avgCropYield = crops.length > 0
+          ? crops.reduce((sum: number, c: Crop) => sum + (c.yield || 0), 0) / crops.length
+          : 0;
+        
+        const totalArea = parseFloat(info.land_area || '0');
+        
+        const healthScore = Math.min(100, Math.round(
+          (totalCattle > 0 ? 30 : 0) +
+          (avgMilkYield > 0 ? 30 : 0) +
+          (avgCropYield > 0 ? 20 : 0) +
+          (totalArea > 0 ? 20 : 0)
+        ));
+        
+        setMetrics({
+          cattle_count: totalCattle,
+          milk_productivity: avgMilkYield || 0,
+          crop_yield: avgCropYield || 0,
+          total_area: totalArea,
+          health_score: healthScore
+        });
+        
+        if (avgMilkYield > 0) {
+          setComparison(prev => ({
+            ...prev,
+            your_value: avgMilkYield
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки диагностики:', error);
+      toast.error('Не удалось загрузить данные хозяйства');
+    } finally {
+      setLoadingDiagnostics(false);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
