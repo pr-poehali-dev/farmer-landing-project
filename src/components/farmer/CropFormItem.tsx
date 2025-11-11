@@ -107,6 +107,16 @@ export default function CropFormItem({ crop, index, onUpdate, onRemove }: Props)
             </Select>
           </div>
         </div>
+        
+        <div className="pt-2 border-t">
+          <Label className="text-xs">Цена реализации (₽/кг)</Label>
+          <Input
+            type="number"
+            placeholder="25"
+            value={crop.pricePerKg || ''}
+            onChange={(e) => onUpdate(index, 'pricePerKg', parseInt(e.target.value) || 0)}
+          />
+        </div>
       </div>
     </Card>
   );

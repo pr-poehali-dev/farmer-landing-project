@@ -25,6 +25,7 @@ export interface Crop {
   area: number;
   yield: number;
   customName?: string;
+  pricePerKg?: number;
 }
 
 export interface Animal {
@@ -34,6 +35,9 @@ export interface Animal {
   direction?: 'meat' | 'milk' | 'mixed' | 'other';
   meatYield?: number;
   milkYield?: number;
+  meatPrice?: number;
+  milkPrice?: number;
+  eggPrice?: number;
 }
 
 export interface Equipment {

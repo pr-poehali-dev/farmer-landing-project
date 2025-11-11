@@ -118,6 +118,42 @@ export default function AnimalFormItem({ animal, index, onUpdate, onRemove }: Pr
             </div>
           )}
         </div>
+        
+        <div className="grid grid-cols-3 gap-3 pt-2 border-t">
+          {(animal.direction === 'dairy' || animal.direction === 'meat_dairy') && (
+            <div>
+              <Label className="text-xs">Цена молока (₽/л)</Label>
+              <Input
+                type="number"
+                placeholder="35"
+                value={animal.milkPrice || ''}
+                onChange={(e) => onUpdate(index, 'milkPrice', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
+          {(animal.direction === 'meat' || animal.direction === 'meat_dairy' || animal.direction === 'meat_wool') && (
+            <div>
+              <Label className="text-xs">Цена мяса (₽/кг)</Label>
+              <Input
+                type="number"
+                placeholder="450"
+                value={animal.meatPrice || ''}
+                onChange={(e) => onUpdate(index, 'meatPrice', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
+          {animal.type === 'chickens' && (
+            <div>
+              <Label className="text-xs">Цена яиц (₽/10 шт)</Label>
+              <Input
+                type="number"
+                placeholder="80"
+                value={animal.eggPrice || ''}
+                onChange={(e) => onUpdate(index, 'eggPrice', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );

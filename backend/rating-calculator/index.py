@@ -113,37 +113,56 @@ def calculate_rating(conn, farmer_id: str, headers: dict) -> dict:
             animal_type = animal.get('type', '')
             count = animal.get('count', 0)
             direction = animal.get('direction', '')
+            milk_price = animal.get('milkPrice', 0)
+            meat_price = animal.get('meatPrice', 0)
+            egg_price = animal.get('eggPrice', 0)
             
             if animal_type == 'cows':
                 if direction == 'dairy' or direction == 'mixed':
                     milk_yield = animal.get('milkYield', 0)
-                    # 1 балл за каждую корову + бонус за продуктивность
                     productivity_score += count * 50
                     if milk_yield > 5000:
                         productivity_score += count * 20
+                    # Бонус за цену молока (выше средней 35 руб/л)
+                    if milk_price > 35:
+                        productivity_score += count * int((milk_price - 35) / 5)
                 elif direction == 'meat':
                     productivity_score += count * 40
+                    # Бонус за цену мяса (выше средней 450 руб/кг)
+                    if meat_price > 450:
+                        productivity_score += count * int((meat_price - 450) / 50)
             elif animal_type == 'pigs':
                 productivity_score += count * 30
+                if meat_price > 350:
+                    productivity_score += count * int((meat_price - 350) / 50)
             elif animal_type == 'sheep':
                 productivity_score += count * 25
+                if meat_price > 400:
+                    productivity_score += count * int((meat_price - 400) / 50)
             elif animal_type == 'goats':
                 productivity_score += count * 25
             elif animal_type == 'chickens':
                 productivity_score += count * 2
+                # Бонус за цену яиц (выше средней 80 руб/10шт)
+                if egg_price > 80:
+                    productivity_score += count * int((egg_price - 80) / 20)
             elif animal_type == 'hives':
-                # Пчеловодство
                 productivity_score += count * 20
         
         # Баллы за посевы
         for crop in crops:
             area = crop.get('area', 0)
             crop_yield = crop.get('yield', 0)
+            price_per_kg = crop.get('pricePerKg', 0)
             
             # 10 баллов за гектар + бонус за урожайность
             productivity_score += int(area * 10)
             if crop_yield > 0:
                 productivity_score += int(area * (crop_yield / 100))
+            
+            # Бонус за цену реализации (выше средней 25 руб/кг)
+            if price_per_kg > 25:
+                productivity_score += int(area * (price_per_kg - 25) / 10)
         
         # === 2. ТЕХНОЛОГИЧНОСТЬ (Tech Score) ===
         tech_score = 0
