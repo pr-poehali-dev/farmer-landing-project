@@ -1,4 +1,8 @@
 {
+  "gigachat": "https://functions.poehali.dev/058d6fd2-bddb-408f-8975-4e567b3109fa",
+  "ai-analytics-data": "https://functions.poehali.dev/429c726b-7153-4ba9-987c-37e3c13925cb",
+  "ai-analysis": "https://functions.poehali.dev/227c976a-73aa-4e54-a1d5-5ce470416b17",
+  "ai-advisor": "https://functions.poehali.dev/eabf5335-d1f6-4cce-b810-9994d947d57f",
   "clean-duplicates": "https://functions.poehali.dev/5c0b0f78-e842-4c50-a00b-9865448bd447",
   "recalculate-all": "https://functions.poehali.dev/87e2199e-fccb-4019-b2f7-f2a662a27651",
   "farmer-profile": "https://functions.poehali.dev/46530a28-4adb-4608-bce7-1ddd2f4b3d11",

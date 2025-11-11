@@ -112,16 +112,48 @@ export default function SmartFarm() {
     setInputMessage('');
     setIsTyping(true);
 
-    setTimeout(() => {
+    try {
+      const messagesToSend = [...chatMessages, userMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const response = await fetch('https://functions.poehali.dev/058d6fd2-bddb-408f-8975-4e567b3109fa', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ messages: messagesToSend })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка сети');
+      }
+
+      const data = await response.json();
+      
       const aiResponse: ChatMessage = {
         id: chatMessages.length + 2,
         role: 'assistant',
-        content: 'Это демо-версия чата. Интеграция с GigaChat будет добавлена в ближайшее время. А пока могу порекомендовать обратить внимание на карточки рекомендаций выше!',
+        content: data.response,
         timestamp: new Date()
       };
+      
       setChatMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Не удалось получить ответ от GigaChat. Попробуйте позже.');
+      
+      const errorResponse: ChatMessage = {
+        id: chatMessages.length + 2,
+        role: 'assistant',
+        content: 'Извините, произошла ошибка при обращении к ИИ. Пожалуйста, попробуйте позже.',
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const getHealthColor = (score: number) => {
