@@ -121,10 +121,11 @@ export default function PublicLeaderboard() {
   const loadLeaderboard = async () => {
     setLoading(true);
     try {
-      const leaderboardUrl = 'https://functions.poehali.dev/93540074-a141-40ce-b20a-4ca6cdb4e592';
+      const leaderboardUrl = 'https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8';
       const params = new URLSearchParams();
-      params.append('nomination', selectedRating);
-      if (selectedRegion) params.append('region', selectedRegion);
+      params.append('action', 'leaderboard');
+      params.append('category', selectedRating);
+      params.append('period', 'all-time');
       
       const response = await fetch(`${leaderboardUrl}?${params.toString()}`);
       const data = await response.json();

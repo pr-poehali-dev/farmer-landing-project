@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 
-const LEADERBOARD_URL = 'https://functions.poehali.dev/93540074-a141-40ce-b20a-4ca6cdb4e592';
+const LEADERBOARD_URL = 'https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -32,11 +32,12 @@ export default function Leaderboard() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append('role', role);
+      params.append('action', 'leaderboard');
+      
       if (role === 'farmer') {
-        params.append('nomination', nomination);
+        params.append('category', nomination);
       }
-      if (region) params.append('region', region);
+      params.append('period', 'all-time');
       
       const response = await fetch(`${LEADERBOARD_URL}?${params}`);
       const result = await response.json();
