@@ -1,32 +1,26 @@
 {
   "tests": [
     {
-      "name": "Test chat with valid messages",
-      "method": "POST",
+      "name": "Test GET usage info",
+      "method": "GET",
       "path": "/",
-      "body": {
-        "messages": [
-          {
-            "role": "user",
-            "content": "Привет, как увеличить урожайность пшеницы?"
-          }
-        ]
+      "headers": {
+        "X-User-Id": "11"
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "response": "string",
-        "request_id": "string"
+        "allowed": true,
+        "limit": 3
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Test chat without messages",
-      "method": "POST",
+      "name": "Test unauthorized request",
+      "method": "GET",
       "path": "/",
-      "body": {},
-      "expectedStatus": 400,
+      "expectedStatus": 401,
       "expectedBody": {
-        "error": "Messages array is required"
+        "error": "X-User-Id header required"
       }
     }
   ]

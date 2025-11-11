@@ -93,14 +93,36 @@ export default function SmartFarm() {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [loadingDiagnostics, setLoadingDiagnostics] = useState(true);
+  const [usageInfo, setUsageInfo] = useState<{used: number; limit: number; remaining: number; tier: string} | null>(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
     } else {
       loadDiagnostics();
+      loadUsageInfo();
     }
   }, [user, navigate]);
+
+  const loadUsageInfo = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch('https://functions.poehali.dev/058d6fd2-bddb-408f-8975-4e567b3109fa', {
+        method: 'GET',
+        headers: {
+          'X-User-Id': user.id.toString()
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsageInfo(data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки информации о лимитах:', error);
+    }
+  };
 
   const loadDiagnostics = async () => {
     if (!user) return;
@@ -207,16 +229,30 @@ export default function SmartFarm() {
       const response = await fetch('https://functions.poehali.dev/058d6fd2-bddb-408f-8975-4e567b3109fa', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-User-Id': user?.id.toString() || ''
         },
         body: JSON.stringify({ messages: messagesToSend })
       });
+
+      if (response.status === 429) {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Превышен лимит запросов');
+        setIsTyping(false);
+        await loadUsageInfo();
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Ошибка сети');
       }
 
       const data = await response.json();
+      
+      // Обновляем информацию о лимитах
+      if (data.usage) {
+        setUsageInfo(data.usage);
+      }
       
       const aiResponse: ChatMessage = {
         id: chatMessages.length + 2,
@@ -293,6 +329,7 @@ export default function SmartFarm() {
           recommendations={recommendations}
           expandedCard={expandedCard}
           setExpandedCard={setExpandedCard}
+          usageInfo={usageInfo || undefined}
         />
       </div>
     </div>

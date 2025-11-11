@@ -18,6 +18,13 @@ interface AIRecommendation {
   roi: number;
 }
 
+interface UsageInfo {
+  used: number;
+  limit: number;
+  remaining: number;
+  tier: string;
+}
+
 interface GigaChatPanelProps {
   chatMessages: ChatMessage[];
   isTyping: boolean;
@@ -27,6 +34,7 @@ interface GigaChatPanelProps {
   recommendations: AIRecommendation[];
   expandedCard: number | null;
   setExpandedCard: (value: number | null) => void;
+  usageInfo?: UsageInfo;
 }
 
 export default function GigaChatPanel({
@@ -37,8 +45,39 @@ export default function GigaChatPanel({
   handleSendMessage,
   recommendations,
   expandedCard,
-  setExpandedCard
+  setExpandedCard,
+  usageInfo
 }: GigaChatPanelProps) {
+  const getTierBadge = () => {
+    if (!usageInfo) return null;
+    
+    const tierColors = {
+      free: 'bg-gray-100 text-gray-700',
+      basic: 'bg-blue-100 text-blue-700',
+      premium: 'bg-purple-100 text-purple-700'
+    };
+    
+    const tierNames = {
+      free: 'Бесплатно',
+      basic: 'Базовая',
+      premium: 'Премиум'
+    };
+    
+    return (
+      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${tierColors[usageInfo.tier as keyof typeof tierColors] || tierColors.free}`}>
+        <Icon name="Zap" size={12} />
+        {tierNames[usageInfo.tier as keyof typeof tierNames] || usageInfo.tier}
+      </div>
+    );
+  };
+  
+  const getUsageColor = () => {
+    if (!usageInfo) return 'text-gray-600';
+    const percentage = (usageInfo.used / usageInfo.limit) * 100;
+    if (percentage >= 90) return 'text-red-600';
+    if (percentage >= 70) return 'text-orange-600';
+    return 'text-green-600';
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -55,7 +94,7 @@ export default function GigaChatPanel({
           <div className="lg:col-span-2">
             <Card className="h-[600px] flex flex-col bg-gradient-to-br from-purple-50 to-indigo-50">
               <div className="p-4 border-b bg-white/80 backdrop-blur-sm rounded-t-lg">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
                     <Icon name="Bot" size={24} className="text-white" />
                   </div>
@@ -63,11 +102,22 @@ export default function GigaChatPanel({
                     <h3 className="font-bold text-gray-900">GigaChat AI</h3>
                     <p className="text-xs text-gray-500">Ваш личный агроном</p>
                   </div>
-                  <div className="ml-auto flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs text-gray-600">Онлайн</span>
+                  <div className="ml-auto flex items-center gap-2">
+                    {getTierBadge()}
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-xs text-gray-600">Онлайн</span>
+                    </div>
                   </div>
                 </div>
+                {usageInfo && (
+                  <div className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-3 py-2">
+                    <span className="text-gray-600">Запросов сегодня:</span>
+                    <span className={`font-bold ${getUsageColor()}`}>
+                      {usageInfo.used} / {usageInfo.limit}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -108,26 +158,59 @@ export default function GigaChatPanel({
               </div>
 
               <div className="p-4 border-t bg-white/80 backdrop-blur-sm">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder="Задайте вопрос о вашем хозяйстве..."
-                    className="flex-1 px-4 py-3 rounded-full border border-gray-300 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all"
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!inputMessage.trim() || isTyping}
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Icon name="Send" size={20} />
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
-                  💡 Спросите про удобрения, корма, рыночные цены или попросите совет
-                </p>
+                {usageInfo && usageInfo.remaining === 0 ? (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                    <Icon name="AlertCircle" size={24} className="text-red-500 mx-auto mb-2" />
+                    <p className="text-sm font-semibold text-red-700 mb-1">
+                      Лимит запросов исчерпан
+                    </p>
+                    <p className="text-xs text-red-600 mb-3">
+                      Обновите подписку для продолжения работы с ИИ-помощником
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-white rounded p-2 border border-blue-200">
+                        <div className="font-bold text-blue-700">Базовая</div>
+                        <div className="text-gray-600">30 запросов/день</div>
+                        <div className="text-blue-700 font-bold">1000₽/мес</div>
+                      </div>
+                      <div className="bg-white rounded p-2 border border-purple-200">
+                        <div className="font-bold text-purple-700">Премиум</div>
+                        <div className="text-gray-600">100 запросов/день</div>
+                        <div className="text-purple-700 font-bold">1500₽/мес</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={inputMessage}
+                        onChange={(e) => setInputMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                        placeholder="Задайте вопрос о вашем хозяйстве..."
+                        className="flex-1 px-4 py-3 rounded-full border border-gray-300 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all"
+                      />
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={!inputMessage.trim() || isTyping}
+                        className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Icon name="Send" size={20} />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs text-gray-500">
+                        💡 Спросите про удобрения, корма, рыночные цены
+                      </p>
+                      {usageInfo && usageInfo.remaining <= 3 && usageInfo.remaining > 0 && (
+                        <span className="text-xs font-semibold text-orange-600">
+                          Осталось {usageInfo.remaining} запросов
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </Card>
           </div>
