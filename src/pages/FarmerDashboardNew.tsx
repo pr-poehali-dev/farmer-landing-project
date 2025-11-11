@@ -69,7 +69,7 @@ export default function FarmerDashboardNew() {
             className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white shadow-lg"
           >
             <Icon name="Sparkles" size={20} className="mr-2" />
-            ИИ-анализ (PRO)
+            Моя умная ферма
           </Button>
         </div>
 
