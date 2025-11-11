@@ -17,6 +17,8 @@ interface MarketComparisonPanelProps {
 export default function MarketComparisonPanel({ comparison }: MarketComparisonPanelProps) {
   const navigate = useNavigate();
   
+  const hasData = comparison.your_value > 0;
+  
   const getMetricLabel = () => {
     if (comparison.your_value > 100) {
       return 'кг мяса с туши';
@@ -38,7 +40,28 @@ export default function MarketComparisonPanel({ comparison }: MarketComparisonPa
           Сравнение с рынком
         </h2>
         
-        <div className="grid md:grid-cols-3 gap-6">
+        {!hasData ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Icon name="BarChart3" size={40} className="text-blue-500" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Заполните диагностику хозяйства
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-md">
+              Чтобы увидеть сравнение с другими фермерами региона и России, добавьте информацию о вашем хозяйстве
+            </p>
+            <button
+              onClick={() => navigate('/dashboard/farmer')}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2"
+            >
+              <Icon name="Edit" size={20} />
+              Перейти к диагностике
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="grid md:grid-cols-3 gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-blue-600 font-semibold">
               <Icon name="User" size={20} />
@@ -85,21 +108,23 @@ export default function MarketComparisonPanel({ comparison }: MarketComparisonPa
           </div>
         </div>
 
-        <div className="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Icon name="Trophy" size={32} className="text-yellow-500" />
-            <div>
-              <p className="text-sm text-gray-600">Ваше место в регионе</p>
-              <p className="text-2xl font-bold text-gray-900">#{comparison.ranking}</p>
+            <div className="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Icon name="Trophy" size={32} className="text-yellow-500" />
+                <div>
+                  <p className="text-sm text-gray-600">Ваше место в регионе</p>
+                  <p className="text-2xl font-bold text-gray-900">#{comparison.ranking}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/leaderboard')}
+                className="px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Таблица лидеров
+              </button>
             </div>
-          </div>
-          <button
-            onClick={() => navigate('/leaderboard')}
-            className="px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Таблица лидеров
-          </button>
-        </div>
+          </>
+        )}
       </Card>
     </motion.div>
   );
