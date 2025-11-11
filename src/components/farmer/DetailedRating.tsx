@@ -4,25 +4,25 @@ import { Progress } from '@/components/ui/progress';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 
-const RATING_URL = 'https://functions.poehali.dev/6651f712-61f5-44b8-827f-dd095dffa4f6';
+const RATING_URL = 'https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8';
 
 interface Rating {
-  total: number;
-  yield: number;
-  technology: number;
-  social: number;
-  investment: number;
-  professionalism: number;
+  productivity_score: number;
+  tech_score: number;
+  investment_score: number;
+  expertise_score: number;
+  community_score: number;
+  total_score: number;
 }
 
 export default function DetailedRating({ userId }: { userId: string }) {
   const [rating, setRating] = useState<Rating>({
-    total: 0,
-    yield: 0,
-    technology: 0,
-    social: 0,
-    investment: 0,
-    professionalism: 0
+    productivity_score: 0,
+    tech_score: 0,
+    investment_score: 0,
+    expertise_score: 0,
+    community_score: 0,
+    total_score: 0
   });
   const [loading, setLoading] = useState(false);
 
@@ -33,18 +33,18 @@ export default function DetailedRating({ userId }: { userId: string }) {
   const loadRating = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${RATING_URL}?action=get_rating`, {
+      const response = await fetch(`${RATING_URL}?action=get_scores`, {
         headers: { 'X-User-Id': userId }
       });
       const data = await response.json();
       
       setRating({
-        total: data.rating_total || 0,
-        yield: data.rating_yield || 0,
-        technology: data.rating_technology || 0,
-        social: data.rating_social || 0,
-        investment: data.rating_investment || 0,
-        professionalism: data.rating_professionalism || 0
+        productivity_score: data.productivity_score || 0,
+        tech_score: data.tech_score || 0,
+        investment_score: data.investment_score || 0,
+        expertise_score: data.expertise_score || 0,
+        community_score: data.community_score || 0,
+        total_score: data.total_score || 0
       });
     } catch (error) {
       console.error('Ошибка загрузки рейтинга:', error);
@@ -63,8 +63,7 @@ export default function DetailedRating({ userId }: { userId: string }) {
           'X-User-Id': userId
         },
         body: JSON.stringify({
-          action: 'calculate',
-          farmer_id: userId
+          action: 'calculate_scores'
         })
       });
       await loadRating();
@@ -77,44 +76,44 @@ export default function DetailedRating({ userId }: { userId: string }) {
 
   const categories = [
     {
-      name: 'Урожайность',
-      value: rating.yield,
+      name: 'Продуктивность',
+      value: rating.productivity_score,
       icon: 'Wheat',
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
-      description: 'Показатели урожайности культур и продуктивности животноводства'
+      description: 'Мастерство растениеводства и урожайность культур'
     },
     {
       name: 'Технологичность',
-      value: rating.technology,
+      value: rating.tech_score,
       icon: 'Settings',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      description: 'Использование современной техники и агротехнологий'
-    },
-    {
-      name: 'Социальный капитал',
-      value: rating.social,
-      icon: 'Users',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      description: 'Количество сотрудников и площадь земли в собственности'
+      description: 'Технологический уровень и современная техника'
     },
     {
       name: 'Инвестиции',
-      value: rating.investment,
+      value: rating.investment_score,
       icon: 'TrendingUp',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
-      description: 'Привлечение инвестиций и закупка новой техники'
+      description: 'Эффективность животноводства и инвестиционная привлекательность'
     },
     {
-      name: 'Профессионализм',
-      value: rating.professionalism,
+      name: 'Экспертность',
+      value: rating.expertise_score,
       icon: 'Award',
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
-      description: 'Заполненность профиля и разнообразие деятельности'
+      description: 'Земельные ресурсы и профессиональная экспертиза'
+    },
+    {
+      name: 'Социальный капитал',
+      value: rating.community_score,
+      icon: 'Users',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      description: 'Масштаб бизнеса и количество сотрудников'
     }
   ];
 
@@ -125,7 +124,7 @@ export default function DetailedRating({ userId }: { userId: string }) {
       <Card className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">{rating.total}</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{rating.total_score}</h2>
             <p className="text-gray-600">Общий рейтинг</p>
           </div>
           <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center">
