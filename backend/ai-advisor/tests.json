@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "AI analysis - unauthorized",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "farmData": {
+          "region": "Краснодарский край",
+          "landArea": 100
+        }
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "AI analysis - missing farm data",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

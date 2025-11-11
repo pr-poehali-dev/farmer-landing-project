@@ -19,6 +19,7 @@ import CropFormItem from './CropFormItem';
 import EquipmentFormItem from './EquipmentFormItem';
 import ProFeatureCard from './ProFeatureCard';
 import SubsidiesTab from './SubsidiesTab';
+import AiAnalysisModal from './AiAnalysisModal';
 
 export default function FarmDiagnostics() {
   const { user, loading: authLoading } = useAuth();
@@ -33,6 +34,9 @@ export default function FarmDiagnostics() {
   const [crops, setCrops] = useState<Crop[]>([]);
   const [employeesPermanent, setEmployeesPermanent] = useState(0);
   const [employeesSeasonal, setEmployeesSeasonal] = useState(0);
+  const [aiAnalysisOpen, setAiAnalysisOpen] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     console.log('📊 FarmDiagnostics useEffect:', { authLoading, user, userId: user?.id });
@@ -185,8 +189,52 @@ export default function FarmDiagnostics() {
     }
   };
 
-  const handleAiAnalysis = () => {
-    toast.info('ИИ-анализ доступен по платной подписке. Функция в разработке — скоро запуск!');
+  const handleAiAnalysis = async () => {
+    if (!user) {
+      toast.error('Необходимо авторизоваться');
+      return;
+    }
+
+    setAiLoading(true);
+    setAiAnalysisOpen(true);
+    setAiAnalysis('');
+
+    try {
+      const farmData = {
+        region: user.region || 'Не указан',
+        landArea: Number(landArea) || 0,
+        landOwned: Number(landOwned) || 0,
+        landRented: Number(landRented) || 0,
+        animals,
+        crops,
+        equipment,
+        employeesPermanent,
+        employeesSeasonal
+      };
+
+      const response = await fetch('https://functions.poehali.dev/eabf5335-d1f6-4cce-b810-9994d947d57f', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        },
+        body: JSON.stringify({ farmData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка анализа');
+      }
+
+      const data = await response.json();
+      setAiAnalysis(data.analysis);
+      toast.success('Анализ готов!');
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      toast.error('Не удалось выполнить анализ. Проверьте данные и попробуйте снова.');
+      setAiAnalysisOpen(false);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const animalCount = animals.reduce((sum, a) => sum + a.count, 0);
@@ -392,13 +440,30 @@ export default function FarmDiagnostics() {
           onClick={handleAiAnalysis}
           variant="outline"
           className="flex-1"
+          disabled={aiLoading}
         >
-          <Icon name="Lock" size={16} className="mr-2" />
-          ИИ-анализ (PRO)
+          {aiLoading ? (
+            <>
+              <Icon name="Loader2" className="animate-spin mr-2" size={16} />
+              Анализирую...
+            </>
+          ) : (
+            <>
+              <Icon name="Brain" size={16} className="mr-2" />
+              ИИ-анализ
+            </>
+          )}
         </Button>
       </div>
 
       <ProFeatureCard />
+
+      <AiAnalysisModal
+        open={aiAnalysisOpen}
+        onClose={() => setAiAnalysisOpen(false)}
+        analysis={aiAnalysis}
+        loading={aiLoading}
+      />
     </div>
   );
 }
