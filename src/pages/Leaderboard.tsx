@@ -6,7 +6,6 @@ import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 
 const LEADERBOARD_URL = 'https://functions.poehali.dev/93540074-a141-40ce-b20a-4ca6cdb4e592';
-const RECALCULATE_URL = 'https://functions.poehali.dev/87e2199e-fccb-4019-b2f7-f2a662a27651';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -24,23 +23,10 @@ export default function Leaderboard() {
   const [region, setRegion] = useState('');
   const [data, setData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [recalculating, setRecalculating] = useState(false);
 
   useEffect(() => {
     loadLeaderboard();
   }, [nomination, region, role]);
-
-  const recalculateRatings = async () => {
-    setRecalculating(true);
-    try {
-      await fetch(RECALCULATE_URL, { method: 'POST' });
-      await loadLeaderboard();
-    } catch (error) {
-      console.error('Ошибка пересчёта:', error);
-    } finally {
-      setRecalculating(false);
-    }
-  };
 
   const loadLeaderboard = async () => {
     setLoading(true);
@@ -96,20 +82,10 @@ export default function Leaderboard() {
               <h1 className="text-2xl font-bold text-gray-900">🏆 Лидеры</h1>
               <p className="text-sm text-gray-600">Рейтинг лучших фермерских хозяйств</p>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={recalculateRatings}
-                disabled={recalculating}
-              >
-                <Icon name={recalculating ? "Loader2" : "RefreshCw"} size={16} className={`mr-2 ${recalculating ? 'animate-spin' : ''}`} />
-                Пересчитать
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/')}>
-                <Icon name="Home" size={16} className="mr-2" />
-                На главную
-              </Button>
-            </div>
+            <Button variant="outline" onClick={() => navigate('/')}>
+              <Icon name="Home" size={16} className="mr-2" />
+              На главную
+            </Button>
           </div>
         </div>
       </header>
