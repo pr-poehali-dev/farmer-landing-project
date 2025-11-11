@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'react-hot-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 import { motion, AnimatePresence } from 'framer-motion';
 
