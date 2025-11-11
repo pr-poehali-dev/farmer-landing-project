@@ -41,9 +41,18 @@ export default function Leaderboard() {
       
       const response = await fetch(`${LEADERBOARD_URL}?${params}`);
       const result = await response.json();
-      setData(result);
+      
+      if (Array.isArray(result)) {
+        setData(result);
+      } else if (result.body) {
+        const bodyData = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+        setData(Array.isArray(bodyData) ? bodyData : []);
+      } else {
+        setData([]);
+      }
     } catch (error) {
       console.error('Ошибка загрузки:', error);
+      setData([]);
     } finally {
       setLoading(false);
     }

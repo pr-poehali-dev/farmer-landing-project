@@ -128,8 +128,16 @@ export default function PublicLeaderboard() {
       params.append('period', 'all-time');
       
       const response = await fetch(`${leaderboardUrl}?${params.toString()}`);
-      const data = await response.json();
-      setLeaderboard(Array.isArray(data) ? data : []);
+      const result = await response.json();
+      
+      if (Array.isArray(result)) {
+        setLeaderboard(result);
+      } else if (result.body) {
+        const bodyData = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+        setLeaderboard(Array.isArray(bodyData) ? bodyData : []);
+      } else {
+        setLeaderboard([]);
+      }
     } catch (error) {
       console.error('Ошибка загрузки лидерборда:', error);
       setLeaderboard([]);
