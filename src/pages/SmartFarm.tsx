@@ -43,17 +43,17 @@ export default function SmartFarm() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<FarmMetrics>({
-    cattle_count: 250,
-    milk_productivity: 28.5,
-    crop_yield: 45.2,
-    total_area: 180,
-    health_score: 85
+    cattle_count: 0,
+    milk_productivity: 0,
+    crop_yield: 0,
+    total_area: 0,
+    health_score: 0
   });
   const [comparison, setComparison] = useState<MarketComparison>({
-    your_value: 28.5,
-    regional_avg: 25.8,
-    national_avg: 24.2,
-    ranking: 12
+    your_value: 0,
+    regional_avg: 0,
+    national_avg: 0,
+    ranking: 0
   });
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([
     {
