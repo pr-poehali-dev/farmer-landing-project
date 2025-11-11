@@ -153,6 +153,31 @@ export default function SmartFarm() {
           }));
         }
       }
+      
+      const statsResponse = await fetch(`${FARMER_API}?action=get_market_stats`, {
+        headers: { 'X-User-Id': user.id.toString() }
+      });
+      const statsData = await statsResponse.json();
+      
+      if (statsData) {
+        const metricToShow = statsData.user.meat_yield > 0 ? 'meat' : 'milk';
+        
+        if (metricToShow === 'meat') {
+          setComparison({
+            your_value: statsData.user.meat_yield,
+            regional_avg: statsData.regional.meat_yield,
+            national_avg: statsData.national.meat_yield,
+            ranking: statsData.ranking
+          });
+        } else if (statsData.user.milk_yield > 0) {
+          setComparison({
+            your_value: statsData.user.milk_yield,
+            regional_avg: statsData.regional.milk_yield,
+            national_avg: statsData.national.milk_yield,
+            ranking: statsData.ranking
+          });
+        }
+      }
     } catch (error) {
       console.error('Ошибка загрузки диагностики:', error);
       toast.error('Не удалось загрузить данные хозяйства');

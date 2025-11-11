@@ -16,6 +16,15 @@ interface MarketComparisonPanelProps {
 
 export default function MarketComparisonPanel({ comparison }: MarketComparisonPanelProps) {
   const navigate = useNavigate();
+  
+  const getMetricLabel = () => {
+    if (comparison.your_value > 100) {
+      return 'кг мяса с туши';
+    }
+    return 'кг молока/день';
+  };
+  
+  const metricLabel = getMetricLabel();
 
   return (
     <motion.div
@@ -36,8 +45,8 @@ export default function MarketComparisonPanel({ comparison }: MarketComparisonPa
               <span>Ваше хозяйство</span>
             </div>
             <div className="bg-blue-50 rounded-lg p-4">
-              <p className="text-3xl font-bold text-blue-600">{comparison.your_value}</p>
-              <p className="text-sm text-gray-600">кг молока/день</p>
+              <p className="text-3xl font-bold text-blue-600">{comparison.your_value.toFixed(1)}</p>
+              <p className="text-sm text-gray-600">{metricLabel}</p>
             </div>
           </div>
 
@@ -47,8 +56,8 @@ export default function MarketComparisonPanel({ comparison }: MarketComparisonPa
               <span>Средний по региону</span>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
-              <p className="text-3xl font-bold text-purple-600">{comparison.regional_avg}</p>
-              <p className="text-sm text-gray-600">кг молока/день</p>
+              <p className="text-3xl font-bold text-purple-600">{comparison.regional_avg.toFixed(1)}</p>
+              <p className="text-sm text-gray-600">{metricLabel}</p>
             </div>
             <div className="text-sm">
               <span className="text-green-600 font-semibold">
@@ -64,8 +73,8 @@ export default function MarketComparisonPanel({ comparison }: MarketComparisonPa
               <span>Средний по России</span>
             </div>
             <div className="bg-orange-50 rounded-lg p-4">
-              <p className="text-3xl font-bold text-orange-600">{comparison.national_avg}</p>
-              <p className="text-sm text-gray-600">кг молока/день</p>
+              <p className="text-3xl font-bold text-orange-600">{comparison.national_avg.toFixed(1)}</p>
+              <p className="text-sm text-gray-600">{metricLabel}</p>
             </div>
             <div className="text-sm">
               <span className="text-green-600 font-semibold">
