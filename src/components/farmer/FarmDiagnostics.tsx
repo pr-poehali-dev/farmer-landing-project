@@ -389,7 +389,7 @@ export default function FarmDiagnostics() {
           )}
         </Button>
         <Button 
-          onClick={handleAiAnalysis}
+          onClick={() => window.location.href = '/smart-farm'}
           variant="outline"
           className="flex-1"
         >

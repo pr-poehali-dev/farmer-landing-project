@@ -28,6 +28,7 @@ import B2BPanel from "./pages/B2BPanel";
 import OAuthCallback from "./pages/OAuthCallback";
 import TelegramAuth from "./pages/TelegramAuth";
 import FarmerProfile from "./pages/FarmerProfile";
+import SmartFarm from "./pages/SmartFarm";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route path="/oauth/telegram" element={<TelegramAuth />} />
           <Route path="/farmer/:farmerId" element={<FarmerProfile />} />
+          <Route path="/smart-farm" element={<SmartFarm />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
