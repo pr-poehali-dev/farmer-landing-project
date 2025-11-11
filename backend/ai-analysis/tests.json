@@ -1,0 +1,40 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedHeaders": {
+        "Access-Control-Allow-Origin": "*"
+      }
+    },
+    {
+      "name": "POST with farm data",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-User-Id": "11"
+      },
+      "body": {
+        "farmData": {
+          "region": "Московская область",
+          "landArea": 100,
+          "landOwned": 50,
+          "landRented": 50,
+          "animals": [{"type": "cows", "breed": "Голштинская", "count": 20}],
+          "crops": [{"type": "wheat", "area": 50}],
+          "equipment": [{"name": "Трактор", "model": "МТЗ-82", "year": 2015}],
+          "employeesPermanent": 5,
+          "employeesSeasonal": 10
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "analysis": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

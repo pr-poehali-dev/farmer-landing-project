@@ -212,11 +212,11 @@ export default function FarmDiagnostics() {
         employeesSeasonal
       };
 
-      const response = await fetch('https://functions.poehali.dev/eabf5335-d1f6-4cce-b810-9994d947d57f', {
+      const response = await fetch('https://functions.poehali.dev/227c976a-73aa-4e54-a1d5-5ce470416b17', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Id': user.id
+          'X-User-Id': String(user.id)
         },
         body: JSON.stringify({ farmData })
       });
