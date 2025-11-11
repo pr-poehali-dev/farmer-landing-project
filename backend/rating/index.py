@@ -31,23 +31,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Access-Control-Allow-Origin': '*'
     }
     
+    dsn = os.environ.get('DATABASE_URL')
+    if not dsn:
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'error': 'Database not configured'})
+        }
+    
     # Для некоторых действий не требуется авторизация
-    body_data = {}
+    if method == 'GET':
+        params = event.get('queryStringParameters') or {}
+        action = params.get('action', 'get_scores')
+        
+        # Leaderboard доступен без авторизации
+        if action == 'leaderboard':
+            conn = psycopg2.connect(dsn)
+            category = params.get('category', 'total')
+            period = params.get('period', 'all-time')
+            return get_leaderboard(conn, category, period, headers)
+    
     if method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
         if action == 'recalculate_all':
             # Для массового пересчёта не требуется user_id
-            dsn = os.environ.get('DATABASE_URL')
-            if not dsn:
-                return {
-                    'statusCode': 500,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Database not configured'})
-                }
             conn = psycopg2.connect(dsn)
             return recalculate_all_farmers(conn, headers)
     
+    # Для остальных действий требуется авторизация
     user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
     
     if not user_id:
@@ -55,14 +67,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 401,
             'headers': headers,
             'body': json.dumps({'error': 'X-User-Id header required'})
-        }
-    
-    dsn = os.environ.get('DATABASE_URL')
-    if not dsn:
-        return {
-            'statusCode': 500,
-            'headers': headers,
-            'body': json.dumps({'error': 'Database not configured'})
         }
     
     conn = psycopg2.connect(dsn)
@@ -73,10 +77,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if action == 'get_scores':
             return get_farmer_scores(conn, user_id, headers)
-        elif action == 'leaderboard':
-            category = params.get('category', 'total')
-            period = params.get('period', 'all-time')
-            return get_leaderboard(conn, category, period, headers)
         elif action == 'daily_quests':
             return get_daily_quests(conn, user_id, headers)
         elif action == 'achievements':
