@@ -257,7 +257,7 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
             for key in ['land_power', 'livestock_efficiency', 'crop_mastery', 'tech_advancement', 'business_scale']:
                 raw_val = locals()[key]
                 max_val = max_scores[key]
-                normalized[key] = (raw_val / max_val * 1000) if max_val > 0 else 0
+                normalized[key] = min(1000, (raw_val / max_val * 1000)) if max_val > 0 else 0
             
             overall_score = (
                 normalized['land_power'] * 0.15 +
@@ -266,6 +266,7 @@ def calculate_and_update_scores(conn, user_id: str, headers: dict) -> dict:
                 normalized['tech_advancement'] * 0.20 +
                 normalized['business_scale'] * 0.15
             )
+            overall_score = min(1000, overall_score)
             
             crop_master = (normalized['crop_mastery'] * 0.60 + normalized['land_power'] * 0.25 + 
                            normalized['tech_advancement'] * 0.15)
