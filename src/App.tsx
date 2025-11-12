@@ -29,6 +29,7 @@ import FarmerProfile from "./pages/FarmerProfile";
 import SmartFarm from "./pages/SmartFarm";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
+import Legal from "./pages/Legal";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/smart-farm" element={<SmartFarm />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/legal" element={<Legal />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
