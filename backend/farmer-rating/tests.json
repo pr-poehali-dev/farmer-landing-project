@@ -1,0 +1,94 @@
+{
+  "tests": [
+    {
+      "name": "Calculate rating with full data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "diagnostics": {
+          "land_area": 50,
+          "land_owned": 30,
+          "land_rented": 20,
+          "animals": [
+            {
+              "type": "cows",
+              "count": 20,
+              "direction": "milk",
+              "milkYield": 6000,
+              "milkPrice": 40
+            }
+          ],
+          "equipment": [
+            {
+              "brand": "John Deere",
+              "model": "6120M",
+              "year": "2020",
+              "attachments": "Плуг, культиватор"
+            }
+          ],
+          "crops": [
+            {
+              "type": "corn",
+              "area": 30,
+              "yield": 240,
+              "pricePerKg": 12
+            }
+          ],
+          "employees_permanent": 5,
+          "employees_seasonal": 10
+        },
+        "profile": {
+          "region": "Краснодарский край"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "totalRating": 64.5,
+        "breakdown": {
+          "region": 100,
+          "land": 55.0,
+          "animal": 65.0,
+          "equipment": 20,
+          "crop": 100,
+          "staff": 55,
+          "finance": 70
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Calculate rating with minimal data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "diagnostics": {
+          "land_area": 10,
+          "land_owned": 10,
+          "land_rented": 0,
+          "animals": [],
+          "equipment": [],
+          "crops": [],
+          "employees_permanent": 1,
+          "employees_seasonal": 0
+        },
+        "profile": {
+          "region": ""
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "totalRating": 17.7,
+        "breakdown": {
+          "region": 50,
+          "land": 55.0,
+          "animal": 0,
+          "equipment": 0,
+          "crop": 0,
+          "staff": 7,
+          "finance": 10
+        }
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

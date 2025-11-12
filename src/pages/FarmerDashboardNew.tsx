@@ -10,6 +10,7 @@ import InvestmentProposals from '@/components/farmer/InvestmentProposals';
 import OwnerProfile from '@/components/farmer/OwnerProfile';
 import SellerMarketplace from '@/components/farmer/SellerMarketplace';
 import InvestorRequests from '@/components/farmer/InvestorRequests';
+import FarmerRating from '@/components/farmer/FarmerRating';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -110,11 +111,7 @@ export default function FarmerDashboardNew() {
           </TabsContent>
 
           <TabsContent value="rating" className="mt-6">
-            <Card className="p-8 text-center">
-              <Icon name="Trophy" size={64} className="mx-auto mb-4 text-yellow-600" />
-              <h2 className="text-2xl font-bold mb-2">Система рейтинга</h2>
-              <p className="text-gray-600">Скоро здесь появится новая система оценки вашей фермы!</p>
-            </Card>
+            <FarmerRating />
           </TabsContent>
         </Tabs>
       </main>

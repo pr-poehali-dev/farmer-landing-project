@@ -1,4 +1,5 @@
 {
+  "farmer-rating": "https://functions.poehali.dev/ae7c97c0-1d46-4334-9a0c-5a8e54209875",
   "gigachat": "https://functions.poehali.dev/058d6fd2-bddb-408f-8975-4e567b3109fa",
   "ai-analytics-data": "https://functions.poehali.dev/429c726b-7153-4ba9-987c-37e3c13925cb",
   "ai-analysis": "https://functions.poehali.dev/227c976a-73aa-4e54-a1d5-5ce470416b17",
@@ -13,8 +14,6 @@
   "oauth-vk": "https://functions.poehali.dev/2d732380-6bbc-402f-890f-a09be08f821b",
   "oauth-config": "https://functions.poehali.dev/f26c71ea-c1d2-434a-8aa1-f64bbb2bc129",
   "oauth": "https://functions.poehali.dev/7b39755d-a7c6-4546-9f5a-4d3ec725a791",
-  "leaderboard": "https://functions.poehali.dev/93540074-a141-40ce-b20a-4ca6cdb4e592",
-  "rating": "https://functions.poehali.dev/6e3852b3-e6e1-478e-b710-869bd1a377d8",
   "admin-metrics": "https://functions.poehali.dev/e07a87af-9e24-471c-b21c-3cc12b198981",
   "delete-user": "https://functions.poehali.dev/68b32d82-8055-4ae6-b41c-28ff4dad404b",
   "seller-api": "https://functions.poehali.dev/cc24321a-77b4-44ce-9ae2-7fb7efee6660",
