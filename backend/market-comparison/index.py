@@ -101,34 +101,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             my_count = my_animal.get('count', 0)
             my_meat_yield = my_animal.get('meatYield', 0)
             my_milk_yield = my_animal.get('milkYield', 0)
-            my_price_per_kg = my_animal.get('pricePerKg', 0)
+            my_price_per_kg = my_animal.get('pricePerKg', 0) or my_animal.get('meatPrice', 0)
             
             matching_animals = []
             for farmer_id, animals, crops in all_farmers:
                 if not animals:
                     continue
                 for animal in animals:
-                    if animal.get('type') == animal_type and animal.get('breed', '').lower() == breed.lower():
-                        matching_animals.append(animal)
+                    other_type = animal.get('type', '')
+                    if (other_type == animal_type or 
+                        other_type.rstrip('s') == animal_type.rstrip('s') or
+                        (other_type == 'cow' and animal_type == 'cows') or
+                        (other_type == 'cows' and animal_type == 'cow')):
+                        if breed and animal.get('breed', ''):
+                            if animal.get('breed', '').lower() == breed.lower():
+                                matching_animals.append(animal)
+                        elif not breed and not animal.get('breed', ''):
+                            matching_animals.append(animal)
             
-            if matching_animals:
-                avg_meat_yield = sum(a.get('meatYield', 0) for a in matching_animals) / len(matching_animals) if matching_animals else 0
-                avg_milk_yield = sum(a.get('milkYield', 0) for a in matching_animals) / len(matching_animals) if matching_animals else 0
-                avg_price = sum(a.get('pricePerKg', 0) for a in matching_animals) / len(matching_animals) if matching_animals else 0
-                
-                animal_comparisons.append({
-                    'type': animal_type,
-                    'breed': breed,
-                    'direction': direction,
-                    'count': my_count,
-                    'myMeatYield': my_meat_yield,
-                    'avgMeatYield': round(avg_meat_yield, 1),
-                    'myMilkYield': my_milk_yield,
-                    'avgMilkYield': round(avg_milk_yield, 1),
-                    'myPrice': my_price_per_kg,
-                    'avgPrice': round(avg_price, 2),
-                    'farmersCount': len(matching_animals)
-                })
+            avg_meat_yield = sum(a.get('meatYield', 0) for a in matching_animals) / len(matching_animals) if matching_animals else 0
+            avg_milk_yield = sum(a.get('milkYield', 0) for a in matching_animals) / len(matching_animals) if matching_animals else 0
+            avg_price = sum(a.get('pricePerKg', 0) or a.get('meatPrice', 0) for a in matching_animals) / len(matching_animals) if matching_animals else 0
+            
+            animal_comparisons.append({
+                'type': animal_type,
+                'breed': breed,
+                'direction': direction,
+                'count': my_count,
+                'myMeatYield': my_meat_yield,
+                'avgMeatYield': round(avg_meat_yield, 1) if matching_animals else 0,
+                'myMilkYield': my_milk_yield,
+                'avgMilkYield': round(avg_milk_yield, 1) if matching_animals else 0,
+                'myPrice': my_price_per_kg,
+                'avgPrice': round(avg_price, 2) if matching_animals else 0,
+                'farmersCount': len(matching_animals)
+            })
         
         crop_comparisons = []
         for my_crop in my_crops:

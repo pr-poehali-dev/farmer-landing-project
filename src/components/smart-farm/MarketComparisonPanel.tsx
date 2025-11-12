@@ -70,12 +70,17 @@ export default function MarketComparisonPanel() {
 
   const getAnimalEmoji = (type: string) => {
     const emojis: Record<string, string> = {
+      'cow': '🐄',
       'cows': '🐄',
+      'pig': '🐷',
       'pigs': '🐷',
+      'chicken': '🐔',
       'chickens': '🐔',
       'sheep': '🐑',
+      'horse': '🐴',
       'horses': '🐴',
       'deer': '🦌',
+      'hive': '🐝',
       'hives': '🐝'
     };
     return emojis[type] || '🐾';
@@ -97,12 +102,17 @@ export default function MarketComparisonPanel() {
 
   const getAnimalLabel = (type: string) => {
     const labels: Record<string, string> = {
+      'cow': 'Коровы',
       'cows': 'Коровы',
+      'pig': 'Свиньи',
       'pigs': 'Свиньи',
+      'chicken': 'Куры',
       'chickens': 'Куры',
       'sheep': 'Овцы',
+      'horse': 'Лошади',
       'horses': 'Лошади',
       'deer': 'Олени',
+      'hive': 'Пчелосемьи',
       'hives': 'Пчелосемьи'
     };
     return labels[type] || type;
