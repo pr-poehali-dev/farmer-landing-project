@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { FARMER_API } from '@/types/farm.types';
 
 const RATING_API = 'https://functions.poehali.dev/ae7c97c0-1d46-4334-9a0c-5a8e54209875';
+
+interface FarmerRatingProps {
+  onGoToDiagnostics?: () => void;
+}
 
 interface RatingBreakdown {
   region: number;
@@ -24,7 +29,7 @@ interface RatingData {
   weighted: RatingBreakdown;
 }
 
-export default function FarmerRating() {
+export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
   const { user } = useAuth();
   const [rating, setRating] = useState<RatingData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -141,6 +146,32 @@ export default function FarmerRating() {
 
   return (
     <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+        <div className="flex items-start gap-4">
+          <Icon name="Info" className="text-blue-600 flex-shrink-0 mt-1" size={24} />
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-800 mb-2">📊 Откуда берутся баллы?</h3>
+            <p className="text-sm text-gray-700 mb-3">
+              Рейтинг считается автоматически из данных вашей диагностики: животные, земля, техника, культуры, сотрудники, финансы и регион.
+            </p>
+            <p className="text-sm text-gray-700 mb-3">
+              <strong>Бонусы за сложность:</strong> Работаете в тяжёлых условиях? Получаете коэффициенты ×1.1-1.2 к баллам!
+            </p>
+            {onGoToDiagnostics && (
+              <Button 
+                onClick={onGoToDiagnostics}
+                variant="outline" 
+                size="sm"
+                className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              >
+                <Icon name="ArrowLeft" size={16} className="mr-2" />
+                Перейти к диагностике
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+
       <Card className="p-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white mb-4 shadow-xl">
@@ -153,7 +184,7 @@ export default function FarmerRating() {
             {level.label}
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Ваш рейтинг фермера</h2>
-          <p className="text-gray-600">Комплексная оценка с учётом коэффициентов сложности</p>
+          <p className="text-gray-600 text-sm">Сумма всех критериев с учётом коэффициентов</p>
         </div>
 
         <div className="space-y-4">
