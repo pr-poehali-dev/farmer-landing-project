@@ -337,25 +337,33 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
                       <div className={`font-bold ${isCurrentUser ? 'text-blue-600' : 'text-gray-800'} mb-1`}>
                         {entry.farmName}
                       </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex items-center gap-1 text-gray-600">
-                          <Icon name="MapPin" size={14} />
-                          <span>{entry.region}</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Icon name="MapPin" size={14} />
+                            <span>{entry.region}</span>
+                          </div>
+                          {displayAnimals.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-lg">{displayAnimals.join(' ')}</span>
+                            </div>
+                          )}
+                          {displayCrops.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-lg">{displayCrops.join(' ')}</span>
+                            </div>
+                          )}
+                          {(entry.investmentCount || 0) > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Icon name="TrendingUp" size={14} className="text-green-600" />
+                              <span className="text-xs text-gray-700 font-semibold">{entry.investmentCount}</span>
+                            </div>
+                          )}
                         </div>
-                        {displayAnimals.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-lg">{displayAnimals.join(' ')}</span>
-                          </div>
-                        )}
-                        {displayCrops.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-lg">{displayCrops.join(' ')}</span>
-                          </div>
-                        )}
-                        {(entry.investmentCount || 0) > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Icon name="TrendingUp" size={14} className="text-green-600" />
-                            <span className="text-xs text-gray-700 font-semibold">{entry.investmentCount}</span>
+                        {entry.address && (
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Icon name="Home" size={12} />
+                            <span>{entry.address.length > 50 ? entry.address.substring(0, 50) + '...' : entry.address}</span>
                           </div>
                         )}
                       </div>
