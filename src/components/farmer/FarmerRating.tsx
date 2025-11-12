@@ -46,6 +46,8 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
   const { user } = useAuth();
   const [rating, setRating] = useState<RatingData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [filteredLeaderboard, setFilteredLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -116,10 +118,23 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
 
       const data = await response.json();
       setLeaderboard(data.leaderboard || []);
+      setFilteredLeaderboard(data.leaderboard || []);
     } catch (err) {
       console.error('Leaderboard error:', err);
     }
   };
+
+  const handleRegionFilter = (region: string) => {
+    setSelectedRegion(region);
+    if (region === 'all') {
+      setFilteredLeaderboard(leaderboard);
+    } else {
+      const filtered = leaderboard.filter(entry => entry.region === region);
+      setFilteredLeaderboard(filtered);
+    }
+  };
+
+  const uniqueRegions = Array.from(new Set(leaderboard.map(e => e.region).filter(r => r !== 'Не указан'))).sort();
 
   const getRatingLevel = (score: number) => {
     if (score >= 600) return { label: 'Отличный', color: 'text-green-600', bg: 'bg-green-100' };
@@ -241,11 +256,29 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
       </Card>
 
       <Card className="p-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
             <span>🏆</span> Рейтинг фермеров
           </h3>
-          <span className="text-sm text-gray-500">Топ хозяйств по баллам</span>
+          
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600">Регион:</span>
+            <select 
+              value={selectedRegion}
+              onChange={(e) => handleRegionFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Все регионы ({leaderboard.length})</option>
+              {uniqueRegions.map(region => {
+                const count = leaderboard.filter(e => e.region === region).length;
+                return (
+                  <option key={region} value={region}>
+                    {region} ({count})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -259,7 +292,7 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
               </tr>
             </thead>
             <tbody>
-              {leaderboard.map((entry, idx) => {
+              {filteredLeaderboard.map((entry, idx) => {
                 const isCurrentUser = user && entry.userId === user.id;
                 const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null;
                 const bgClass = isCurrentUser 
@@ -278,7 +311,7 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
                         {medal && <span className="text-2xl">{medal}</span>}
                         {isCurrentUser && <Icon name="User" size={16} className="text-blue-600" />}
                         <span className={`font-${isCurrentUser ? 'bold' : 'semibold'} ${isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`}>
-                          {entry.position}
+                          {idx + 1}
                         </span>
                       </div>
                     </td>
@@ -292,6 +325,13 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
                   </tr>
                 );
               })}
+              {filteredLeaderboard.length === 0 && leaderboard.length > 0 && (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">
+                    В этом регионе пока нет фермеров
+                  </td>
+                </tr>
+              )}
               {leaderboard.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-8 text-center text-gray-500">
