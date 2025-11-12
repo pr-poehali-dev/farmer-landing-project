@@ -52,6 +52,14 @@ export default function FarmerDashboardNew() {
             Мой профиль
           </Button>
           <Button 
+            onClick={() => setActiveTab('rating')}
+            size="lg"
+            className="bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-700 hover:to-amber-800 text-white shadow-lg"
+          >
+            <Icon name="Trophy" size={20} className="mr-2" />
+            Мой рейтинг
+          </Button>
+          <Button 
             onClick={() => navigate('/smart-farm')}
             size="lg"
             className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white shadow-lg"
@@ -99,6 +107,14 @@ export default function FarmerDashboardNew() {
 
           <TabsContent value="marketplace" className="mt-6">
             <SellerMarketplace />
+          </TabsContent>
+
+          <TabsContent value="rating" className="mt-6">
+            <Card className="p-8 text-center">
+              <Icon name="Trophy" size={64} className="mx-auto mb-4 text-yellow-600" />
+              <h2 className="text-2xl font-bold mb-2">Система рейтинга</h2>
+              <p className="text-gray-600">Скоро здесь появится новая система оценки вашей фермы!</p>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
