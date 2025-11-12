@@ -146,59 +146,50 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
-        <div className="flex items-start gap-4">
-          <div className="text-4xl">💎</div>
+      <Card className="p-8 bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 border-blue-200">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-shrink-0 text-center">
+            <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white mb-3 shadow-xl">
+              <div>
+                <div className="text-4xl font-bold">{Math.round(rating.totalRating)}</div>
+                <div className="text-sm opacity-90">баллов</div>
+              </div>
+            </div>
+            <div className={`inline-block px-4 py-2 rounded-full ${level.bg} ${level.color} font-semibold text-sm`}>
+              {level.label}
+            </div>
+          </div>
+
           <div className="flex-1">
-            <h3 className="font-bold text-xl text-gray-800 mb-3">Как начисляются баллы?</h3>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+              <span>💎</span> Ваш рейтинг фермера
+            </h2>
+            <p className="text-gray-600 text-sm mb-4">Баллы начисляются за:</p>
             
-            <div className="space-y-2 mb-4">
-              <div className="flex items-start gap-2">
-                <span className="text-lg">🌾</span>
-                <p className="text-sm text-gray-700">
-                  <strong>Культуры:</strong> За каждую высаженную культуру, площадь посевов и урожайность
-                </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>🌾</span> <strong>Культуры</strong> — посевы и урожайность
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="text-lg">🐄</span>
-                <p className="text-sm text-gray-700">
-                  <strong>Животные:</strong> За поголовье скота, продуктивность и редкие породы
-                </p>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>🐄</span> <strong>Животные</strong> — поголовье и породы
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="text-lg">🚜</span>
-                <p className="text-sm text-gray-700">
-                  <strong>Техника:</strong> За количество, возраст и навесное оборудование
-                </p>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>🚜</span> <strong>Техника</strong> — количество и состояние
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="text-lg">👥</span>
-                <p className="text-sm text-gray-700">
-                  <strong>Сотрудники:</strong> За постоянных и сезонных работников
-                </p>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>👥</span> <strong>Сотрудники</strong> — постоянные и сезонные
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="text-lg">🗺️</span>
-                <p className="text-sm text-gray-700">
-                  <strong>Земля и регион:</strong> За площадь, владение и климатические условия
-                </p>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>🗺️</span> <strong>Земля</strong> — площадь и регион
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="text-lg">💰</span>
-                <p className="text-sm text-gray-700">
-                  <strong>Финансы:</strong> За потенциальную прибыль и цены на продукцию
-                </p>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>💰</span> <strong>Финансы</strong> — потенциал прибыли
               </div>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
               <p className="text-sm text-yellow-800">
-                <strong>🎯 Бонусы за сложность:</strong> Работаете в суровом климате, на бедных почвах или с редкими породами? Получаете коэффициенты ×1.1-1.2 к баллам!
+                <strong>🎯 Бонусы:</strong> Суровый климат, бедные почвы или редкие породы? Коэффициенты ×1.1-1.2!
               </p>
             </div>
 
@@ -218,19 +209,7 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
       </Card>
 
       <Card className="p-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white mb-4 shadow-xl">
-            <div>
-              <div className="text-4xl font-bold">{Math.round(rating.totalRating)}</div>
-              <div className="text-sm opacity-90">баллов</div>
-            </div>
-          </div>
-          <div className={`inline-block px-4 py-2 rounded-full ${level.bg} ${level.color} font-semibold mb-2`}>
-            {level.label}
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Ваш рейтинг фермера</h2>
-          <p className="text-gray-600 text-sm">Сумма всех критериев с учётом коэффициентов</p>
-        </div>
+        <h3 className="text-xl font-bold text-gray-800 mb-6">Детализация баллов</h3>
 
         <div className="space-y-4">
           {criteria.map((criterion) => {
