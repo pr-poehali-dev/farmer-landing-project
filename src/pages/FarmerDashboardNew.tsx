@@ -9,11 +9,7 @@ import FarmDiagnostics from '@/components/farmer/FarmDiagnostics';
 import InvestmentProposals from '@/components/farmer/InvestmentProposals';
 import OwnerProfile from '@/components/farmer/OwnerProfile';
 import SellerMarketplace from '@/components/farmer/SellerMarketplace';
-import FarmerRating from '@/components/farmer/FarmerRating';
 import InvestorRequests from '@/components/farmer/InvestorRequests';
-import DetailedRating from '@/components/farmer/DetailedRating';
-import RatingDashboard from '@/components/farmer/rating/RatingDashboard';
-import PublicLeaderboard from '@/components/farmer/rating/PublicLeaderboard';
 
 export default function FarmerDashboardNew() {
   const { user, logout } = useAuth();
@@ -54,14 +50,6 @@ export default function FarmerDashboardNew() {
           >
             <Icon name="User" size={20} className="mr-2" />
             Мой профиль
-          </Button>
-          <Button 
-            onClick={() => setActiveTab('rating')}
-            size="lg"
-            className="bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-700 hover:to-amber-800 text-white shadow-lg"
-          >
-            <Icon name="Trophy" size={20} className="mr-2" />
-            Мой рейтинг
           </Button>
           <Button 
             onClick={() => navigate('/smart-farm')}
@@ -111,15 +99,6 @@ export default function FarmerDashboardNew() {
 
           <TabsContent value="marketplace" className="mt-6">
             <SellerMarketplace />
-          </TabsContent>
-
-          <TabsContent value="rating" className="mt-6">
-            <div className="space-y-8">
-              <RatingDashboard />
-              <div className="border-t pt-8">
-                <PublicLeaderboard />
-              </div>
-            </div>
           </TabsContent>
         </Tabs>
       </main>
