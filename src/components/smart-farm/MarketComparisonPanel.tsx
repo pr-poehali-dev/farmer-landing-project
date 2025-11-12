@@ -107,22 +107,6 @@ export default function MarketComparisonPanel({ comparison }: MarketComparisonPa
             </div>
           </div>
         </div>
-
-            <div className="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Icon name="Trophy" size={32} className="text-yellow-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Ваше место в регионе</p>
-                  <p className="text-2xl font-bold text-gray-900">#{comparison.ranking}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate('/leaderboard')}
-                className="px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Таблица лидеров
-              </button>
-            </div>
           </>
         )}
       </Card>
