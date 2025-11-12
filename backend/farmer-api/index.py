@@ -716,6 +716,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'profile': profile})
                 }
             
+            elif action == 'get_subscription_plans':
+                cur.execute(
+                    f"""SELECT id, tier, daily_limit, price_rub, description, features, max_proposals, duration_days, is_active
+                       FROM {schema}.subscription_plans
+                       WHERE is_active = true
+                       ORDER BY price_rub"""
+                )
+                plans = []
+                for row in cur.fetchall():
+                    plans.append({
+                        'id': row[0],
+                        'tier': row[1],
+                        'daily_limit': row[2],
+                        'price_rub': row[3],
+                        'description': row[4],
+                        'features': row[5] if row[5] else [],
+                        'max_proposals': row[6],
+                        'duration_days': row[7],
+                        'is_active': row[8]
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'plans': plans})
+                }
+            
             elif action == 'get_market_stats':
                 try:
                     cur.execute(

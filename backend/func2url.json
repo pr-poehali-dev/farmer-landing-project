@@ -1,4 +1,5 @@
 {
+  "payment": "https://functions.poehali.dev/0d55a2c7-a1cb-40b4-8d09-da867da0053b",
   "market-comparison": "https://functions.poehali.dev/ad7d140a-d5bd-46c9-bebe-6cbb986c59e3",
   "recalculate-ratings": "https://functions.poehali.dev/8b32a74d-fb4e-4f8b-894e-5a27e80f319a",
   "leaderboard": "https://functions.poehali.dev/11800a2e-728b-4d50-b1d0-a322d419d556",
