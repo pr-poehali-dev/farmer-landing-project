@@ -57,14 +57,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 u.id,
                 u.name,
                 u.email,
-                COALESCE(NULLIF(TRIM(u.region), ''), 'Не указан') as region,
+                COALESCE(NULLIF(TRIM(fd.region), ''), NULLIF(TRIM(u.region), ''), 'Не указан') as region,
                 COALESCE(fs.total_score, 0) as total_score,
-                u.farm_name,
+                COALESCE(NULLIF(TRIM(fd.farm_name), ''), NULLIF(TRIM(u.farm_name), '')) as farm_name,
                 u.bio,
                 diag.animals,
                 diag.crops
             FROM {schema}.users u
             LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS VARCHAR) = fs.user_id
+            LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
             LEFT JOIN {schema}.farm_diagnostics diag ON u.id = diag.user_id
             WHERE u.role = 'farmer'
             ORDER BY COALESCE(fs.total_score, 0) DESC
