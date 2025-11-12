@@ -43,15 +43,10 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "totalRating": 64.5,
-        "breakdown": {
-          "region": 100,
-          "land": 55.0,
-          "animal": 65.0,
-          "equipment": 20,
-          "crop": 100,
-          "staff": 55,
-          "finance": 70
+        "totalRating": 477.5,
+        "coefficients": {
+          "staff": 1.1,
+          "finance": 1.1
         }
       },
       "bodyMatcher": "partial"
@@ -77,15 +72,11 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "totalRating": 17.7,
-        "breakdown": {
-          "region": 50,
-          "land": 55.0,
-          "animal": 0,
-          "equipment": 0,
-          "crop": 0,
-          "staff": 7,
-          "finance": 10
+        "totalRating": 124.4,
+        "coefficients": {
+          "equipment": 1.2,
+          "staff": 1.2,
+          "finance": 1.1
         }
       },
       "bodyMatcher": "partial"

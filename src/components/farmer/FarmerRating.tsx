@@ -20,7 +20,8 @@ interface RatingBreakdown {
 interface RatingData {
   totalRating: number;
   breakdown: RatingBreakdown;
-  weights: Record<string, number>;
+  coefficients: Record<string, number>;
+  weighted: RatingBreakdown;
 }
 
 export default function FarmerRating() {
@@ -84,10 +85,10 @@ export default function FarmerRating() {
   };
 
   const getRatingLevel = (score: number) => {
-    if (score >= 80) return { label: 'Отличный', color: 'text-green-600', bg: 'bg-green-100' };
-    if (score >= 60) return { label: 'Хороший', color: 'text-blue-600', bg: 'bg-blue-100' };
-    if (score >= 40) return { label: 'Средний', color: 'text-yellow-600', bg: 'bg-yellow-100' };
-    if (score >= 20) return { label: 'Базовый', color: 'text-orange-600', bg: 'bg-orange-100' };
+    if (score >= 600) return { label: 'Отличный', color: 'text-green-600', bg: 'bg-green-100' };
+    if (score >= 450) return { label: 'Хороший', color: 'text-blue-600', bg: 'bg-blue-100' };
+    if (score >= 300) return { label: 'Средний', color: 'text-yellow-600', bg: 'bg-yellow-100' };
+    if (score >= 150) return { label: 'Базовый', color: 'text-orange-600', bg: 'bg-orange-100' };
     return { label: 'Начальный', color: 'text-red-600', bg: 'bg-red-100' };
   };
 
@@ -144,21 +145,22 @@ export default function FarmerRating() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white mb-4 shadow-xl">
             <div>
-              <div className="text-4xl font-bold">{rating.totalRating}</div>
-              <div className="text-sm opacity-90">из 100</div>
+              <div className="text-4xl font-bold">{Math.round(rating.totalRating)}</div>
+              <div className="text-sm opacity-90">баллов</div>
             </div>
           </div>
           <div className={`inline-block px-4 py-2 rounded-full ${level.bg} ${level.color} font-semibold mb-2`}>
             {level.label}
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Ваш рейтинг фермера</h2>
-          <p className="text-gray-600">Комплексная оценка эффективности хозяйства</p>
+          <p className="text-gray-600">Комплексная оценка с учётом коэффициентов сложности</p>
         </div>
 
         <div className="space-y-4">
           {criteria.map((criterion) => {
             const score = rating.breakdown[criterion.key as keyof RatingBreakdown];
-            const weight = rating.weights[criterion.key] * 100;
+            const coefficient = rating.coefficients[criterion.key];
+            const weighted = rating.weighted[criterion.key as keyof RatingBreakdown];
             
             return (
               <div key={criterion.key} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
@@ -174,7 +176,7 @@ export default function FarmerRating() {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-xl text-gray-800">{score}</div>
-                    <div className="text-xs text-gray-500">вес {weight}%</div>
+                    <div className="text-xs text-gray-500">× {coefficient} = {Math.round(weighted)}</div>
                   </div>
                 </div>
                 <Progress value={score} className="h-2" />
@@ -195,7 +197,7 @@ export default function FarmerRating() {
               {rating.breakdown.equipment < 50 && <li>• Обновите парк техники или добавьте навесное оборудование</li>}
               {rating.breakdown.land < 50 && <li>• Увеличьте земельные площади</li>}
               {rating.breakdown.staff < 50 && <li>• Наймите дополнительных сотрудников</li>}
-              {rating.totalRating >= 80 && <li>✅ Отличная работа! Вы эффективный фермер!</li>}
+              {rating.totalRating >= 600 && <li>✅ Отличная работа! Вы эффективный фермер!</li>}
             </ul>
           </div>
         </div>
