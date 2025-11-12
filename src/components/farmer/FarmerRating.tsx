@@ -209,35 +209,132 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
       </Card>
 
       <Card className="p-8">
-        <h3 className="text-xl font-bold text-gray-800 mb-6">Детализация баллов</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <span>🏆</span> Рейтинг фермеров
+          </h3>
+          <span className="text-sm text-gray-500">Топ хозяйств по баллам</span>
+        </div>
 
-        <div className="space-y-4">
-          {criteria.map((criterion) => {
-            const score = rating.breakdown[criterion.key as keyof RatingBreakdown];
-            const coefficient = rating.coefficients[criterion.key];
-            const weighted = rating.weighted[criterion.key as keyof RatingBreakdown];
-            
-            return (
-              <div key={criterion.key} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <Icon name={criterion.icon as any} className="text-blue-600" size={20} />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-800">{criterion.label}</div>
-                      <div className="text-xs text-gray-500">{criterion.description}</div>
-                    </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b-2 border-gray-200">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Место</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Название фермы</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Регион</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Баллы</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-gray-100 bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🥇</span>
+                    <span className="font-bold text-gray-800">1</span>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-xl text-gray-800">{score}</div>
-                    <div className="text-xs text-gray-500">× {coefficient} = {Math.round(weighted)}</div>
+                </td>
+                <td className="py-4 px-4 font-semibold text-gray-800">Агрохолдинг «Зелёные поля»</td>
+                <td className="py-4 px-4 text-gray-600">Краснодарский край</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-bold text-xl text-gray-800">1247</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors">
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🥈</span>
+                    <span className="font-bold text-gray-800">2</span>
                   </div>
-                </div>
-                <Progress value={score} className="h-2" />
-              </div>
-            );
-          })}
+                </td>
+                <td className="py-4 px-4 font-semibold text-gray-800">КФХ «Рассвет»</td>
+                <td className="py-4 px-4 text-gray-600">Ростовская область</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-bold text-xl text-gray-800">1089</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 bg-orange-50 hover:bg-orange-100 transition-colors">
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🥉</span>
+                    <span className="font-bold text-gray-800">3</span>
+                  </div>
+                </td>
+                <td className="py-4 px-4 font-semibold text-gray-800">Ферма «Добрый урожай»</td>
+                <td className="py-4 px-4 text-gray-600">Ставропольский край</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-bold text-xl text-gray-800">956</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td className="py-4 px-4">
+                  <span className="font-semibold text-gray-600">4</span>
+                </td>
+                <td className="py-4 px-4 text-gray-700">СПК «Единство»</td>
+                <td className="py-4 px-4 text-gray-600">Воронежская область</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-semibold text-lg text-gray-700">834</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td className="py-4 px-4">
+                  <span className="font-semibold text-gray-600">5</span>
+                </td>
+                <td className="py-4 px-4 text-gray-700">Ферма «Сибирские просторы»</td>
+                <td className="py-4 px-4 text-gray-600">Алтайский край</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-semibold text-lg text-gray-700">721</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td className="py-4 px-4">
+                  <span className="font-semibold text-gray-600">6</span>
+                </td>
+                <td className="py-4 px-4 text-gray-700">КФХ «Семь ветров»</td>
+                <td className="py-4 px-4 text-gray-600">Саратовская область</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-semibold text-lg text-gray-700">687</span>
+                </td>
+              </tr>
+              <tr className="border-b-2 border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors">
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-2">
+                    <Icon name="User" size={16} className="text-blue-600" />
+                    <span className="font-bold text-blue-600">7</span>
+                  </div>
+                </td>
+                <td className="py-4 px-4 font-bold text-blue-600">{rating.farmName || 'Ваше хозяйство'}</td>
+                <td className="py-4 px-4 font-semibold text-blue-600">{rating.region || 'Россия'}</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-bold text-xl text-blue-600">{Math.round(rating.totalRating)}</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td className="py-4 px-4">
+                  <span className="font-semibold text-gray-600">8</span>
+                </td>
+                <td className="py-4 px-4 text-gray-700">Ферма «Луговое»</td>
+                <td className="py-4 px-4 text-gray-600">Тульская область</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-semibold text-lg text-gray-700">289</span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td className="py-4 px-4">
+                  <span className="font-semibold text-gray-600">9</span>
+                </td>
+                <td className="py-4 px-4 text-gray-700">КФХ «Новый день»</td>
+                <td className="py-4 px-4 text-gray-600">Белгородская область</td>
+                <td className="py-4 px-4 text-right">
+                  <span className="font-semibold text-lg text-gray-700">156</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 text-center text-sm text-gray-500">
+          Рейтинг обновляется ежедневно на основе данных диагностики
         </div>
       </Card>
 
