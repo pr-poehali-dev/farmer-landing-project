@@ -148,15 +148,60 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
     <div className="space-y-6">
       <Card className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
         <div className="flex items-start gap-4">
-          <Icon name="Info" className="text-blue-600 flex-shrink-0 mt-1" size={24} />
+          <div className="text-4xl">💎</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-800 mb-2">📊 Откуда берутся баллы?</h3>
-            <p className="text-sm text-gray-700 mb-3">
-              Рейтинг считается автоматически из данных вашей диагностики: животные, земля, техника, культуры, сотрудники, финансы и регион.
-            </p>
-            <p className="text-sm text-gray-700 mb-3">
-              <strong>Бонусы за сложность:</strong> Работаете в тяжёлых условиях? Получаете коэффициенты ×1.1-1.2 к баллам!
-            </p>
+            <h3 className="font-bold text-xl text-gray-800 mb-3">Как начисляются баллы?</h3>
+            
+            <div className="space-y-2 mb-4">
+              <div className="flex items-start gap-2">
+                <span className="text-lg">🌾</span>
+                <p className="text-sm text-gray-700">
+                  <strong>Культуры:</strong> За каждую высаженную культуру, площадь посевов и урожайность
+                </p>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <span className="text-lg">🐄</span>
+                <p className="text-sm text-gray-700">
+                  <strong>Животные:</strong> За поголовье скота, продуктивность и редкие породы
+                </p>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <span className="text-lg">🚜</span>
+                <p className="text-sm text-gray-700">
+                  <strong>Техника:</strong> За количество, возраст и навесное оборудование
+                </p>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <span className="text-lg">👥</span>
+                <p className="text-sm text-gray-700">
+                  <strong>Сотрудники:</strong> За постоянных и сезонных работников
+                </p>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <span className="text-lg">🗺️</span>
+                <p className="text-sm text-gray-700">
+                  <strong>Земля и регион:</strong> За площадь, владение и климатические условия
+                </p>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <span className="text-lg">💰</span>
+                <p className="text-sm text-gray-700">
+                  <strong>Финансы:</strong> За потенциальную прибыль и цены на продукцию
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-yellow-800">
+                <strong>🎯 Бонусы за сложность:</strong> Работаете в суровом климате, на бедных почвах или с редкими породами? Получаете коэффициенты ×1.1-1.2 к баллам!
+              </p>
+            </div>
+
             {onGoToDiagnostics && (
               <Button 
                 onClick={onGoToDiagnostics}
