@@ -52,10 +52,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 u.email,
                 COALESCE(NULLIF(TRIM(fd.region), ''), NULLIF(TRIM(u.region), ''), 'Не указан') as region,
                 COALESCE(fs.total_score, 0) as total_score,
-                fd.farm_name
+                fd.farm_name,
+                fd.address,
+                fd.description,
+                diag.animals,
+                diag.crops,
+                (SELECT COUNT(*) FROM {schema}.investment_offers io WHERE io.farmer_id = u.id) as investment_count
             FROM {schema}.users u
             LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS VARCHAR) = fs.user_id
             LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
+            LEFT JOIN {schema}.farm_diagnostics diag ON u.id = diag.user_id
             WHERE u.role = 'farmer'
             ORDER BY COALESCE(fs.total_score, 0) DESC
             LIMIT {limit}
@@ -68,7 +74,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         current_user_position = None
         
         for idx, row in enumerate(rows, start=1):
-            user_id, name, email, region, total_score, farm_name = row
+            user_id, name, email, region, total_score, farm_name, address, description, animals, crops, investment_count = row
             
             display_name = farm_name
             if not farm_name or farm_name.strip() == '':
@@ -81,7 +87,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'email': email,
                 'region': region,
                 'totalScore': total_score,
-                'farmName': display_name
+                'farmName': display_name,
+                'address': address or '',
+                'description': description or '',
+                'animals': animals or [],
+                'crops': crops or [],
+                'investmentCount': investment_count or 0
             }
             
             leaderboard.append(entry)
