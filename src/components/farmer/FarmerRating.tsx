@@ -40,6 +40,11 @@ interface LeaderboardEntry {
   region: string;
   totalScore: number;
   farmName: string;
+  address?: string;
+  description?: string;
+  animals?: Array<{type: string; count: number}>;
+  crops?: Array<{type: string; area: number}>;
+  investmentCount?: number;
 }
 
 export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
@@ -293,6 +298,30 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
                   ? 'bg-orange-50 border-orange-200 border-2' 
                   : 'bg-gray-50 border-gray-200 border';
             
+            const animalEmojis: Record<string, string> = {
+              'cows': '🐄',
+              'pigs': '🐷',
+              'chickens': '🐔',
+              'sheep': '🐑',
+              'horses': '🐴',
+              'deer': '🦌',
+              'hives': '🐝'
+            };
+            
+            const cropEmojis: Record<string, string> = {
+              'wheat': '🌾',
+              'barley': '🌾',
+              'corn': '🌽',
+              'sunflower': '🌻',
+              'potato': '🥔',
+              'vegetables': '🥕',
+              'fruits': '🍎',
+              'other': '🌱'
+            };
+            
+            const displayAnimals = (entry.animals || []).slice(0, 5).map(a => animalEmojis[a.type] || '🐾');
+            const displayCrops = (entry.crops || []).slice(0, 5).map(c => cropEmojis[c.type] || '🌱');
+            
             return (
               <div key={entry.userId} className={`p-4 rounded-lg ${bgClass} transition-all hover:shadow-md`}>
                 <div className="flex items-center justify-between gap-4">
@@ -308,17 +337,42 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
                       <div className={`font-bold ${isCurrentUser ? 'text-blue-600' : 'text-gray-800'} mb-1`}>
                         {entry.farmName}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Icon name="MapPin" size={14} />
-                        <span>{entry.region}</span>
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Icon name="MapPin" size={14} />
+                          <span>{entry.region}</span>
+                        </div>
+                        {displayAnimals.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-lg">{displayAnimals.join(' ')}</span>
+                          </div>
+                        )}
+                        {displayCrops.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-lg">{displayCrops.join(' ')}</span>
+                          </div>
+                        )}
+                        {(entry.investmentCount || 0) > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Icon name="TrendingUp" size={14} className="text-green-600" />
+                            <span className="text-xs text-gray-700 font-semibold">{entry.investmentCount}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className="min-w-[80px] text-right">
-                    <div className={`font-bold ${idx < 3 ? 'text-2xl' : 'text-xl'} ${isCurrentUser ? 'text-blue-600' : 'text-farmer-green'}`}>
-                      {entry.totalScore}
+                  <div className="text-right flex items-center gap-4">
+                    {entry.description && (
+                      <div className="text-xs text-gray-600 italic max-w-[200px] text-left">
+                        {entry.description.length > 60 ? entry.description.substring(0, 60) + '...' : entry.description}
+                      </div>
+                    )}
+                    <div className="min-w-[80px]">
+                      <div className={`font-bold ${idx < 3 ? 'text-2xl' : 'text-xl'} ${isCurrentUser ? 'text-blue-600' : 'text-farmer-green'}`}>
+                        {entry.totalScore}
+                      </div>
+                      <div className="text-xs text-gray-500">баллов</div>
                     </div>
-                    <div className="text-xs text-gray-500">баллов</div>
                   </div>
                 </div>
               </div>
