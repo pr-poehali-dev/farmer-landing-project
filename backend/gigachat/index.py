@@ -328,6 +328,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         if crop_list:
                             farm_parts.append(f"Культуры: {', '.join(crop_list)}")
                     
+                    equipment = farm_data.get('equipment', [])
+                    if equipment:
+                        equipment_list = []
+                        for e in equipment:
+                            eq_type = e.get('type', '')
+                            brand = e.get('brand', '')
+                            year = e.get('year', '')
+                            attachments = e.get('attachments', [])
+                            
+                            eq_str = eq_type
+                            if brand:
+                                eq_str += f" {brand}"
+                            if year:
+                                eq_str += f" ({year} г.)"
+                            if attachments:
+                                eq_str += f" с навесным: {', '.join(attachments)}"
+                            
+                            equipment_list.append(eq_str)
+                        
+                        if equipment_list:
+                            farm_parts.append(f"Техника: {', '.join(equipment_list)}")
+                    
                     employees = (farm_data.get('employees_permanent', 0) or 0) + (farm_data.get('employees_seasonal', 0) or 0)
                     if employees > 0:
                         farm_parts.append(f"Сотрудников: {farm_data.get('employees_permanent', 0)} постоянных, {farm_data.get('employees_seasonal', 0)} сезонных")
