@@ -281,69 +281,58 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b-2 border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Место</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Название фермы</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Регион</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Баллы</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeaderboard.map((entry, idx) => {
-                const isCurrentUser = user && entry.userId === user.id;
-                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null;
-                const bgClass = isCurrentUser 
-                  ? 'bg-blue-50 hover:bg-blue-100 border-b-2 border-blue-200' 
-                  : idx === 0 
-                    ? 'bg-yellow-50 hover:bg-yellow-100' 
-                    : idx === 1 || idx === 2 
-                      ? 'bg-orange-50 hover:bg-orange-100' 
-                      : 'hover:bg-gray-50';
-                const textClass = isCurrentUser ? 'text-blue-600 font-bold' : idx < 3 ? 'text-gray-800 font-semibold' : 'text-gray-700';
-                
-                return (
-                  <tr key={entry.userId} className={`border-b border-gray-100 ${bgClass} transition-colors`}>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        {medal && <span className="text-2xl">{medal}</span>}
-                        {isCurrentUser && <Icon name="User" size={16} className="text-blue-600" />}
-                        <span className={`font-${isCurrentUser ? 'bold' : 'semibold'} ${isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`}>
-                          {idx + 1}
-                        </span>
-                      </div>
-                    </td>
-                    <td className={`py-4 px-4 ${textClass}`}>{entry.farmName}</td>
-                    <td className={`py-4 px-4 ${isCurrentUser ? 'font-semibold text-blue-600' : 'text-gray-600'}`}>{entry.region}</td>
-                    <td className="py-4 px-4 text-right">
-                      <span className={`font-bold ${idx < 3 ? 'text-xl' : 'text-lg'} ${isCurrentUser ? 'text-blue-600' : 'text-gray-800'}`}>
-                        {entry.totalScore}
+        <div className="space-y-3">
+          {filteredLeaderboard.map((entry, idx) => {
+            const isCurrentUser = user && entry.userId === user.id;
+            const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null;
+            const bgClass = isCurrentUser 
+              ? 'bg-blue-50 border-blue-300 border-2' 
+              : idx === 0 
+                ? 'bg-yellow-50 border-yellow-200 border-2' 
+                : idx === 1 || idx === 2 
+                  ? 'bg-orange-50 border-orange-200 border-2' 
+                  : 'bg-gray-50 border-gray-200 border';
+            
+            return (
+              <div key={entry.userId} className={`p-4 rounded-lg ${bgClass} transition-all hover:shadow-md`}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 min-w-[60px]">
+                      {medal && <span className="text-2xl">{medal}</span>}
+                      {isCurrentUser && <Icon name="User" size={18} className="text-blue-600" />}
+                      <span className={`font-bold ${isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`}>
+                        #{idx + 1}
                       </span>
-                    </td>
-                  </tr>
-                );
-              })}
-              {filteredLeaderboard.length === 0 && leaderboard.length > 0 && (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-500">
-                    В этом регионе пока нет фермеров
-                  </td>
-                </tr>
-              )}
-              {leaderboard.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-500">
-                    Загрузка рейтинга...
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    </div>
+                    <div>
+                      <div className={`font-bold ${isCurrentUser ? 'text-blue-600' : 'text-gray-800'} mb-1`}>
+                        {entry.farmName}
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Icon name="MapPin" size={14} />
+                        <span>{entry.region}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="min-w-[80px] text-right">
+                    <div className={`font-bold ${idx < 3 ? 'text-2xl' : 'text-xl'} ${isCurrentUser ? 'text-blue-600' : 'text-farmer-green'}`}>
+                      {entry.totalScore}
+                    </div>
+                    <div className="text-xs text-gray-500">баллов</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          
+          {filteredLeaderboard.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              Нет данных о фермерах
+            </div>
+          )}
         </div>
 
-        <div className="mt-4 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-gray-500 border-t pt-4">
           Рейтинг обновляется ежедневно на основе данных диагностики
         </div>
       </Card>
