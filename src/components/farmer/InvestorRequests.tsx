@@ -8,6 +8,8 @@ interface InvestorRequest {
   id: string;
   investor_id: string;
   investor_name: string;
+  investor_email?: string;
+  investor_phone?: string;
   proposal_id: string;
   proposal_description: string;
   proposal_type: string;
@@ -271,7 +273,7 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
                     <p className="font-medium text-gray-900">{request.proposal_description}</p>
                   </div>
 
-                  <div className="flex gap-6 text-sm">
+                  <div className="flex gap-6 text-sm mb-3">
                     <div>
                       <span className="text-gray-600">Сумма:</span>
                       <span className="font-bold text-farmer-green ml-2">
@@ -282,6 +284,25 @@ const InvestorRequests = ({ userId }: InvestorRequestsProps) => {
                       <span className="text-gray-600">Тип:</span>
                       <span className="font-medium ml-2">{getTypeLabel(request.proposal_type)}</span>
                     </div>
+                  </div>
+
+                  <div className="flex gap-6 text-sm border-t pt-3">
+                    {request.investor_email && (
+                      <div className="flex items-center gap-2">
+                        <Icon name="Mail" size={16} className="text-gray-500" />
+                        <a href={`mailto:${request.investor_email}`} className="text-blue-600 hover:underline">
+                          {request.investor_email}
+                        </a>
+                      </div>
+                    )}
+                    {request.investor_phone && (
+                      <div className="flex items-center gap-2">
+                        <Icon name="Phone" size={16} className="text-gray-500" />
+                        <a href={`tel:${request.investor_phone}`} className="text-blue-600 hover:underline">
+                          {request.investor_phone}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
 
