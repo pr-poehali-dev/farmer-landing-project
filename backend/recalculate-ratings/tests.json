@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Recalculate all ratings",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": "boolean",
+        "updatedCount": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
