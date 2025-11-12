@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { FARMER_API } from '@/types/farm.types';
 
 const RATING_API = 'https://functions.poehali.dev/ae7c97c0-1d46-4334-9a0c-5a8e54209875';
+const LEADERBOARD_API = 'https://functions.poehali.dev/11800a2e-728b-4d50-b1d0-a322d419d556';
 
 interface FarmerRatingProps {
   onGoToDiagnostics?: () => void;
@@ -27,17 +28,31 @@ interface RatingData {
   breakdown: RatingBreakdown;
   coefficients: Record<string, number>;
   weighted: RatingBreakdown;
+  region?: string;
+  farmName?: string;
+}
+
+interface LeaderboardEntry {
+  position: number;
+  userId: number;
+  name: string;
+  email: string;
+  region: string;
+  totalScore: number;
+  farmName: string;
 }
 
 export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
   const { user } = useAuth();
   const [rating, setRating] = useState<RatingData | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (user) {
       loadRating();
+      loadLeaderboard();
     }
   }, [user]);
 
@@ -80,12 +95,29 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
       }
 
       const ratingData = await ratingResponse.json();
-      setRating(ratingData);
+      setRating({ ...ratingData, region: profile.region, farmName: profile.farm_name });
     } catch (err) {
       setError('Не удалось загрузить рейтинг');
       console.error('Rating error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadLeaderboard = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`${LEADERBOARD_API}?limit=50&current_user_id=${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error('Ошибка при загрузке рейтинга');
+      }
+
+      const data = await response.json();
+      setLeaderboard(data.leaderboard || []);
+    } catch (err) {
+      console.error('Leaderboard error:', err);
     }
   };
 
@@ -227,108 +259,46 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-gray-100 bg-yellow-50 hover:bg-yellow-100 transition-colors">
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🥇</span>
-                    <span className="font-bold text-gray-800">1</span>
-                  </div>
-                </td>
-                <td className="py-4 px-4 font-semibold text-gray-800">Агрохолдинг «Зелёные поля»</td>
-                <td className="py-4 px-4 text-gray-600">Краснодарский край</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-bold text-xl text-gray-800">1247</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors">
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🥈</span>
-                    <span className="font-bold text-gray-800">2</span>
-                  </div>
-                </td>
-                <td className="py-4 px-4 font-semibold text-gray-800">КФХ «Рассвет»</td>
-                <td className="py-4 px-4 text-gray-600">Ростовская область</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-bold text-xl text-gray-800">1089</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 bg-orange-50 hover:bg-orange-100 transition-colors">
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🥉</span>
-                    <span className="font-bold text-gray-800">3</span>
-                  </div>
-                </td>
-                <td className="py-4 px-4 font-semibold text-gray-800">Ферма «Добрый урожай»</td>
-                <td className="py-4 px-4 text-gray-600">Ставропольский край</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-bold text-xl text-gray-800">956</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-4">
-                  <span className="font-semibold text-gray-600">4</span>
-                </td>
-                <td className="py-4 px-4 text-gray-700">СПК «Единство»</td>
-                <td className="py-4 px-4 text-gray-600">Воронежская область</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-semibold text-lg text-gray-700">834</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-4">
-                  <span className="font-semibold text-gray-600">5</span>
-                </td>
-                <td className="py-4 px-4 text-gray-700">Ферма «Сибирские просторы»</td>
-                <td className="py-4 px-4 text-gray-600">Алтайский край</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-semibold text-lg text-gray-700">721</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-4">
-                  <span className="font-semibold text-gray-600">6</span>
-                </td>
-                <td className="py-4 px-4 text-gray-700">КФХ «Семь ветров»</td>
-                <td className="py-4 px-4 text-gray-600">Саратовская область</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-semibold text-lg text-gray-700">687</span>
-                </td>
-              </tr>
-              <tr className="border-b-2 border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors">
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-2">
-                    <Icon name="User" size={16} className="text-blue-600" />
-                    <span className="font-bold text-blue-600">7</span>
-                  </div>
-                </td>
-                <td className="py-4 px-4 font-bold text-blue-600">{rating.farmName || 'Ваше хозяйство'}</td>
-                <td className="py-4 px-4 font-semibold text-blue-600">{rating.region || 'Россия'}</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-bold text-xl text-blue-600">{Math.round(rating.totalRating)}</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-4">
-                  <span className="font-semibold text-gray-600">8</span>
-                </td>
-                <td className="py-4 px-4 text-gray-700">Ферма «Луговое»</td>
-                <td className="py-4 px-4 text-gray-600">Тульская область</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-semibold text-lg text-gray-700">289</span>
-                </td>
-              </tr>
-              <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-4">
-                  <span className="font-semibold text-gray-600">9</span>
-                </td>
-                <td className="py-4 px-4 text-gray-700">КФХ «Новый день»</td>
-                <td className="py-4 px-4 text-gray-600">Белгородская область</td>
-                <td className="py-4 px-4 text-right">
-                  <span className="font-semibold text-lg text-gray-700">156</span>
-                </td>
-              </tr>
+              {leaderboard.map((entry, idx) => {
+                const isCurrentUser = user && entry.userId === user.id;
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null;
+                const bgClass = isCurrentUser 
+                  ? 'bg-blue-50 hover:bg-blue-100 border-b-2 border-blue-200' 
+                  : idx === 0 
+                    ? 'bg-yellow-50 hover:bg-yellow-100' 
+                    : idx === 1 || idx === 2 
+                      ? 'bg-orange-50 hover:bg-orange-100' 
+                      : 'hover:bg-gray-50';
+                const textClass = isCurrentUser ? 'text-blue-600 font-bold' : idx < 3 ? 'text-gray-800 font-semibold' : 'text-gray-700';
+                
+                return (
+                  <tr key={entry.userId} className={`border-b border-gray-100 ${bgClass} transition-colors`}>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        {medal && <span className="text-2xl">{medal}</span>}
+                        {isCurrentUser && <Icon name="User" size={16} className="text-blue-600" />}
+                        <span className={`font-${isCurrentUser ? 'bold' : 'semibold'} ${isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`}>
+                          {entry.position}
+                        </span>
+                      </div>
+                    </td>
+                    <td className={`py-4 px-4 ${textClass}`}>{entry.farmName}</td>
+                    <td className={`py-4 px-4 ${isCurrentUser ? 'font-semibold text-blue-600' : 'text-gray-600'}`}>{entry.region}</td>
+                    <td className="py-4 px-4 text-right">
+                      <span className={`font-bold ${idx < 3 ? 'text-xl' : 'text-lg'} ${isCurrentUser ? 'text-blue-600' : 'text-gray-800'}`}>
+                        {entry.totalScore}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+              {leaderboard.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">
+                    Загрузка рейтинга...
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

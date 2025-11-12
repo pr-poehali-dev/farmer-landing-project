@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Get leaderboard",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "leaderboard": "array",
+        "totalCount": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get leaderboard with limit",
+      "method": "GET",
+      "path": "/?limit=10",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "leaderboard": "array",
+        "totalCount": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
