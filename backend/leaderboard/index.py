@@ -50,9 +50,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 u.id,
                 u.name,
                 u.email,
-                u.region,
+                COALESCE(NULLIF(TRIM(fd.region), ''), NULLIF(TRIM(u.region), ''), 'Не указан') as region,
                 COALESCE(fs.total_score, 0) as total_score,
-                fd.farm_name
+                COALESCE(NULLIF(TRIM(fd.farm_name), ''), 'Хозяйство без названия') as farm_name
             FROM {schema}.users u
             LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS VARCHAR) = fs.user_id
             LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
@@ -75,9 +75,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'userId': user_id,
                 'name': name or 'Аноним',
                 'email': email,
-                'region': region or 'Не указан',
+                'region': region,
                 'totalScore': total_score,
-                'farmName': farm_name or 'Хозяйство без названия'
+                'farmName': farm_name
             }
             
             leaderboard.append(entry)
