@@ -21,6 +21,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
+            'isBase64Encoded': False,
             'body': ''
         }
     
@@ -28,6 +29,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
             'body': json.dumps({'error': 'Method not allowed'})
         }
     
@@ -38,7 +40,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         database_url = os.environ.get('DATABASE_URL')
         if not database_url:
-            raise ValueError('DATABASE_URL not configured')
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'DATABASE_URL not configured'})
+            }
         
         conn = psycopg2.connect(database_url)
         cur = conn.cursor()
@@ -50,17 +57,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 u.id,
                 u.name,
                 u.email,
-                COALESCE(NULLIF(TRIM(fd.region), ''), NULLIF(TRIM(u.region), ''), 'Не указан') as region,
+                COALESCE(NULLIF(TRIM(u.region), ''), 'Не указан') as region,
                 COALESCE(fs.total_score, 0) as total_score,
-                fd.farm_name,
-                fd.address,
-                fd.description,
+                u.farm_name,
+                u.bio,
                 diag.animals,
-                diag.crops,
-                (SELECT COUNT(*) FROM {schema}.investment_offers io WHERE io.farmer_id = u.id) as investment_count
+                diag.crops
             FROM {schema}.users u
             LEFT JOIN {schema}.farmer_scores fs ON CAST(u.id AS VARCHAR) = fs.user_id
-            LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
             LEFT JOIN {schema}.farm_diagnostics diag ON u.id = diag.user_id
             WHERE u.role = 'farmer'
             ORDER BY COALESCE(fs.total_score, 0) DESC
@@ -74,7 +78,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         current_user_position = None
         
         for idx, row in enumerate(rows, start=1):
-            user_id, name, email, region, total_score, farm_name, address, description, animals, crops, investment_count = row
+            user_id, name, email, region, total_score, farm_name, bio, animals, crops = row
+            
+            count_query = f"SELECT COUNT(*) FROM {schema}.investment_offers WHERE farmer_id = {user_id}"
+            cur.execute(count_query)
+            investment_count = cur.fetchone()[0] if cur.rowcount > 0 else 0
             
             display_name = farm_name
             if not farm_name or farm_name.strip() == '':
@@ -88,8 +96,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'region': region,
                 'totalScore': total_score,
                 'farmName': display_name,
-                'address': address or '',
-                'description': description or '',
+                'address': region or '',
+                'description': bio or '',
                 'animals': animals or [],
                 'crops': crops or [],
                 'investmentCount': investment_count or 0
@@ -109,6 +117,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
+            'isBase64Encoded': False,
             'body': json.dumps({
                 'leaderboard': leaderboard,
                 'currentUserPosition': current_user_position,
@@ -117,8 +126,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
+        import traceback
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': str(e)})
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': str(e), 'traceback': traceback.format_exc()})
         }
