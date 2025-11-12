@@ -318,7 +318,7 @@ export default function SmartFarm() {
           getHealthText={getHealthText}
         />
 
-        <MarketComparisonPanel comparison={comparison} />
+        <MarketComparisonPanel />
 
         <GigaChatPanel
           chatMessages={chatMessages}
