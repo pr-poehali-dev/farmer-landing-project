@@ -259,9 +259,89 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Messages array is required'})
         }
     
+    farm_context = ''
+    if dsn and DB_AVAILABLE:
+        try:
+            schema = 't_p53065890_farmer_landing_proje'
+            conn = psycopg2.connect(dsn)
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(f'''
+                    SELECT 
+                        fd.land_area,
+                        fd.land_owned,
+                        fd.land_rented,
+                        diag.animals,
+                        diag.crops,
+                        diag.equipment,
+                        diag.employees_permanent,
+                        diag.employees_seasonal,
+                        u.region,
+                        fd.farm_name
+                    FROM {schema}.users u
+                    LEFT JOIN {schema}.farmer_data fd ON u.id = fd.user_id
+                    LEFT JOIN {schema}.farm_diagnostics diag ON u.id = diag.user_id
+                    WHERE u.id = %s
+                    LIMIT 1
+                ''', (int(user_id),))
+                
+                farm_data = cur.fetchone()
+                
+                if farm_data:
+                    farm_parts = []
+                    
+                    if farm_data.get('farm_name'):
+                        farm_parts.append(f"Название хозяйства: {farm_data['farm_name']}")
+                    
+                    if farm_data.get('region'):
+                        farm_parts.append(f"Регион: {farm_data['region']}")
+                    
+                    land_area = farm_data.get('land_area', 0)
+                    if land_area and land_area > 0:
+                        farm_parts.append(f"Площадь земли: {land_area} га (в собственности: {farm_data.get('land_owned', 0)} га, в аренде: {farm_data.get('land_rented', 0)} га)")
+                    
+                    animals = farm_data.get('animals', [])
+                    if animals:
+                        animal_list = []
+                        for a in animals:
+                            animal_type = a.get('type', '')
+                            count = a.get('count', 0)
+                            breed = a.get('breed', '')
+                            direction = a.get('direction', '')
+                            if breed:
+                                animal_list.append(f"{animal_type} ({breed}, {direction}): {count} голов")
+                            else:
+                                animal_list.append(f"{animal_type}: {count} голов")
+                        if animal_list:
+                            farm_parts.append(f"Животные: {', '.join(animal_list)}")
+                    
+                    crops = farm_data.get('crops', [])
+                    if crops:
+                        crop_list = []
+                        for c in crops:
+                            crop_type = c.get('type', '')
+                            area = c.get('area', 0)
+                            crop_yield = c.get('yield', 0)
+                            if crop_yield > 0:
+                                crop_list.append(f"{crop_type} ({area} га, урожайность {crop_yield} ц/га)")
+                            else:
+                                crop_list.append(f"{crop_type} ({area} га)")
+                        if crop_list:
+                            farm_parts.append(f"Культуры: {', '.join(crop_list)}")
+                    
+                    employees = (farm_data.get('employees_permanent', 0) or 0) + (farm_data.get('employees_seasonal', 0) or 0)
+                    if employees > 0:
+                        farm_parts.append(f"Сотрудников: {farm_data.get('employees_permanent', 0)} постоянных, {farm_data.get('employees_seasonal', 0)} сезонных")
+                    
+                    if farm_parts:
+                        farm_context = '\n\nДанные хозяйства фермера:\n' + '\n'.join(farm_parts)
+            
+            conn.close()
+        except Exception as e:
+            print(f"Error loading farm context: {e}")
+    
     system_prompt = {
         'role': 'system',
-        'content': 'Ты - опытный агроном и консультант по сельскому хозяйству. Помогай фермерам с вопросами по растениеводству, животноводству, экономике хозяйства. Давай конкретные практические советы с расчетами. Отвечай кратко и по делу на русском языке.'
+        'content': f'Ты - опытный агроном и консультант по сельскому хозяйству. Помогай фермерам с вопросами по растениеводству, животноводству, экономике хозяйства. Давай конкретные практические советы с расчетами. Отвечай кратко и по делу на русском языке.{farm_context}'
     }
     
     full_messages = [system_prompt] + messages
