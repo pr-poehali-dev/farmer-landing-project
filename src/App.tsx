@@ -15,7 +15,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminUserDelete from "./pages/AdminUserDelete";
 import AdminMetrics from "./pages/AdminMetrics";
 import AdminRecalculate from "./pages/AdminRecalculate";
-import AdminRecalculateRatings from "./pages/AdminRecalculateRatings";
 import AdminCleanup from "./pages/AdminCleanup";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
@@ -23,7 +22,6 @@ import FAQ from "./pages/FAQ";
 import Contacts from "./pages/Contacts";
 import TestAccounts from "./pages/TestAccounts";
 import NotFound from "./pages/NotFound";
-import Leaderboard from "./pages/Leaderboard";
 import B2BPanel from "./pages/B2BPanel";
 import OAuthCallback from "./pages/OAuthCallback";
 import TelegramAuth from "./pages/TelegramAuth";
@@ -50,14 +48,12 @@ const App = () => (
           <Route path="/admin/metrics" element={<AdminMetrics />} />
           <Route path="/admin/delete-users" element={<AdminUserDelete />} />
           <Route path="/admin/recalculate" element={<AdminRecalculate />} />
-          <Route path="/admin/recalculate-ratings" element={<AdminRecalculateRatings />} />
           <Route path="/admin/cleanup" element={<AdminCleanup />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/test" element={<TestAccounts />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/b2b" element={<B2BPanel />} />
           <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route path="/oauth/telegram" element={<TelegramAuth />} />
