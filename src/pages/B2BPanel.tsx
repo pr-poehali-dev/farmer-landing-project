@@ -73,6 +73,28 @@ export default function B2BPanel() {
     }
   };
 
+  const recalculateRatings = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/8b32a74d-fb4e-4f8b-894e-5a27e80f319a', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) throw new Error('Ошибка пересчета');
+      
+      const data = await response.json();
+      toast({ 
+        title: `✅ Рейтинги обновлены`, 
+        description: `Пересчитано: ${data.updatedCount} фермеров`
+      });
+    } catch (error) {
+      toast({ title: 'Ошибка пересчета рейтингов', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['ID', 'Название хозяйства', 'Регион', 'Рейтинг'];
     const rows = results.map(r => [r.user_id, r.farm_name, r.region, r.score]);
@@ -166,6 +188,10 @@ export default function B2BPanel() {
             <Button onClick={handleSearch} disabled={loading} className="flex-1">
               <Icon name="Search" size={16} className="mr-2" />
               Найти хозяйства
+            </Button>
+            <Button onClick={recalculateRatings} disabled={loading} variant="outline">
+              <Icon name="RefreshCw" size={16} className="mr-2" />
+              Пересчитать рейтинги
             </Button>
             <Button onClick={exportToCSV} disabled={results.length === 0} variant="outline">
               <Icon name="Download" size={16} className="mr-2" />
