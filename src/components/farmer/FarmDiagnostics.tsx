@@ -19,11 +19,13 @@ import CropFormItem from './CropFormItem';
 import EquipmentFormItem from './EquipmentFormItem';
 import ProFeatureCard from './ProFeatureCard';
 import SubsidiesTab from './SubsidiesTab';
+import OnboardingWizard, { OnboardingData } from './OnboardingWizard';
 
 export default function FarmDiagnostics() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   const [landArea, setLandArea] = useState('');
   const [landOwned, setLandOwned] = useState('');
@@ -211,6 +213,79 @@ export default function FarmDiagnostics() {
     toast.info('ИИ-анализ доступен по платной подписке. Функция в разработке — скоро запуск!');
   };
 
+  const handleOnboardingComplete = async (data: OnboardingData) => {
+    const storedUser = localStorage.getItem('user');
+    const currentUser = storedUser ? JSON.parse(storedUser) : user;
+    
+    if (!currentUser) {
+      toast.error('Ошибка: пользователь не авторизован');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const landAreaValue = (parseFloat(data.landOwned) || 0) + (parseFloat(data.landRented) || 0);
+      const assets = {
+        land_area: landAreaValue.toString(),
+        land_owned: data.landOwned,
+        land_rented: data.landRented,
+        animals: data.animals,
+        equipment: data.equipment,
+        crops: data.crops,
+        employees_permanent: data.employeesPermanent,
+        employees_seasonal: data.employeesSeasonal,
+      };
+
+      const response = await fetch(FARMER_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'save_diagnosis',
+          assets: [assets]
+        })
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        toast.success('✅ Диагностика сохранена! Рассчитываю рейтинг...');
+        
+        setLandOwned(data.landOwned);
+        setLandRented(data.landRented);
+        setAnimals(data.animals);
+        setEquipment(data.equipment);
+        setCrops(data.crops);
+        setEmployeesPermanent(data.employeesPermanent);
+        setEmployeesSeasonal(data.employeesSeasonal);
+        
+        await loadDiagnostics();
+        
+        try {
+          const ratingResponse = await fetch('https://functions.poehali.dev/8b32a74d-fb4e-4f8b-894e-5a27e80f319a', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (ratingResponse.ok) {
+            toast.success('🎉 Рейтинг обновлен!');
+          }
+        } catch (err) {
+          console.error('⚠️ Не удалось пересчитать рейтинг:', err);
+        }
+      } else {
+        toast.error(responseData.error || 'Ошибка сохранения');
+      }
+    } catch (error) {
+      console.error('❌ Ошибка сохранения:', error);
+      toast.error('Ошибка соединения');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const animalCount = animals.reduce((sum, a) => sum + a.count, 0);
   const progress = Math.min(100, (
     (landArea ? 20 : 0) +
@@ -230,7 +305,13 @@ export default function FarmDiagnostics() {
 
   return (
     <div className="space-y-6">
-      <ProgressCard progress={progress} />
+      <ProgressCard progress={progress} onStartOnboarding={() => setShowOnboarding(true)} />
+      
+      <OnboardingWizard 
+        open={showOnboarding} 
+        onClose={() => setShowOnboarding(false)}
+        onComplete={handleOnboardingComplete}
+      />
 
       <Accordion type="multiple" className="space-y-4">
         <AccordionItem value="land" className="border rounded-lg px-4">
