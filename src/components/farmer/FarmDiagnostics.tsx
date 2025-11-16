@@ -28,6 +28,15 @@ export default function FarmDiagnostics() {
   const [landArea, setLandArea] = useState('');
   const [landOwned, setLandOwned] = useState('');
   const [landRented, setLandRented] = useState('');
+
+  useEffect(() => {
+    const owned = parseFloat(landOwned) || 0;
+    const rented = parseFloat(landRented) || 0;
+    const total = owned + rented;
+    if (total > 0) {
+      setLandArea(total.toString());
+    }
+  }, [landOwned, landRented]);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [crops, setCrops] = useState<Crop[]>([]);
@@ -234,15 +243,6 @@ export default function FarmDiagnostics() {
           <AccordionContent className="space-y-4 pt-4">
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label>Общая площадь земли (га)</Label>
-                <Input
-                  type="text"
-                  placeholder="50"
-                  value={landArea}
-                  onChange={(e) => setLandArea(e.target.value)}
-                />
-              </div>
-              <div>
                 <Label>В собственности (га)</Label>
                 <Input
                   type="text"
@@ -258,6 +258,16 @@ export default function FarmDiagnostics() {
                   placeholder="20"
                   value={landRented}
                   onChange={(e) => setLandRented(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Общая площадь земли (га)</Label>
+                <Input
+                  type="text"
+                  placeholder="50"
+                  value={landArea}
+                  disabled
+                  className="bg-gray-50"
                 />
               </div>
             </div>
