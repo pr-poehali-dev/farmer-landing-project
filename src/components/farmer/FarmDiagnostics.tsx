@@ -1,25 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion } from "@/components/ui/accordion";
 import { FARMER_API, Animal, Equipment, Crop } from '@/types/farm.types';
 import ProgressCard from './ProgressCard';
-import AnimalFormItem from './AnimalFormItem';
-import HivesInput from './HivesInput';
-import CropFormItem from './CropFormItem';
-import EquipmentFormItem from './EquipmentFormItem';
 import ProFeatureCard from './ProFeatureCard';
 import SubsidiesTab from './SubsidiesTab';
 import OnboardingWizard, { OnboardingData } from './OnboardingWizard';
+import LandSection from './LandSection';
+import EmployeesSection from './EmployeesSection';
+import CropsSection from './CropsSection';
+import EquipmentSection from './EquipmentSection';
+import { AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 export default function FarmDiagnostics() {
   const { user, loading: authLoading } = useAuth();
@@ -323,155 +317,39 @@ export default function FarmDiagnostics() {
       />
 
       <Accordion type="multiple" className="space-y-4">
-        <AccordionItem value="land" className="border rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center gap-3">
-              <Icon name="Home" size={20} className="text-green-600" />
-              <span className="font-semibold">Что в хозяйстве</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-4 pt-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label>В собственности (га)</Label>
-                <Input
-                  type="text"
-                  placeholder="30"
-                  value={landOwned}
-                  onChange={(e) => setLandOwned(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>В аренде (га)</Label>
-                <Input
-                  type="text"
-                  placeholder="20"
-                  value={landRented}
-                  onChange={(e) => setLandRented(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>Общая площадь земли (га)</Label>
-                <Input
-                  type="text"
-                  placeholder="50"
-                  value={landArea}
-                  disabled
-                  className="bg-gray-50"
-                />
-              </div>
-            </div>
+        <LandSection
+          landOwned={landOwned}
+          setLandOwned={setLandOwned}
+          landRented={landRented}
+          setLandRented={setLandRented}
+          landArea={landArea}
+          animals={animals}
+          addAnimal={addAnimal}
+          updateAnimal={updateAnimal}
+          removeAnimal={removeAnimal}
+          setAnimals={setAnimals}
+        />
 
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between mb-2">
-                <Label>Животные</Label>
-                <Button onClick={addAnimal} variant="outline" size="sm">
-                  <Icon name="Plus" size={16} className="mr-1" />
-                  Добавить
-                </Button>
-              </div>
-              {animals.filter(a => a.type !== 'hives').map((animal, index) => {
-                const actualIndex = animals.findIndex(a => a === animal);
-                return (
-                  <AnimalFormItem
-                    key={actualIndex}
-                    animal={animal}
-                    index={actualIndex}
-                    onUpdate={updateAnimal}
-                    onRemove={removeAnimal}
-                  />
-                );
-              })}
-            </div>
+        <EmployeesSection
+          employeesPermanent={employeesPermanent}
+          setEmployeesPermanent={setEmployeesPermanent}
+          employeesSeasonal={employeesSeasonal}
+          setEmployeesSeasonal={setEmployeesSeasonal}
+        />
 
-            <HivesInput animals={animals} onUpdate={updateAnimal} onAnimalsChange={setAnimals} />
-          </AccordionContent>
-        </AccordionItem>
+        <CropsSection
+          crops={crops}
+          addCrop={addCrop}
+          updateCrop={updateCrop}
+          removeCrop={removeCrop}
+        />
 
-        <AccordionItem value="employees" className="border rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center gap-3">
-              <Icon name="Users" size={20} className="text-green-600" />
-              <span className="font-semibold">Сотрудники</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Постоянные сотрудники</Label>
-                <Input
-                  type="number"
-                  value={employeesPermanent}
-                  onChange={(e) => setEmployeesPermanent(Number(e.target.value))}
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label>Сезонные работники</Label>
-                <Input
-                  type="number"
-                  value={employeesSeasonal}
-                  onChange={(e) => setEmployeesSeasonal(Number(e.target.value))}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="crops" className="border rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center gap-3">
-              <Icon name="Wheat" size={20} className="text-green-600" />
-              <span className="font-semibold">Что высаживаете</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-4 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <Label>Культуры</Label>
-              <Button onClick={addCrop} variant="outline" size="sm">
-                <Icon name="Plus" size={16} className="mr-1" />
-                Добавить
-              </Button>
-            </div>
-            {crops.map((crop, index) => (
-              <CropFormItem
-                key={index}
-                crop={crop}
-                index={index}
-                onUpdate={updateCrop}
-                onRemove={removeCrop}
-              />
-            ))}
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="equipment" className="border rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center gap-3">
-              <Icon name="Truck" size={20} className="text-green-600" />
-              <span className="font-semibold">Мой гараж</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-4 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <Label>Техника</Label>
-              <Button onClick={addEquipment} variant="outline" size="sm">
-                <Icon name="Plus" size={16} className="mr-1" />
-                Добавить
-              </Button>
-            </div>
-            {equipment.map((item, index) => (
-              <EquipmentFormItem
-                key={item.id}
-                equipment={item}
-                index={index}
-                onUpdate={updateEquipment}
-                onRemove={removeEquipment}
-              />
-            ))}
-          </AccordionContent>
-        </AccordionItem>
+        <EquipmentSection
+          equipment={equipment}
+          addEquipment={addEquipment}
+          updateEquipment={updateEquipment}
+          removeEquipment={removeEquipment}
+        />
 
         <AccordionItem value="subsidies" className="border rounded-lg px-4">
           <AccordionTrigger className="hover:no-underline">
