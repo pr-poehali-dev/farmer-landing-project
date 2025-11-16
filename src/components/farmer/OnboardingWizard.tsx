@@ -271,11 +271,37 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Марка</Label>
-                <Input
-                  placeholder="John Deere"
-                  value={tempEquipment.brand}
-                  onChange={(e) => setTempEquipment({ ...tempEquipment, brand: e.target.value })}
-                />
+                <Select 
+                  value={tempEquipment.brand || 'none'} 
+                  onValueChange={(v) => setTempEquipment({ ...tempEquipment, brand: v === 'none' ? '' : v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Выберите марку" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Выберите марку</SelectItem>
+                    <SelectItem value="John Deere">John Deere</SelectItem>
+                    <SelectItem value="Claas">Claas</SelectItem>
+                    <SelectItem value="New Holland">New Holland</SelectItem>
+                    <SelectItem value="Case IH">Case IH</SelectItem>
+                    <SelectItem value="Fendt">Fendt</SelectItem>
+                    <SelectItem value="Massey Ferguson">Massey Ferguson</SelectItem>
+                    <SelectItem value="Kubota">Kubota</SelectItem>
+                    <SelectItem value="Беларус (МТЗ)">Беларус (МТЗ)</SelectItem>
+                    <SelectItem value="Кировец (Кировский завод)">Кировец (Кировский завод)</SelectItem>
+                    <SelectItem value="Тракторные заводы (Россельмаш)">Россельмаш</SelectItem>
+                    <SelectItem value="Агромашхолдинг (Агромаш)">Агромаш</SelectItem>
+                    <SelectItem value="Challenger">Challenger</SelectItem>
+                    <SelectItem value="JCB">JCB</SelectItem>
+                    <SelectItem value="Xinong">Xinong</SelectItem>
+                    <SelectItem value="Луцкий трактор (ЛУАЗ)">ЛУАЗ</SelectItem>
+                    <SelectItem value="XCMG">XCMG</SelectItem>
+                    <SelectItem value="Shantui">Shantui</SelectItem>
+                    <SelectItem value="Lonking">Lonking</SelectItem>
+                    <SelectItem value="LiuGong">LiuGong</SelectItem>
+                    <SelectItem value="YTO Group">YTO Group</SelectItem>
+                    <SelectItem value="LOVOL">LOVOL</SelectItem>
+                    <SelectItem value="Другая">Другая</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Модель</Label>
