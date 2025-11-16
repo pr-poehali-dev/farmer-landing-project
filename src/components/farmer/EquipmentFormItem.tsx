@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { Equipment } from '@/types/farm.types';
 
@@ -11,6 +12,31 @@ interface Props {
   onUpdate: (index: number, field: keyof Equipment, value: any) => void;
   onRemove: (index: number) => void;
 }
+
+const EQUIPMENT_BRANDS = [
+  'John Deere',
+  'Claas',
+  'New Holland',
+  'Case IH',
+  'Fendt',
+  'Massey Ferguson',
+  'Kubota',
+  'Беларус (МТЗ)',
+  'Кировец (Кировский завод)',
+  'Тракторные заводы (Россельмаш)',
+  'Агромашхолдинг (Агромаш)',
+  'Challenger',
+  'JCB',
+  'Xinong',
+  'Луцкий трактор (ЛУАЗ)',
+  'XCMG',
+  'Shantui',
+  'Lonking',
+  'LiuGong',
+  'YTO Group',
+  'LOVOL',
+  'Другая'
+];
 
 export default function EquipmentFormItem({ equipment, index, onUpdate, onRemove }: Props) {
   return (
@@ -29,12 +55,17 @@ export default function EquipmentFormItem({ equipment, index, onUpdate, onRemove
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className="text-xs">Марка</Label>
-          <Input
-            type="text"
-            placeholder="Например: John Deere"
-            value={equipment.brand}
-            onChange={(e) => onUpdate(index, 'brand', e.target.value)}
-          />
+          <Select 
+            value={equipment.brand || 'other'} 
+            onValueChange={(v) => onUpdate(index, 'brand', v === 'other' ? '' : v)}
+          >
+            <SelectTrigger><SelectValue placeholder="Выберите марку" /></SelectTrigger>
+            <SelectContent>
+              {EQUIPMENT_BRANDS.map(brand => (
+                <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label className="text-xs">Модель</Label>
