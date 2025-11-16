@@ -146,10 +146,10 @@ export default function B2BPanel() {
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             <div>
               <Label>Регион</Label>
-              <Select value={filters.region} onValueChange={(v) => setFilters({...filters, region: v})}>
+              <Select value={filters.region || 'all'} onValueChange={(v) => setFilters({...filters, region: v === 'all' ? '' : v})}>
                 <SelectTrigger><SelectValue placeholder="Все регионы" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Все регионы</SelectItem>
+                  <SelectItem value="all">Все регионы</SelectItem>
                   <SelectItem value="Московская область">Московская область</SelectItem>
                   <SelectItem value="Краснодарский край">Краснодарский край</SelectItem>
                   <SelectItem value="Ростовская область">Ростовская область</SelectItem>
