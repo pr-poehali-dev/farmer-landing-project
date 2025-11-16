@@ -174,6 +174,19 @@ export default function FarmDiagnostics() {
       if (response.ok) {
         toast.success('✅ Данные сохранены! Обновляю рейтинг...');
         await loadDiagnostics();
+        
+        try {
+          const ratingResponse = await fetch('https://functions.poehali.dev/8b32a74d-fb4e-4f8b-894e-5a27e80f319a', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (ratingResponse.ok) {
+            console.log('✅ Рейтинг пересчитан');
+          }
+        } catch (err) {
+          console.error('⚠️ Не удалось пересчитать рейтинг:', err);
+        }
       } else {
         toast.error(data.error || 'Ошибка сохранения');
       }
