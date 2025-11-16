@@ -37,13 +37,13 @@ export default function B2BPanel() {
   const [results, setResults] = useState<FarmerData[]>([]);
   const [loading, setLoading] = useState(false);
 
-  if (!user || user.role !== 'admin') {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md text-center">
           <Icon name="Lock" size={48} className="mx-auto text-gray-400 mb-4" />
-          <h2 className="text-xl font-bold mb-2">Доступ запрещен</h2>
-          <p className="text-gray-600 mb-4">Этот раздел доступен только для B2B партнёров</p>
+          <h2 className="text-xl font-bold mb-2">Требуется авторизация</h2>
+          <p className="text-gray-600 mb-4">Войдите, чтобы получить доступ</p>
           <Button onClick={() => navigate('/')}>На главную</Button>
         </Card>
       </div>
