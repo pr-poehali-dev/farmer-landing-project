@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ interface OnboardingWizardProps {
   open: boolean;
   onClose: () => void;
   onComplete: (data: OnboardingData) => void;
+  initialData?: OnboardingData;
 }
 
 export interface OnboardingData {
@@ -23,7 +24,7 @@ export interface OnboardingData {
   employeesSeasonal: number;
 }
 
-export default function OnboardingWizard({ open, onClose, onComplete }: OnboardingWizardProps) {
+export default function OnboardingWizard({ open, onClose, onComplete, initialData }: OnboardingWizardProps) {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
     landOwned: '',
@@ -34,6 +35,12 @@ export default function OnboardingWizard({ open, onClose, onComplete }: Onboardi
     employeesPermanent: 0,
     employeesSeasonal: 0,
   });
+
+  useEffect(() => {
+    if (open && initialData) {
+      setData(initialData);
+    }
+  }, [open, initialData]);
 
   const [tempAnimal, setTempAnimal] = useState({ type: 'cow', count: 0 });
   const [tempEquipment, setTempEquipment] = useState({ brand: '', model: '', year: '' });

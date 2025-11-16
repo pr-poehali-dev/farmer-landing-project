@@ -311,6 +311,15 @@ export default function FarmDiagnostics() {
         open={showOnboarding} 
         onClose={() => setShowOnboarding(false)}
         onComplete={handleOnboardingComplete}
+        initialData={{
+          landOwned,
+          landRented,
+          animals,
+          equipment,
+          crops,
+          employeesPermanent,
+          employeesSeasonal
+        }}
       />
 
       <Accordion type="multiple" className="space-y-4">
