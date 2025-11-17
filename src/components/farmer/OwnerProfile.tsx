@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,6 +12,99 @@ import { useAuth } from '@/hooks/useAuth';
 type SocialNetwork = 'vk' | 'telegram' | 'instagram' | 'youtube';
 
 const FARMER_API = 'https://functions.poehali.dev/1cab85a8-6eaf-4ad6-8bd1-acb7105af88e';
+
+const REGIONS = [
+  'Республика Бурятия',
+  'Белгородская область',
+  'Брянская область',
+  'Владимирская область',
+  'Воронежская область',
+  'Ивановская область',
+  'Калужская область',
+  'Костромская область',
+  'Курская область',
+  'Липецкая область',
+  'Московская область',
+  'Орловская область',
+  'Рязанская область',
+  'Смоленская область',
+  'Тамбовская область',
+  'Тверская область',
+  'Тульская область',
+  'Ярославская область',
+  'г. Москва',
+  'Республика Карелия',
+  'Республика Коми',
+  'Архангельская область',
+  'Ненецкий автономный округ',
+  'Вологодская область',
+  'Калининградская область',
+  'Ленинградская область',
+  'Мурманская область',
+  'Новгородская область',
+  'Псковская область',
+  'г. Санкт-Петербург',
+  'Республика Адыгея',
+  'Республика Дагестан',
+  'Республика Ингушетия',
+  'Кабардино-Балкарская Республика',
+  'Республика Калмыкия',
+  'Карачаево-Черкесская Республика',
+  'Республика Северная Осетия-Алания',
+  'Чеченская Республика',
+  'Краснодарский край',
+  'Ставропольский край',
+  'Астраханская область',
+  'Волгоградская область',
+  'Ростовская область',
+  'Республика Башкортостан',
+  'Республика Марий Эл',
+  'Республика Мордовия',
+  'Республика Татарстан',
+  'Удмуртская Республика',
+  'Чувашская Республика',
+  'Пермский край',
+  'Кировская область',
+  'Нижегородская область',
+  'Оренбургская область',
+  'Пензенская область',
+  'Самарская область',
+  'Саратовская область',
+  'Ульяновская область',
+  'Курганская область',
+  'Свердловская область',
+  'Тюменская область',
+  'Ханты-Мансийский автономный округ',
+  'Ямало-Ненецкий автономный округ',
+  'Челябинская область',
+  'Республика Алтай',
+  'Республика Тыва',
+  'Республика Хакасия',
+  'Алтайский край',
+  'Красноярский край',
+  'Иркутская область',
+  'Кемеровская область',
+  'Новосибирская область',
+  'Омская область',
+  'Томская область',
+  'Забайкальский край',
+  'Республика Саха (Якутия)',
+  'Камчатский край',
+  'Приморский край',
+  'Хабаровский край',
+  'Амурская область',
+  'Магаданская область',
+  'Сахалинская область',
+  'Еврейская автономная область',
+  'Чукотский автономный округ'
+];
+
+const normalizeRegion = (region: string): string => {
+  const normalized = region.trim().toLowerCase();
+  if (normalized === 'бурятия') return 'Республика Бурятия';
+  const found = REGIONS.find(r => r.toLowerCase() === normalized);
+  return found || region;
+};
 
 export default function OwnerProfile() {
   const { user, loading: authLoading } = useAuth();
@@ -86,7 +180,7 @@ export default function OwnerProfile() {
           email: data.profile.email || user.email,
           bio: data.profile.bio || '',
           farm_name: data.profile.farm_name || '',
-          region: data.profile.region || '',
+          region: normalizeRegion(data.profile.region || ''),
           address: data.profile.address || '',
           vk_link: data.profile.vk_link || '',
           telegram_link: data.profile.telegram_link || '',
@@ -220,7 +314,16 @@ export default function OwnerProfile() {
           </div>
           <div>
             <Label>Регион *</Label>
-            <Input value={profile.region} onChange={(e) => setProfile({...profile, region: e.target.value})} placeholder="Например: Бурятия, Алтайский край" />
+            <Select value={profile.region} onValueChange={(val) => setProfile({...profile, region: val})}>
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите регион" />
+              </SelectTrigger>
+              <SelectContent>
+                {REGIONS.map(r => (
+                  <SelectItem key={r} value={r}>{r}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>О себе *</Label>
