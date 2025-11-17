@@ -326,20 +326,20 @@ export default function OwnerProfile() {
             </Select>
           </div>
           <div>
+            <Label>Адрес хозяйства</Label>
+            <Input 
+              value={profile.address} 
+              onChange={(e) => setProfile({...profile, address: e.target.value})} 
+              placeholder="Например: Бурятия, Баргузинский район, с. Курумкан"
+            />
+          </div>
+          <div>
             <Label>О себе *</Label>
             <Textarea 
               value={profile.bio} 
               onChange={(e) => setProfile({...profile, bio: e.target.value})} 
               rows={4} 
               placeholder="Фермер из Бурятии, специализируюсь на сое и кукурузе. 20 лет опыта."
-            />
-          </div>
-          <div>
-            <Label>Адрес хозяйства</Label>
-            <Input 
-              value={profile.address} 
-              onChange={(e) => setProfile({...profile, address: e.target.value})} 
-              placeholder="Например: Бурятия, Баргузинский район, с. Курумкан"
             />
           </div>
           
