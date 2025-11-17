@@ -14,7 +14,8 @@ const SELLER_API = 'https://functions.poehali.dev/cc24321a-77b4-44ce-9ae2-7fb7ef
 const PRODUCT_TYPES = [
   { value: 'equipment', label: 'Сельхозтехника' },
   { value: 'fertilizer', label: 'Удобрения' },
-  { value: 'seeds', label: 'Семена для посева' }
+  { value: 'seeds', label: 'Семена для посева' },
+  { value: 'technology', label: 'Технологии' }
 ];
 
 export default function SellerMarketplace() {
