@@ -15,7 +15,11 @@ import CropsSection from './CropsSection';
 import EquipmentSection from './EquipmentSection';
 import { AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
-export default function FarmDiagnostics() {
+interface FarmDiagnosticsProps {
+  onGoToRating?: () => void;
+}
+
+export default function FarmDiagnostics({ onGoToRating }: FarmDiagnosticsProps) {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -265,6 +269,9 @@ export default function FarmDiagnostics() {
           
           if (ratingResponse.ok) {
             toast.success('🎉 Рейтинг обновлен!');
+            if (onGoToRating) {
+              setTimeout(() => onGoToRating(), 1500);
+            }
           }
         } catch (err) {
           console.error('⚠️ Не удалось пересчитать рейтинг:', err);

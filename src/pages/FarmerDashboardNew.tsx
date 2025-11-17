@@ -91,7 +91,7 @@ export default function FarmerDashboardNew() {
           </TabsList>
 
           <TabsContent value="diagnostics" className="mt-6">
-            <FarmDiagnostics />
+            <FarmDiagnostics onGoToRating={() => setActiveTab('rating')} />
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-6">
