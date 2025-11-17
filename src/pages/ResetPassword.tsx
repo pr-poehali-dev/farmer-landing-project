@@ -19,6 +19,7 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'request' | 'reset'>(resetToken ? 'reset' : 'request');
+  const [receivedToken, setReceivedToken] = useState('');
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +46,21 @@ const ResetPassword = () => {
         throw new Error(data.error || 'Ошибка запроса');
       }
 
-      toast.success('Проверьте результат ниже');
-      toast.info(`Токен сброса: ${data.reset_token}`);
-      
-      const resetUrl = `${window.location.origin}/reset-password?token=${data.reset_token}`;
-      toast.info('Скопируйте эту ссылку для сброса пароля');
-      
-      navigator.clipboard.writeText(resetUrl);
-      toast.success('Ссылка скопирована в буфер обмена');
+      if (data.reset_token) {
+        setReceivedToken(data.reset_token);
+        toast.success('Токен получен! Переход к смене пароля...');
+        
+        const resetUrl = `${window.location.origin}/reset-password?token=${data.reset_token}`;
+        navigator.clipboard.writeText(resetUrl);
+        toast.success('Ссылка скопирована в буфер обмена');
+        
+        setTimeout(() => {
+          navigate(`/reset-password?token=${data.reset_token}`);
+          window.location.reload();
+        }, 1500);
+      } else {
+        toast.success('Письмо с инструкциями отправлено на вашу почту');
+      }
       
     } catch (error: any) {
       toast.error(error.message || 'Ошибка запроса сброса пароля');
