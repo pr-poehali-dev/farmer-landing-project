@@ -129,17 +129,40 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
     }
   };
 
+  const normalizeRegion = (region: string): string => {
+    if (!region || region === 'Не указан') return 'Не указан';
+    
+    const normalized = region.trim().toLowerCase();
+    
+    if (normalized.includes('бурят')) return 'Республика Бурятия';
+    if (normalized.includes('москов') && !normalized.includes('область')) return 'г. Москва';
+    if (normalized.includes('санкт-петербург') || normalized.includes('спб')) return 'г. Санкт-Петербург';
+    if (normalized.includes('ленинград')) return 'Ленинградская область';
+    if (normalized.includes('московск')) return 'Московская область';
+    if (normalized.includes('краснодар')) return 'Краснодарский край';
+    if (normalized.includes('тамбов')) return 'Тамбовская область';
+    if (normalized.includes('белгород')) return 'Белгородская область';
+    
+    return region.replace(/,.*$/, '').trim();
+  };
+
   const handleRegionFilter = (region: string) => {
     setSelectedRegion(region);
     if (region === 'all') {
       setFilteredLeaderboard(leaderboard);
     } else {
-      const filtered = leaderboard.filter(entry => entry.region === region);
+      const filtered = leaderboard.filter(entry => normalizeRegion(entry.region) === region);
       setFilteredLeaderboard(filtered);
     }
   };
 
-  const uniqueRegions = Array.from(new Set(leaderboard.map(e => e.region).filter(r => r !== 'Не указан'))).sort();
+  const uniqueRegions = Array.from(
+    new Set(
+      leaderboard
+        .map(e => normalizeRegion(e.region))
+        .filter(r => r !== 'Не указан')
+    )
+  ).sort();
 
   const getRatingLevel = (score: number) => {
     if (score >= 600) return { label: 'Отличный', color: 'text-green-600', bg: 'bg-green-100' };
