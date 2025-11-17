@@ -3,6 +3,9 @@ import os
 import psycopg2
 import bcrypt
 import jwt
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 from typing import Dict, Any
 
@@ -229,7 +232,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Введите email'})
                     }
                 
-                cur.execute("SELECT id FROM t_p53065890_farmer_landing_proje.users WHERE LOWER(email) = %s", (email,))
+                cur.execute("SELECT id, name FROM t_p53065890_farmer_landing_proje.users WHERE LOWER(email) = %s", (email,))
                 user = cur.fetchone()
                 
                 if not user:
@@ -239,20 +242,85 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'message': 'Если email существует, инструкции отправлены'})
                     }
                 
+                user_id, user_name = user
+                
                 reset_token = jwt.encode({
-                    'user_id': user[0],
+                    'user_id': user_id,
                     'email': email,
                     'type': 'reset',
                     'exp': datetime.utcnow() + timedelta(hours=1)
                 }, jwt_secret, algorithm='HS256')
                 
+                # Отправка письма через SMTP
+                smtp_host = os.environ.get('SMTP_HOST')
+                smtp_port = int(os.environ.get('SMTP_PORT', 587))
+                smtp_user = os.environ.get('SMTP_USER')
+                smtp_password = os.environ.get('SMTP_PASSWORD')
+                frontend_url = os.environ.get('FRONTEND_URL', 'https://фармер.рф')
+                
+                if smtp_host and smtp_user and smtp_password:
+                    reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+                    
+                    msg = MIMEMultipart('alternative')
+                    msg['Subject'] = 'Сброс пароля - Фармер.рф'
+                    msg['From'] = smtp_user
+                    msg['To'] = email
+                    
+                    text_content = f"""Здравствуйте, {user_name}!
+
+Вы запросили сброс пароля на платформе Фармер.рф.
+
+Перейдите по ссылке для создания нового пароля:
+{reset_link}
+
+Ссылка действительна в течение 1 часа.
+
+Если вы не запрашивали сброс пароля, проигнорируйте это письмо.
+
+С уважением,
+Команда Фармер.рф"""
+                    
+                    html_content = f"""<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2d5016;">Сброс пароля</h2>
+        <p>Здравствуйте, {user_name}!</p>
+        <p>Вы запросили сброс пароля на платформе <strong>Фармер.рф</strong>.</p>
+        <p>Перейдите по ссылке для создания нового пароля:</p>
+        <p style="margin: 30px 0;">
+            <a href="{reset_link}" 
+               style="background-color: #2d5016; color: white; padding: 12px 24px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;">
+                Сбросить пароль
+            </a>
+        </p>
+        <p style="color: #666; font-size: 14px;">Ссылка действительна в течение 1 часа.</p>
+        <p style="color: #666; font-size: 14px;">
+            Если вы не запрашивали сброс пароля, проигнорируйте это письмо.
+        </p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+            С уважением,<br>
+            Команда Фармер.рф
+        </p>
+    </div>
+</body>
+</html>"""
+                    
+                    part1 = MIMEText(text_content, 'plain', 'utf-8')
+                    part2 = MIMEText(html_content, 'html', 'utf-8')
+                    msg.attach(part1)
+                    msg.attach(part2)
+                    
+                    with smtplib.SMTP(smtp_host, smtp_port) as server:
+                        server.starttls()
+                        server.login(smtp_user, smtp_password)
+                        server.send_message(msg)
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'message': 'Токен сброса создан',
-                        'reset_token': reset_token
-                    })
+                    'body': json.dumps({'message': 'Письмо для сброса пароля отправлено'})
                 }
             
             elif action == 'reset_password':
