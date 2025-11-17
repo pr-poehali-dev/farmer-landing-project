@@ -19,7 +19,8 @@ interface Props {
 const PRODUCT_TYPES = [
   { value: 'equipment', label: 'Сельхозтехника' },
   { value: 'fertilizer', label: 'Удобрения' },
-  { value: 'seeds', label: 'Семена для посева' }
+  { value: 'seeds', label: 'Семена для посева' },
+  { value: 'technology', label: 'Технологии' }
 ];
 
 const FREE_PRODUCTS_LIMIT = 10;
