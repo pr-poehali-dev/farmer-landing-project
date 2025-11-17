@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { FARMER_API } from '@/types/farm.types';
+import RatingCard from './rating/RatingCard';
+import RatingBreakdownDetails from './rating/RatingBreakdownDetails';
+import LeaderboardList from './rating/LeaderboardList';
 
 const RATING_API = 'https://functions.poehali.dev/ae7c97c0-1d46-4334-9a0c-5a8e54209875';
 const LEADERBOARD_API = 'https://functions.poehali.dev/11800a2e-728b-4d50-b1d0-a322d419d556';
@@ -255,16 +257,6 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
     return { label: 'Начальный', color: 'text-red-600', bg: 'bg-red-100' };
   };
 
-  const criteria = [
-    { key: 'region', label: 'Регион', icon: 'MapPin', description: 'Климат и инфраструктура' },
-    { key: 'land', label: 'Земля', icon: 'Landmark', description: 'Площадь и владение' },
-    { key: 'animal', label: 'Животные', icon: 'Beef', description: 'Поголовье и продуктивность' },
-    { key: 'equipment', label: 'Техника', icon: 'Truck', description: 'Количество и состояние' },
-    { key: 'crop', label: 'Культуры', icon: 'Wheat', description: 'Урожайность и площадь' },
-    { key: 'staff', label: 'Сотрудники', icon: 'Users', description: 'Численность персонала' },
-    { key: 'finance', label: 'Финансы', icon: 'DollarSign', description: 'Потенциал прибыли' }
-  ];
-
   if (loading) {
     return (
       <Card className="p-8">
@@ -300,224 +292,43 @@ export default function FarmerRating({ onGoToDiagnostics }: FarmerRatingProps) {
     );
   }
 
-  const level = getRatingLevel(rating.totalRating);
-
   return (
     <div className="space-y-6">
-      <Card className="p-8 bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 border-blue-200">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-shrink-0 text-center">
-            <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white mb-3 shadow-xl">
-              <div>
-                <div className="text-4xl font-bold">{Math.round(rating.totalRating)}</div>
-                <div className="text-sm opacity-90">баллов</div>
-              </div>
+      <RatingCard 
+        totalRating={rating.totalRating}
+        farmName={rating.farmName}
+        region={rating.region}
+        getRatingLevel={getRatingLevel}
+      />
+
+      <RatingBreakdownDetails 
+        weighted={rating.weighted}
+        coefficients={rating.coefficients}
+      />
+
+      {onGoToDiagnostics && (
+        <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">Хотите повысить рейтинг?</h3>
+              <p className="text-sm text-gray-600">Обновите данные диагностики или добавьте новые активы</p>
             </div>
-            <div className={`inline-block px-4 py-2 rounded-full ${level.bg} ${level.color} font-semibold text-sm`}>
-              {level.label}
-            </div>
+            <Button onClick={onGoToDiagnostics} className="bg-green-600 hover:bg-green-700">
+              <Icon name="RefreshCw" size={16} className="mr-2" />
+              Обновить диагностику
+            </Button>
           </div>
+        </Card>
+      )}
 
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-              <span>💎</span> Ваш рейтинг фермера
-            </h2>
-            <p className="text-gray-600 text-sm mb-4">Баллы начисляются за:</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <span>🌾</span> <strong>Культуры</strong> — посевы и урожайность
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <span>🐄</span> <strong>Животные</strong> — поголовье и породы
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <span>🚜</span> <strong>Техника</strong> — количество и состояние
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <span>👥</span> <strong>Сотрудники</strong> — постоянные и сезонные
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <span>🗺️</span> <strong>Земля</strong> — площадь и регион
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <span>💰</span> <strong>Финансы</strong> — потенциал прибыли
-              </div>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-              <p className="text-sm text-yellow-800">
-                <strong>🎯 Бонусы:</strong> Суровый климат, бедные почвы или редкие породы? Коэффициенты ×1.1-1.2!
-              </p>
-            </div>
-
-            {onGoToDiagnostics && (
-              <Button 
-                onClick={onGoToDiagnostics}
-                variant="outline" 
-                size="sm"
-                className="text-blue-600 border-blue-300 hover:bg-blue-50"
-              >
-                <Icon name="ArrowLeft" size={16} className="mr-2" />
-                Перейти к диагностике
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <span>🏆</span> Рейтинг фермеров
-          </h3>
-          
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600">Регион:</span>
-            <select 
-              value={selectedRegion}
-              onChange={(e) => handleRegionFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Все регионы ({leaderboard.length})</option>
-              {regionsWithCount.map(({ region, count }) => (
-                <option key={region} value={region}>
-                  {region} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {filteredLeaderboard.map((entry, idx) => {
-            const isCurrentUser = user && entry.userId === user.id;
-            const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null;
-            const bgClass = isCurrentUser 
-              ? 'bg-blue-50 border-blue-300 border-2' 
-              : idx === 0 
-                ? 'bg-yellow-50 border-yellow-200 border-2' 
-                : idx === 1 || idx === 2 
-                  ? 'bg-orange-50 border-orange-200 border-2' 
-                  : 'bg-gray-50 border-gray-200 border';
-            
-            const animalEmojis: Record<string, string> = {
-              'cows': '🐄',
-              'pigs': '🐷',
-              'chickens': '🐔',
-              'sheep': '🐑',
-              'horses': '🐴',
-              'deer': '🦌',
-              'hives': '🐝'
-            };
-            
-            const cropEmojis: Record<string, string> = {
-              'wheat': '🌾',
-              'barley': '🌾',
-              'corn': '🌽',
-              'sunflower': '🌻',
-              'potato': '🥔',
-              'vegetables': '🥕',
-              'fruits': '🍎',
-              'other': '🌱'
-            };
-            
-            const displayAnimals = (entry.animals || []).slice(0, 5).map(a => animalEmojis[a.type] || '🐾');
-            const displayCrops = (entry.crops || []).slice(0, 5).map(c => cropEmojis[c.type] || '🌱');
-            
-            return (
-              <div key={entry.userId} className={`p-4 rounded-lg ${bgClass} transition-all hover:shadow-md`}>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 min-w-[60px]">
-                      {medal && <span className="text-2xl">{medal}</span>}
-                      {isCurrentUser && <Icon name="User" size={18} className="text-blue-600" />}
-                      <span className={`font-bold ${isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`}>
-                        #{idx + 1}
-                      </span>
-                    </div>
-                    <div>
-                      <div className={`font-bold ${isCurrentUser ? 'text-blue-600' : 'text-gray-800'} mb-1`}>
-                        {entry.farmName}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-3 text-sm">
-                          <div className="flex items-center gap-1 text-gray-600">
-                            <Icon name="MapPin" size={14} />
-                            <span>{entry.region}</span>
-                          </div>
-                          {displayAnimals.length > 0 && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-lg">{displayAnimals.join(' ')}</span>
-                            </div>
-                          )}
-                          {displayCrops.length > 0 && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-lg">{displayCrops.join(' ')}</span>
-                            </div>
-                          )}
-                          {(entry.investmentCount || 0) > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Icon name="TrendingUp" size={14} className="text-green-600" />
-                              <span className="text-xs text-gray-700 font-semibold">{entry.investmentCount}</span>
-                            </div>
-                          )}
-                        </div>
-                        {entry.address && (
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Icon name="Home" size={12} />
-                            <span>{entry.address.length > 50 ? entry.address.substring(0, 50) + '...' : entry.address}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right flex items-center gap-4">
-                    {entry.description && (
-                      <div className="text-xs text-gray-600 italic max-w-[200px] text-left">
-                        {entry.description.length > 60 ? entry.description.substring(0, 60) + '...' : entry.description}
-                      </div>
-                    )}
-                    <div className="min-w-[80px]">
-                      <div className={`font-bold ${idx < 3 ? 'text-2xl' : 'text-xl'} ${isCurrentUser ? 'text-blue-600' : 'text-farmer-green'}`}>
-                        {entry.totalScore}
-                      </div>
-                      <div className="text-xs text-gray-500">баллов</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          
-          {filteredLeaderboard.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Нет данных о фермерах
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 text-center text-sm text-gray-500 border-t pt-4">
-          Рейтинг обновляется ежедневно на основе данных диагностики
-        </div>
-      </Card>
-
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <div className="flex items-start gap-4">
-          <Icon name="Lightbulb" className="text-blue-600 flex-shrink-0 mt-1" size={24} />
-          <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Как улучшить рейтинг?</h3>
-            <ul className="text-sm text-gray-700 space-y-1">
-              {rating.breakdown.animal < 50 && <li>• Увеличьте поголовье скота или улучшите его продуктивность</li>}
-              {rating.breakdown.crop < 50 && <li>• Расширьте площадь посевов или повысьте урожайность</li>}
-              {rating.breakdown.equipment < 50 && <li>• Обновите парк техники или добавьте навесное оборудование</li>}
-              {rating.breakdown.land < 50 && <li>• Увеличьте земельные площади</li>}
-              {rating.breakdown.staff < 50 && <li>• Наймите дополнительных сотрудников</li>}
-              {rating.totalRating >= 600 && <li>✅ Отличная работа! Вы эффективный фермер!</li>}
-            </ul>
-          </div>
-        </div>
-      </Card>
+      <LeaderboardList 
+        leaderboard={leaderboard}
+        filteredLeaderboard={filteredLeaderboard}
+        selectedRegion={selectedRegion}
+        regionsWithCount={regionsWithCount}
+        currentUserId={user?.id}
+        onRegionFilter={handleRegionFilter}
+      />
     </div>
   );
 }
