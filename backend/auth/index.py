@@ -258,15 +258,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 smtp_password = os.environ.get('SMTP_PASSWORD')
                 frontend_url = os.environ.get('FRONTEND_URL', 'https://фармер.рф')
                 
+                email_sent = False
                 if smtp_host and smtp_user and smtp_password:
-                    reset_link = f"{frontend_url}/reset-password?token={reset_token}"
-                    
-                    msg = MIMEMultipart('alternative')
-                    msg['Subject'] = 'Сброс пароля - Фармер.рф'
-                    msg['From'] = smtp_user
-                    msg['To'] = email
-                    
-                    text_content = f"""Здравствуйте, {user_name}!
+                    try:
+                        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+                        
+                        msg = MIMEMultipart('alternative')
+                        msg['Subject'] = 'Сброс пароля - Фармер.рф'
+                        msg['From'] = smtp_user
+                        msg['To'] = email
+                        
+                        text_content = f"""Здравствуйте, {user_name}!
 
 Вы запросили сброс пароля на платформе Фармер.рф.
 
@@ -279,8 +281,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 С уважением,
 Команда Фармер.рф"""
-                    
-                    html_content = f"""<html>
+                        
+                        html_content = f"""<html>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #2d5016;">Сброс пароля</h2>
@@ -306,16 +308,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     </div>
 </body>
 </html>"""
-                    
-                    part1 = MIMEText(text_content, 'plain', 'utf-8')
-                    part2 = MIMEText(html_content, 'html', 'utf-8')
-                    msg.attach(part1)
-                    msg.attach(part2)
-                    
-                    with smtplib.SMTP(smtp_host, smtp_port) as server:
-                        server.starttls()
-                        server.login(smtp_user, smtp_password)
-                        server.send_message(msg)
+                        
+                        part1 = MIMEText(text_content, 'plain', 'utf-8')
+                        part2 = MIMEText(html_content, 'html', 'utf-8')
+                        msg.attach(part1)
+                        msg.attach(part2)
+                        
+                        with smtplib.SMTP(smtp_host, smtp_port) as server:
+                            server.starttls()
+                            server.login(smtp_user, smtp_password)
+                            server.send_message(msg)
+                        
+                        email_sent = True
+                    except Exception as smtp_error:
+                        pass
                 
                 return {
                     'statusCode': 200,
