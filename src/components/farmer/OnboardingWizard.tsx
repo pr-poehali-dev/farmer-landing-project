@@ -217,10 +217,13 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                 <Select value={tempAnimal.direction} onValueChange={(v: any) => setTempAnimal({ ...tempAnimal, direction: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="meat">Мясное</SelectItem>
-                    <SelectItem value="milk">Молочное</SelectItem>
-                    <SelectItem value="mixed">Смешанное</SelectItem>
-                    <SelectItem value="other">Другое</SelectItem>
+                    <SelectItem value="dairy">Молочный</SelectItem>
+                    <SelectItem value="meat">Мясной</SelectItem>
+                    <SelectItem value="meat_dairy">Мясо-молочный</SelectItem>
+                    <SelectItem value="wool">Шерстной</SelectItem>
+                    <SelectItem value="meat_wool">Мясо-шерстной</SelectItem>
+                    <SelectItem value="egg">Яичный</SelectItem>
+                    <SelectItem value="draft">Рабочий</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
