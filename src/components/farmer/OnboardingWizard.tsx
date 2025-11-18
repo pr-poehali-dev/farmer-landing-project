@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { Animal, Equipment, Crop } from '@/types/farm.types';
 import { LIVESTOCK_TYPES, LIVESTOCK_BREEDS } from '@/data/livestock';
-import { CROP_TYPES } from '@/data/crops';
+import { CROP_TYPES, CROP_VARIETIES, CROP_PURPOSES } from '@/data/crops';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -53,7 +53,7 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
     meatPrice: 0
   });
   const [tempEquipment, setTempEquipment] = useState({ brand: '', model: '', year: '' });
-  const [tempCrop, setTempCrop] = useState({ type: 'wheat', area: 0 });
+  const [tempCrop, setTempCrop] = useState({ type: 'wheat', area: 0, variety: '', purpose: 'food', yield: 0, pricePerKg: 0 });
 
   const handleNext = () => {
     if (step < 5) setStep(step + 1);
@@ -105,15 +105,9 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
     if (tempCrop.area > 0) {
       setData({
         ...data,
-        crops: [...data.crops, { 
-          ...tempCrop, 
-          yield: 0, 
-          purpose: 'food', 
-          variety: '', 
-          pricePerKg: 0 
-        } as Crop]
+        crops: [...data.crops, { ...tempCrop } as Crop]
       });
-      setTempCrop({ type: 'wheat', area: 0 });
+      setTempCrop({ type: 'wheat', area: 0, variety: '', purpose: 'food', yield: 0, pricePerKg: 0 });
     }
   };
 
@@ -280,7 +274,7 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Культура</Label>
-                <Select value={tempCrop.type} onValueChange={(v) => setTempCrop({ ...tempCrop, type: v })}>
+                <Select value={tempCrop.type} onValueChange={(v) => setTempCrop({ ...tempCrop, type: v, variety: '' })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CROP_TYPES.map(crop => (
@@ -298,6 +292,46 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                   onChange={(e) => setTempCrop({ ...tempCrop, area: parseFloat(e.target.value) || 0 })}
                 />
               </div>
+              <div>
+                <Label>Сорт</Label>
+                <Select value={tempCrop.variety} onValueChange={(v) => setTempCrop({ ...tempCrop, variety: v })}>
+                  <SelectTrigger><SelectValue placeholder="Выберите сорт" /></SelectTrigger>
+                  <SelectContent>
+                    {tempCrop.type && CROP_VARIETIES[tempCrop.type]?.map(variety => (
+                      <SelectItem key={variety.value} value={variety.value}>{variety.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Назначение</Label>
+                <Select value={tempCrop.purpose} onValueChange={(v) => setTempCrop({ ...tempCrop, purpose: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CROP_PURPOSES.map(purpose => (
+                      <SelectItem key={purpose.value} value={purpose.value}>{purpose.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Урожайность (т/га)</Label>
+                <Input
+                  type="number"
+                  placeholder="3.5"
+                  value={tempCrop.yield || ''}
+                  onChange={(e) => setTempCrop({ ...tempCrop, yield: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+              <div>
+                <Label>Стоимость (₽/кг)</Label>
+                <Input
+                  type="number"
+                  placeholder="25"
+                  value={tempCrop.pricePerKg || ''}
+                  onChange={(e) => setTempCrop({ ...tempCrop, pricePerKg: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
             </div>
             <Button onClick={addCrop} variant="outline" className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
@@ -308,7 +342,12 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                 <p className="text-sm font-medium">Добавлено:</p>
                 {data.crops.map((c, i) => (
                   <div key={i} className="text-sm flex items-center justify-between">
-                    <span>{c.type}: {c.area} га</span>
+                    <div className="flex-1">
+                      <div className="font-medium">{c.type}: {c.area} га</div>
+                      {c.variety && <div className="text-xs text-gray-600">Сорт: {c.variety}</div>}
+                      {c.purpose && <div className="text-xs text-gray-600">Назначение: {c.purpose}</div>}
+                      {c.yield && c.pricePerKg ? <div className="text-xs text-gray-600">Урожайность: {c.yield} т/га × {c.pricePerKg} ₽/кг</div> : null}
+                    </div>
                     <Button
                       size="sm"
                       variant="ghost"
