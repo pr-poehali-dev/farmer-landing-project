@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { ProfileForm } from '@/types/seller.types';
+import SellerPreviewModal from './SellerPreviewModal';
 
 interface Props {
   profileForm: ProfileForm;
@@ -101,14 +103,26 @@ const REGIONS = [
 ];
 
 export default function SellerProfileForm({ profileForm, saving, onFormChange, onSubmit }: Props) {
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Icon name="User" className="text-blue-600" size={24} />
-        <div>
-          <h2 className="text-xl font-bold">Профиль компании</h2>
-          <p className="text-sm text-gray-600">Информация о вашей компании для фермеров</p>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Icon name="User" className="text-blue-600" size={24} />
+          <div>
+            <h2 className="text-xl font-bold">Профиль компании</h2>
+            <p className="text-sm text-gray-600">Информация о вашей компании для фермеров</p>
+          </div>
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowPreview(true)}
+        >
+          <Icon name="Eye" size={16} className="mr-2" />
+          Посмотреть как видят фермеры
+        </Button>
       </div>
       
       <form onSubmit={onSubmit} className="space-y-6">
@@ -244,6 +258,22 @@ export default function SellerProfileForm({ profileForm, saving, onFormChange, o
           </div>
         </Card>
       </div>
+
+      <SellerPreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        seller={{
+          name: profileForm.company_name,
+          description: profileForm.description,
+          region: profileForm.region,
+          city: profileForm.city,
+          website: profileForm.website,
+          vk_link: profileForm.vk_link,
+          phone: profileForm.phone,
+          first_name: profileForm.first_name,
+          last_name: profileForm.last_name
+        }}
+      />
     </Card>
   );
 }
