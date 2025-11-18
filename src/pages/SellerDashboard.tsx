@@ -139,7 +139,7 @@ const SellerDashboard = () => {
     }
   };
 
-  const addProduct = async (e: React.FormEvent) => {
+  const addProduct = async (e: React.FormEvent, equipmentCategory?: string, equipmentSubcategory?: string) => {
     e.preventDefault();
     
     try {
@@ -151,7 +151,9 @@ const SellerDashboard = () => {
         },
         body: JSON.stringify({
           action: 'add_product',
-          ...productForm
+          ...productForm,
+          equipment_category: productForm.type === 'equipment' ? equipmentCategory : null,
+          equipment_subcategory: productForm.type === 'equipment' ? equipmentSubcategory : null
         })
       });
       

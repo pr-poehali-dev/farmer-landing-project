@@ -13,7 +13,7 @@ interface Props {
   products: any[];
   productForm: ProductForm;
   onFormChange: (updates: Partial<ProductForm>) => void;
-  onAddProduct: (e: React.FormEvent) => void;
+  onAddProduct: (e: React.FormEvent, equipmentCategory?: string, equipmentSubcategory?: string) => void;
   onDeleteProduct: (productId: string) => void;
   onUpdateProduct: (productId: string, updates: any) => void;
 }
@@ -23,6 +23,105 @@ const PRODUCT_TYPES = [
   { value: 'fertilizer', label: 'Удобрения' },
   { value: 'seeds', label: 'Семена для посева' },
   { value: 'technology', label: 'Технологии' }
+];
+
+const EQUIPMENT_CATEGORIES = [
+  {
+    value: 'planting',
+    label: 'Посадка растений',
+    subcategories: [
+      'Сеялка',
+      'Рассадопосадочная машина',
+      'Картофелесажалка',
+      'Пересадчик деревьев',
+      'Комплекс посевной'
+    ]
+  },
+  {
+    value: 'care',
+    label: 'Уход за растениями',
+    subcategories: [
+      'Культиватор',
+      'Опрыскиватель',
+      'Почвофреза',
+      'Обрезчик деревьев',
+      'Планировщик почвы',
+      'Пленкоукладчик / Грядообразователь',
+      'Рапсовый стол',
+      'Бороздодел',
+      'Глубокорыхлитель',
+      'Камнеуборочная машина',
+      'Измельчитель веток',
+      'Машины для сбора листьев',
+      'Машина для уборки пленки',
+      'Резчик рулонов',
+      'Размотчик капельной ленты'
+    ]
+  },
+  {
+    value: 'harvest',
+    label: 'Сбор урожая',
+    subcategories: [
+      'Жатка',
+      'Комбайн',
+      'Косилка',
+      'Копатель корнеплодов',
+      'Подборщик',
+      'Пресc-подборщик',
+      'Транспортировщик рулонов',
+      'Транспортер',
+      'Загрузчик сеялок',
+      'Кормораздатчик / миксер-кормораздатчик',
+      'Ботвоудалитель',
+      'Погрузчики (зернопогрузчик)',
+      'Скреперы (скрепер-планировщик)',
+      'Упаковщик'
+    ]
+  },
+  {
+    value: 'processing',
+    label: 'Первичная обработка продукции',
+    subcategories: [
+      'Зернодробилка',
+      'Зерноочиститель',
+      'Зерноперерабатывающий комплекс',
+      'Зерносушилка',
+      'Протравливатель',
+      'Смесительный комплекс',
+      'Минеральные удобрения (Разбрасыватель удобрений)',
+      'Солома (Разбрасыватель соломы)',
+      'Распределение почвенного покрытия (Разбрасыватель пола)'
+    ]
+  },
+  {
+    value: 'storage',
+    label: 'Хранение и транспортировка',
+    subcategories: [
+      'Тележка для адаптера',
+      'Тележка для жаток',
+      'Тележка переходная',
+      'Мини-трактор',
+      'Трактор',
+      'Платформа садовая',
+      'Носитель для сеялок',
+      'Сцепка',
+      'Плуг',
+      'Вилы',
+      'Грабли, ворошилки, валкователи',
+      'Бункер',
+      'Каток',
+      'Минитехника (мини-трактора)',
+      'Телега',
+      'Грузоподъемники (зернометатель)'
+    ]
+  },
+  {
+    value: 'irrigation',
+    label: 'Агрооборудование для полива и орошения',
+    subcategories: [
+      'Дождевальная машина'
+    ]
+  }
 ];
 
 export default function ProductsManager({ tier, products, productForm, onFormChange, onAddProduct, onDeleteProduct, onUpdateProduct }: Props) {
@@ -39,6 +138,10 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
     photo_url_3: '',
     target_audience: []
   });
+  const [equipmentCategory, setEquipmentCategory] = useState<string>('');
+  const [equipmentSubcategory, setEquipmentSubcategory] = useState<string>('');
+  const [editEquipmentCategory, setEditEquipmentCategory] = useState<string>('');
+  const [editEquipmentSubcategory, setEditEquipmentSubcategory] = useState<string>('');
 
   const activeProducts = products.filter(p => p.is_active !== false);
   const inactiveProducts = products.filter(p => p.is_active === false);
@@ -58,11 +161,18 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
       photo_url_3: product.photo_url_3 || '',
       target_audience: product.target_audience || []
     });
+    setEditEquipmentCategory(product.equipment_category || '');
+    setEditEquipmentSubcategory(product.equipment_subcategory || '');
   };
 
   const saveEdit = () => {
     if (editingProduct) {
-      onUpdateProduct(editingProduct.id, editForm);
+      const updates = {
+        ...editForm,
+        equipment_category: editForm.type === 'equipment' ? editEquipmentCategory : null,
+        equipment_subcategory: editForm.type === 'equipment' ? editEquipmentSubcategory : null
+      };
+      onUpdateProduct(editingProduct.id, updates);
       setEditingProduct(null);
     }
   };
@@ -82,11 +192,20 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
           </div>
         </div>
         
-        <form onSubmit={onAddProduct} className="space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          onAddProduct(e, equipmentCategory, equipmentSubcategory);
+          setEquipmentCategory('');
+          setEquipmentSubcategory('');
+        }} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Тип товара *</Label>
-              <Select value={productForm.type} onValueChange={(val) => onFormChange({ type: val })}>
+              <Select value={productForm.type} onValueChange={(val) => {
+                onFormChange({ type: val });
+                setEquipmentCategory('');
+                setEquipmentSubcategory('');
+              }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -107,6 +226,48 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                 required
               />
             </div>
+          </div>
+
+          {productForm.type === 'equipment' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Категория техники *</Label>
+                <Select value={equipmentCategory} onValueChange={(val) => {
+                  setEquipmentCategory(val);
+                  setEquipmentSubcategory('');
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите категорию" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EQUIPMENT_CATEGORIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {equipmentCategory && (
+                <div className="space-y-2">
+                  <Label>Тип техники *</Label>
+                  <Select value={equipmentSubcategory} onValueChange={setEquipmentSubcategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите тип техники" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EQUIPMENT_CATEGORIES
+                        .find(c => c.value === equipmentCategory)
+                        ?.subcategories.map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
             
             <div className="space-y-2">
               <Label>Цена (руб.) *</Label>
@@ -159,7 +320,10 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
             />
           </div>
           
-          <Button type="submit">
+          <Button 
+            type="submit"
+            disabled={productForm.type === 'equipment' && (!equipmentCategory || !equipmentSubcategory)}
+          >
             <Icon name="Plus" size={16} className="mr-2" />
             Добавить товар
           </Button>
@@ -204,7 +368,11 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Тип товара</Label>
-                        <Select value={editForm.type} onValueChange={(val) => setEditForm({...editForm, type: val})}>
+                        <Select value={editForm.type} onValueChange={(val) => {
+                          setEditForm({...editForm, type: val});
+                          setEditEquipmentCategory('');
+                          setEditEquipmentSubcategory('');
+                        }}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -219,6 +387,48 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                         <Label>Название</Label>
                         <Input value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} />
                       </div>
+                    </div>
+
+                    {editForm.type === 'equipment' && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Категория техники</Label>
+                          <Select value={editEquipmentCategory} onValueChange={(val) => {
+                            setEditEquipmentCategory(val);
+                            setEditEquipmentSubcategory('');
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите категорию" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {EQUIPMENT_CATEGORIES.map(c => (
+                                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {editEquipmentCategory && (
+                          <div className="space-y-2">
+                            <Label>Тип техники</Label>
+                            <Select value={editEquipmentSubcategory} onValueChange={setEditEquipmentSubcategory}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите тип техники" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {EQUIPMENT_CATEGORIES
+                                  .find(c => c.value === editEquipmentCategory)
+                                  ?.subcategories.map(sub => (
+                                    <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Цена</Label>
                         <Input type="number" value={editForm.price} onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value) || 0})} />
