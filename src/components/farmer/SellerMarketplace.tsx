@@ -27,6 +27,8 @@ export default function SellerMarketplace() {
   const [myRequests, setMyRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedSeller, setSelectedSeller] = useState<any>(null);
+  const [sellerProducts, setSellerProducts] = useState<any[]>([]);
   const [requestForm, setRequestForm] = useState({
     farmer_name: '',
     farmer_phone: '',
@@ -113,6 +115,84 @@ export default function SellerMarketplace() {
     return (
       <div className="flex items-center justify-center py-12">
         <Icon name="Loader2" className="animate-spin text-gray-400" size={48} />
+      </div>
+    );
+  }
+
+  if (selectedSeller) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedSeller(null)}
+            className="mb-4"
+          >
+            <Icon name="ArrowLeft" size={16} className="mr-2" />
+            Назад к каталогу
+          </Button>
+          
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+              <Icon name="Building2" size={32} className="text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">{selectedSeller.name}</h2>
+              {selectedSeller.region && (
+                <p className="text-gray-600 mt-1 flex items-center gap-2">
+                  <Icon name="MapPin" size={16} />
+                  {selectedSeller.region}{selectedSeller.city ? `, ${selectedSeller.city}` : ''}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-blue-900 font-semibold">
+            Всего товаров: {sellerProducts.length}
+          </p>
+        </div>
+
+        {sellerProducts.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Icon name="Package" size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">У продавца нет доступных товаров</p>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sellerProducts.map((product) => (
+              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedProduct(product)}>
+                <div className="aspect-video bg-gray-100 relative">
+                  {product.photo_url ? (
+                    <img src={product.photo_url} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <Icon name="Package" size={48} className="text-gray-400" />
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2">
+                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                      {PRODUCT_TYPES.find(t => t.value === product.type)?.label}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.name}</h3>
+                  <p className="text-2xl font-bold text-green-600 mb-3">{product.price.toLocaleString('ru-RU')} ₽</p>
+                  {product.description && (
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">{product.description}</p>
+                  )}
+                  <Button className="w-full" size="sm">
+                    <Icon name="Eye" size={16} className="mr-2" />
+                    Подробнее
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -337,7 +417,7 @@ export default function SellerMarketplace() {
                   <Icon name="Store" size={20} className="text-blue-600" />
                   Информация о продавце
                 </h5>
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-3 text-gray-700">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                       <Icon name="Building2" size={20} className="text-blue-600" />
@@ -356,6 +436,27 @@ export default function SellerMarketplace() {
                       </span>
                     </div>
                   )}
+                  
+                  <div className="ml-13">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedSeller({
+                          id: selectedProduct.seller_id,
+                          name: selectedProduct.seller_name,
+                          region: selectedProduct.seller_region,
+                          city: selectedProduct.seller_city
+                        });
+                        setSellerProducts(products.filter(p => p.seller_id === selectedProduct.seller_id));
+                        setSelectedProduct(null);
+                      }}
+                      className="w-full"
+                    >
+                      <Icon name="Package" size={16} className="mr-2" />
+                      Все товары продавца
+                    </Button>
+                  </div>
                 </div>
               </div>
 
