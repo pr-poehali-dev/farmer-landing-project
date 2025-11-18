@@ -16,33 +16,29 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
-      <div className="aspect-video bg-gray-100 relative" style={{ aspectRatio: '16/9', maxHeight: '100px' }}>
-        {product.photo_url ? (
-          <img src={product.photo_url} alt={product.name} className="w-full h-full object-contain" />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <Icon name="Package" size={20} className="text-gray-400" />
+    <div className="group cursor-pointer" onClick={onClick}>
+      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+        <div className="relative aspect-[4/5] bg-gray-50 overflow-hidden">
+          {product.photo_url ? (
+            <img src={product.photo_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <Icon name="Package" size={48} className="text-gray-300" />
+            </div>
+          )}
+          <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors">
+            <Icon name="Heart" size={16} className="text-gray-600" />
+          </button>
+        </div>
+        <div className="p-3 flex flex-col flex-1">
+          <p className="text-lg font-bold text-gray-900 mb-1">{product.price.toLocaleString('ru-RU')} ₽</p>
+          <h3 className="text-sm text-gray-700 line-clamp-2 mb-2 min-h-[2.5rem]">{product.name}</h3>
+          <div className="flex items-center gap-1 text-xs text-gray-500 mt-auto">
+            <Icon name="Store" size={12} />
+            <span className="line-clamp-1">{product.seller_name}</span>
           </div>
-        )}
-        <div className="absolute top-1.5 right-1.5">
-          <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded text-[9px] font-medium">
-            {PRODUCT_TYPES.find(t => t.value === product.type)?.label}
-          </span>
         </div>
       </div>
-      <div className="p-2.5 flex flex-col flex-1">
-        <h3 className="font-semibold text-sm mb-1 line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
-        <div className="flex items-center gap-1 text-xs text-gray-500 mb-1.5">
-          <Icon name="Store" size={11} />
-          <span className="line-clamp-1">{product.seller_name}</span>
-        </div>
-        <p className="text-base font-bold text-green-600 mb-2">{product.price.toLocaleString('ru-RU')} ₽</p>
-        <Button size="sm" className="h-7 text-xs self-start px-3 mt-auto">
-          <Icon name="Eye" size={12} className="mr-1" />
-          Подробнее
-        </Button>
-      </div>
-    </Card>
+    </div>
   );
 }
