@@ -23,44 +23,19 @@ const PRODUCT_TYPES = [
   { value: 'technology', label: 'Технологии' }
 ];
 
-const FREE_PRODUCTS_LIMIT = 10;
-
 export default function ProductsManager({ tier, products, productForm, onFormChange, onAddProduct, onDeleteProduct }: Props) {
-  const isFreeUser = tier === 'none';
-  const canAddProduct = isFreeUser ? products.length < FREE_PRODUCTS_LIMIT : true;
+  const canAddProduct = true;
 
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Icon name="Package" className="text-blue-600" size={24} />
-            <div>
-              <h2 className="text-xl font-bold">Добавить товар</h2>
-              <p className="text-sm text-gray-600">Заполните информацию о товаре</p>
-            </div>
+        <div className="flex items-center gap-3 mb-6">
+          <Icon name="Package" className="text-blue-600" size={24} />
+          <div>
+            <h2 className="text-xl font-bold">Добавить товар</h2>
+            <p className="text-sm text-gray-600">Заполните информацию о товаре</p>
           </div>
-          {isFreeUser && (
-            <div className="text-right">
-              <p className="text-sm font-semibold text-gray-900">
-                {products.length} / {FREE_PRODUCTS_LIMIT}
-              </p>
-              <p className="text-xs text-gray-500">бесплатных карточек</p>
-            </div>
-          )}
         </div>
-        
-        {isFreeUser && products.length >= FREE_PRODUCTS_LIMIT && (
-          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex gap-3">
-              <Icon name="AlertCircle" className="text-amber-600 flex-shrink-0" size={20} />
-              <div className="text-sm">
-                <p className="font-semibold text-amber-900 mb-1">Лимит бесплатных карточек исчерпан</p>
-                <p className="text-amber-800">Вы можете удалить существующие карточки, чтобы добавить новые, или оформить подписку для безлимитного добавления товаров.</p>
-              </div>
-            </div>
-          </div>
-        )}
         
         <form onSubmit={onAddProduct} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -139,9 +114,9 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
             />
           </div>
           
-          <Button type="submit" disabled={!canAddProduct}>
+          <Button type="submit">
             <Icon name="Plus" size={16} className="mr-2" />
-            {canAddProduct ? 'Добавить товар' : 'Лимит исчерпан'}
+            Добавить товар
           </Button>
         </form>
       </Card>
