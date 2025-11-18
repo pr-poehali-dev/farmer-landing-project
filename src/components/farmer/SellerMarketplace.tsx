@@ -33,17 +33,39 @@ export default function SellerMarketplace() {
   });
   const [sending, setSending] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [farmerProfile, setFarmerProfile] = useState<any>(null);
 
   useEffect(() => {
     loadProducts();
     loadMyRequests();
     loadFavorites();
+    loadFarmerProfile();
   }, []);
 
   const loadFavorites = () => {
     const saved = localStorage.getItem('marketplace_favorites');
     if (saved) {
       setFavorites(JSON.parse(saved));
+    }
+  };
+
+  const loadFarmerProfile = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/46530a28-4adb-4608-bce7-1ddd2f4b3d11?farmer_id=${user?.id}`, {
+        headers: { 'X-User-Id': user?.id.toString() || '0' }
+      });
+      const data = await response.json();
+      if (data.farmer) {
+        setFarmerProfile(data.farmer);
+        setRequestForm(prev => ({
+          ...prev,
+          farmer_name: data.farmer.name || prev.farmer_name,
+          farmer_phone: data.farmer.phone || prev.farmer_phone,
+          farmer_region: data.farmer.region || prev.farmer_region
+        }));
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки профиля фермера');
     }
   };
 
