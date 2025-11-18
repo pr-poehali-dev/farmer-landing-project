@@ -222,8 +222,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif action == 'get_all_products':
                 cur.execute(
-                    f"""SELECT u.id, u.first_name, u.last_name, 
-                              sd.company_name, sd.region, sd.city, sd.products
+                    f"""SELECT u.id, u.first_name, u.last_name, u.phone, u.photo_url,
+                              sd.company_name, sd.description, sd.region, sd.city,
+                              sd.website, sd.vk_link, sd.telegram_link, sd.products
                        FROM {schema}.users u
                        LEFT JOIN {schema}.seller_data sd ON sd.user_id = u.id
                        WHERE u.role = 'seller' AND sd.products IS NOT NULL"""
@@ -233,10 +234,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 all_products = []
                 for row in rows:
                     seller_id = row[0]
-                    seller_name = row[3] or f"{row[1] or ''} {row[2] or ''}".strip() or 'Продавец'
-                    seller_region = row[4]
-                    seller_city = row[5]
-                    products = row[6] or []
+                    first_name = row[1] or ''
+                    last_name = row[2] or ''
+                    phone = row[3] or ''
+                    photo_url = row[4] or ''
+                    company_name = row[5] or ''
+                    description = row[6] or ''
+                    seller_region = row[7] or ''
+                    seller_city = row[8] or ''
+                    website = row[9] or ''
+                    vk_link = row[10] or ''
+                    telegram_link = row[11] or ''
+                    products = row[12] or []
+                    
+                    is_profile_complete = bool(
+                        first_name and last_name and phone and 
+                        company_name and description and 
+                        seller_region and seller_city and 
+                        (website or vk_link or telegram_link)
+                    )
+                    
+                    if not is_profile_complete:
+                        continue
+                    
+                    seller_name = company_name or f"{first_name} {last_name}".strip() or 'Продавец'
                     
                     for product in products:
                         if product.get('status') == 'active':
