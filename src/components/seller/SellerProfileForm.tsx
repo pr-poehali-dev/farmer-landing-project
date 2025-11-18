@@ -7,11 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { ProfileForm } from '@/types/seller.types';
-import SellerPreviewModal from './SellerPreviewModal';
+import SellerPagePreview from './SellerPagePreview';
 
 interface Props {
   profileForm: ProfileForm;
   saving: boolean;
+  products: any[];
+  sellerId: number;
   onFormChange: (updates: Partial<ProfileForm>) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
@@ -102,7 +104,7 @@ const REGIONS = [
   'Чукотский автономный округ'
 ];
 
-export default function SellerProfileForm({ profileForm, saving, onFormChange, onSubmit }: Props) {
+export default function SellerProfileForm({ profileForm, saving, products, sellerId, onFormChange, onSubmit }: Props) {
   const [showPreview, setShowPreview] = useState(false);
 
   return (
@@ -121,7 +123,7 @@ export default function SellerProfileForm({ profileForm, saving, onFormChange, o
           onClick={() => setShowPreview(true)}
         >
           <Icon name="Eye" size={16} className="mr-2" />
-          Посмотреть как видят фермеры
+          Посмотреть мой профиль
         </Button>
       </div>
       
@@ -259,10 +261,11 @@ export default function SellerProfileForm({ profileForm, saving, onFormChange, o
         </Card>
       </div>
 
-      <SellerPreviewModal
+      <SellerPagePreview
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
         seller={{
+          id: sellerId,
           name: profileForm.company_name,
           description: profileForm.description,
           region: profileForm.region,
@@ -273,6 +276,7 @@ export default function SellerProfileForm({ profileForm, saving, onFormChange, o
           first_name: profileForm.first_name,
           last_name: profileForm.last_name
         }}
+        products={products}
       />
     </Card>
   );

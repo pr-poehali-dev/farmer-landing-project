@@ -378,6 +378,8 @@ const SellerDashboard = () => {
             <SellerProfileForm
               profileForm={profileForm}
               saving={saving}
+              products={profile?.products || []}
+              sellerId={user?.id || 0}
               onFormChange={(updates) => setProfileForm({ ...profileForm, ...updates })}
               onSubmit={saveProfile}
             />
