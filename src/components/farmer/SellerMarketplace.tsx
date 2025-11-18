@@ -1,196 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import ProductCard from './marketplace/ProductCard';
 import ProductDetailsModal from './marketplace/ProductDetailsModal';
 import SellerPage from './marketplace/SellerPage';
+import MarketplaceFilters from './marketplace/MarketplaceFilters';
+import MarketplaceRequestsTab from './marketplace/MarketplaceRequestsTab';
+import MarketplaceProductsGrid from './marketplace/MarketplaceProductsGrid';
+import { EQUIPMENT_CATEGORIES, FERTILIZER_CATEGORIES } from '@/components/seller/products/ProductCategoriesConstants';
 
 const SELLER_API = 'https://functions.poehali.dev/cc24321a-77b4-44ce-9ae2-7fb7efee6660';
-
-const PRODUCT_TYPES = [
-  { value: 'equipment', label: 'Сельхозтехника' },
-  { value: 'fertilizer', label: 'Удобрения' },
-  { value: 'seeds', label: 'Семена для посева' },
-  { value: 'technology', label: 'Технологии' }
-];
-
-const FERTILIZER_CATEGORIES = [
-  {
-    value: 'mineral',
-    label: 'Минеральные удобрения',
-    subcategories: [
-      'Калий хлорид 40% мелкогранулированный',
-      'Калий хлорид 40% гранулированный',
-      'Калий хлорид 40% (дробленый)',
-      'Калий хлористый гранулированный (красный)',
-      'Калий хлористый марка А',
-      'Калий хлористый мелкий 60% (красный)',
-      'Калий хлористый марка А мелкий 60% (белый)',
-      'Калийная соль',
-      'Калийная соль (гранула)',
-      'Калийная соль (порошок)',
-      'Калий хлорид (тип Калийная гранула)',
-      'Аммиачная селитра ГОСТ',
-      'Изестково-аммиачная селитра',
-      'Карбамид марка Б',
-      'Сульфат аммония (Кристалл) Акриатный гранулированный (форма гранулы)',
-      'Сульфат аммония (Кристалл) Акриатный гранулированный (форма граби)',
-      'Сульфат аммония Коксохимический (форма кристалл)',
-      'Аммофос',
-      'Фосфогипс',
-      'Нитроаммофоска (Азофоска)',
-      'Магний сернокислый'
-    ]
-  },
-  {
-    value: 'organic',
-    label: 'Органические удобрения',
-    subcategories: [
-      'Доломитовая мука',
-      'Стромолотый гипс',
-      'Фосфоритная мука'
-    ]
-  },
-  {
-    value: 'root_additives',
-    label: 'Корневые добавки',
-    subcategories: [
-      'Соль',
-      'Сера молотая'
-    ]
-  },
-  {
-    value: 'soil_structure',
-    label: 'Удобрения для улучшения структуры почвы',
-    subcategories: [
-      'Доломитовая мука',
-      'Стромолотый гипс',
-      'Фосфоритная мука'
-    ]
-  },
-  {
-    value: 'yield_boost',
-    label: 'Удобрения для повышения урожайности',
-    subcategories: [
-      'Калийные удобрения',
-      'Азотные удобрения',
-      'Фосфорные удобрения',
-      'Сложные удобрения'
-    ]
-  },
-  {
-    value: 'plant_protection',
-    label: 'Удобрения для защиты растений',
-    subcategories: [
-      'Соль',
-      'Сера молотая'
-    ]
-  }
-];
-
-const EQUIPMENT_CATEGORIES = [
-  {
-    value: 'planting',
-    label: 'Посадка растений',
-    subcategories: [
-      'Сеялка',
-      'Рассадопосадочная машина',
-      'Картофелесажалка',
-      'Пересадчик деревьев',
-      'Комплекс посевной'
-    ]
-  },
-  {
-    value: 'care',
-    label: 'Уход за растениями',
-    subcategories: [
-      'Культиватор',
-      'Опрыскиватель',
-      'Почвофреза',
-      'Обрезчик деревьев',
-      'Планировщик почвы',
-      'Пленкоукладчик / Грядообразователь',
-      'Рапсовый стол',
-      'Бороздодел',
-      'Глубокорыхлитель',
-      'Камнеуборочная машина',
-      'Измельчитель веток',
-      'Машины для сбора листьев',
-      'Машина для уборки пленки',
-      'Резчик рулонов',
-      'Размотчик капельной ленты'
-    ]
-  },
-  {
-    value: 'harvest',
-    label: 'Сбор урожая',
-    subcategories: [
-      'Жатка',
-      'Комбайн',
-      'Косилка',
-      'Копатель корнеплодов',
-      'Подборщик',
-      'Пресc-подборщик',
-      'Транспортировщик рулонов',
-      'Транспортер',
-      'Загрузчик сеялок',
-      'Кормораздатчик / миксер-кормораздатчик',
-      'Ботвоудалитель',
-      'Погрузчики (зернопогрузчик)',
-      'Скреперы (скрепер-планировщик)',
-      'Упаковщик'
-    ]
-  },
-  {
-    value: 'processing',
-    label: 'Первичная обработка продукции',
-    subcategories: [
-      'Зернодробилка',
-      'Зерноочиститель',
-      'Зерноперерабатывающий комплекс',
-      'Зерносушилка',
-      'Протравливатель',
-      'Смесительный комплекс',
-      'Минеральные удобрения (Разбрасыватель удобрений)',
-      'Солома (Разбрасыватель соломы)',
-      'Распределение почвенного покрытия (Разбрасыватель пола)'
-    ]
-  },
-  {
-    value: 'storage',
-    label: 'Хранение и транспортировка',
-    subcategories: [
-      'Тележка для адаптера',
-      'Тележка для жаток',
-      'Тележка переходная',
-      'Мини-трактор',
-      'Трактор',
-      'Платформа садовая',
-      'Носитель для сеялок',
-      'Сцепка',
-      'Плуг',
-      'Вилы',
-      'Грабли, ворошилки, валкователи',
-      'Бункер',
-      'Каток',
-      'Минитехника (мини-трактора)',
-      'Телега',
-      'Грузоподъемники (зернометатель)'
-    ]
-  },
-  {
-    value: 'irrigation',
-    label: 'Агрооборудование для полива и орошения',
-    subcategories: [
-      'Дождевальная машина'
-    ]
-  }
-];
 
 export default function SellerMarketplace() {
   const { user } = useAuth();
@@ -414,190 +234,31 @@ export default function SellerMarketplace() {
 
       {activeTab === 'products' || activeTab === 'favorites' ? (
         <>
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <Input 
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Поиск по товарам и продавцам..."
-                  className="w-full"
-                />
-              </div>
-              <Select value={typeFilter} onValueChange={(value) => {
-                setTypeFilter(value);
-                setCategoryFilter('all');
-                setSubcategoryFilter('all');
-              }}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все категории</SelectItem>
-                  {PRODUCT_TYPES.map(t => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <MarketplaceFilters
+            search={search}
+            typeFilter={typeFilter}
+            categoryFilter={categoryFilter}
+            subcategoryFilter={subcategoryFilter}
+            onSearchChange={setSearch}
+            onTypeFilterChange={setTypeFilter}
+            onCategoryFilterChange={setCategoryFilter}
+            onSubcategoryFilterChange={setSubcategoryFilter}
+          />
 
-            {typeFilter === 'equipment' && (
-              <div className="flex gap-4">
-                <Select value={categoryFilter} onValueChange={(value) => {
-                  setCategoryFilter(value);
-                  setSubcategoryFilter('all');
-                }}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue placeholder="Выберите тип техники" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все типы техники</SelectItem>
-                    {EQUIPMENT_CATEGORIES.map(c => (
-                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {categoryFilter !== 'all' && (
-                  <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
-                    <SelectTrigger className="w-80">
-                      <SelectValue placeholder="Выберите конкретную технику" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Вся техника категории</SelectItem>
-                      {EQUIPMENT_CATEGORIES
-                        .find(c => c.value === categoryFilter)
-                        ?.subcategories.map(sub => (
-                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            )}
-
-            {typeFilter === 'fertilizer' && (
-              <div className="flex gap-4">
-                <Select value={categoryFilter} onValueChange={(value) => {
-                  setCategoryFilter(value);
-                  setSubcategoryFilter('all');
-                }}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue placeholder="Выберите категорию удобрений" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все категории удобрений</SelectItem>
-                    {FERTILIZER_CATEGORIES.map(c => (
-                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {categoryFilter !== 'all' && (
-                  <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
-                    <SelectTrigger className="w-80">
-                      <SelectValue placeholder="Выберите конкретное удобрение" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все удобрения категории</SelectItem>
-                      {FERTILIZER_CATEGORIES
-                        .find(c => c.value === categoryFilter)
-                        ?.subcategories.map(sub => (
-                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            )}
-          </div>
-
-          {(() => {
-            const displayProducts = activeTab === 'favorites' 
-              ? filteredProducts.filter(p => favorites.includes(p.id)) 
-              : filteredProducts;
-            
-            return displayProducts.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Icon name={activeTab === 'favorites' ? "Heart" : "Package"} size={48} className="mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500 mb-2">
-                  {activeTab === 'favorites' ? 'В избранном пока ничего нет' : 'Товары не найдены'}
-                </p>
-                <p className="text-sm text-gray-400">
-                  {activeTab === 'favorites' 
-                    ? 'Нажмите на сердечко на карточке товара, чтобы добавить его в избранное' 
-                    : 'Попробуйте изменить фильтры или поисковый запрос'}
-                </p>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {displayProducts.map((product) => (
-                  <ProductCard 
-                    key={product.id} 
-                    product={product} 
-                    isFavorite={favorites.includes(product.id)}
-                    onToggleFavorite={toggleFavorite}
-                    onClick={() => setSelectedProduct(product)} 
-                  />
-                ))}
-              </div>
-            );
-          })()}
+          <MarketplaceProductsGrid
+            products={activeTab === 'favorites' ? filteredProducts.filter(p => favorites.includes(p.id)) : filteredProducts}
+            favorites={favorites}
+            onProductClick={setSelectedProduct}
+            onToggleFavorite={toggleFavorite}
+            emptyIcon={activeTab === 'favorites' ? 'Heart' : 'Package'}
+            emptyTitle={activeTab === 'favorites' ? 'В избранном пока ничего нет' : 'Товары не найдены'}
+            emptyDescription={activeTab === 'favorites' 
+              ? 'Нажмите на сердечко на карточке товара, чтобы добавить его в избранное' 
+              : 'Попробуйте изменить фильтры или поисковый запрос'}
+          />
         </>
       ) : (
-        <div className="space-y-4">
-          <Card className="p-6">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-              <Icon name="MessageSquare" size={20} className="text-blue-600" />
-              Мои заявки на товары
-            </h3>
-            {myRequests.length === 0 ? (
-              <div className="text-center py-8">
-                <Icon name="Inbox" size={48} className="mx-auto text-gray-400 mb-3" />
-                <p className="text-gray-500">У вас пока нет заявок</p>
-                <p className="text-sm text-gray-400 mt-1">Выберите товар и отправьте заявку продавцу</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {myRequests.map((request, idx) => (
-                  <Card key={idx} className="p-4 bg-gray-50">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Icon name="Package" size={16} className="text-blue-600" />
-                          <h4 className="font-semibold">{request.product_name}</h4>
-                        </div>
-                        <div className="text-sm text-gray-600 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Store" size={14} />
-                            <span>Продавец: {request.seller_name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Icon name="User" size={14} />
-                            <span>{request.farmer_name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Icon name="Phone" size={14} />
-                            <span>{request.farmer_phone}</span>
-                          </div>
-                          {request.message && (
-                            <div className="flex items-start gap-2 mt-2">
-                              <Icon name="MessageSquare" size={14} className="mt-0.5" />
-                              <span className="text-xs">{request.message}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(request.created_at).toLocaleDateString('ru-RU')}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </Card>
-        </div>
+        <MarketplaceRequestsTab requests={myRequests} />
       )}
 
       {selectedProduct && (
