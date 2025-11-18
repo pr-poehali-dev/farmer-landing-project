@@ -19,7 +19,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
     <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
       <div className="aspect-video bg-gray-100 relative" style={{ aspectRatio: '16/9', maxHeight: '100px' }}>
         {product.photo_url ? (
-          <img src={product.photo_url} alt={product.name} className="w-full h-full object-cover" />
+          <img src={product.photo_url} alt={product.name} className="w-full h-full object-contain" />
         ) : (
           <div className="flex items-center justify-center h-full">
             <Icon name="Package" size={20} className="text-gray-400" />
@@ -37,12 +37,11 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           <Icon name="Store" size={11} />
           <span className="line-clamp-1">{product.seller_name}</span>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-base font-bold text-green-600">{product.price.toLocaleString('ru-RU')} ₽</p>
-          <Button size="sm" className="h-7 px-2.5">
-            <Icon name="Eye" size={12} />
-          </Button>
-        </div>
+        <p className="text-base font-bold text-green-600 mb-2">{product.price.toLocaleString('ru-RU')} ₽</p>
+        <Button size="sm" className="w-full h-7 text-xs">
+          <Icon name="Eye" size={12} className="mr-1" />
+          Подробнее
+        </Button>
       </div>
     </Card>
   );
