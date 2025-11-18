@@ -31,14 +31,14 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           </span>
         </div>
       </div>
-      <div className="p-2.5">
+      <div className="p-2.5 flex flex-col">
         <h3 className="font-semibold text-sm mb-1 line-clamp-1">{product.name}</h3>
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-1.5">
           <Icon name="Store" size={11} />
           <span className="line-clamp-1">{product.seller_name}</span>
         </div>
         <p className="text-base font-bold text-green-600 mb-2">{product.price.toLocaleString('ru-RU')} ₽</p>
-        <Button size="sm" className="w-full h-7 text-xs">
+        <Button size="sm" className="h-7 text-xs self-start px-3">
           <Icon name="Eye" size={12} className="mr-1" />
           Подробнее
         </Button>
