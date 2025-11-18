@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import ProductCard from './marketplace/ProductCard';
+import ProductDetailsModal from './marketplace/ProductDetailsModal';
+import SellerPage from './marketplace/SellerPage';
 
 const SELLER_API = 'https://functions.poehali.dev/cc24321a-77b4-44ce-9ae2-7fb7efee6660';
 
@@ -111,6 +112,12 @@ export default function SellerMarketplace() {
     return matchesSearch && matchesType;
   });
 
+  const handleViewSeller = (seller: any) => {
+    setSelectedSeller(seller);
+    setSellerProducts(products.filter(p => p.seller_id === seller.id));
+    setSelectedProduct(null);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -121,79 +128,12 @@ export default function SellerMarketplace() {
 
   if (selectedSeller) {
     return (
-      <div className="space-y-6">
-        <div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedSeller(null)}
-            className="mb-4"
-          >
-            <Icon name="ArrowLeft" size={16} className="mr-2" />
-            Назад к каталогу
-          </Button>
-          
-          <div className="flex items-center gap-4 mb-2">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-              <Icon name="Building2" size={32} className="text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900">{selectedSeller.name}</h2>
-              {selectedSeller.region && (
-                <p className="text-gray-600 mt-1 flex items-center gap-2">
-                  <Icon name="MapPin" size={16} />
-                  {selectedSeller.region}{selectedSeller.city ? `, ${selectedSeller.city}` : ''}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-blue-900 font-semibold">
-            Всего товаров: {sellerProducts.length}
-          </p>
-        </div>
-
-        {sellerProducts.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Icon name="Package" size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500">У продавца нет доступных товаров</p>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sellerProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedProduct(product)}>
-                <div className="aspect-video bg-gray-100 relative">
-                  {product.photo_url ? (
-                    <img src={product.photo_url} alt={product.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <Icon name="Package" size={48} className="text-gray-400" />
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2">
-                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                      {PRODUCT_TYPES.find(t => t.value === product.type)?.label}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.name}</h3>
-                  <p className="text-2xl font-bold text-green-600 mb-3">{product.price.toLocaleString('ru-RU')} ₽</p>
-                  {product.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">{product.description}</p>
-                  )}
-                  <Button className="w-full" size="sm">
-                    <Icon name="Eye" size={16} className="mr-2" />
-                    Подробнее
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+      <SellerPage
+        seller={selectedSeller}
+        products={sellerProducts}
+        onBack={() => setSelectedSeller(null)}
+        onProductClick={setSelectedProduct}
+      />
     );
   }
 
@@ -249,280 +189,85 @@ export default function SellerMarketplace() {
 
           {filteredProducts.length === 0 ? (
             <Card className="p-12 text-center">
-              <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-500">Товары не найдены</p>
+              <Icon name="Package" size={48} className="mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-500 mb-2">Товары не найдены</p>
+              <p className="text-sm text-gray-400">Попробуйте изменить фильтры или поисковый запрос</p>
             </Card>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map(product => (
-            <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow">
-              {product.photo_url ? (
-                <img src={product.photo_url} alt={product.name} className="w-full h-40 object-cover rounded-lg mb-4" />
-              ) : (
-                <div className="w-full h-40 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                  <Icon name="Package" size={48} className="text-gray-400" />
-                </div>
-              )}
-              
-              <div className="mb-2">
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                  {PRODUCT_TYPES.find(t => t.value === product.type)?.label}
-                </span>
-              </div>
-              
-              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-              <div className="text-2xl font-bold text-green-600 mb-2">
-                {product.price.toLocaleString('ru-RU')} ₽
-              </div>
-              
-              {product.description && (
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
-              )}
-              
-              <div className="text-sm text-gray-600 mb-4 space-y-1">
-                <div className="flex items-center gap-2">
-                  <Icon name="Store" size={14} />
-                  <span>{product.seller_name}</span>
-                </div>
-                {product.seller_region && (
-                  <div className="flex items-center gap-2">
-                    <Icon name="MapPin" size={14} />
-                    <span>{product.seller_region}{product.seller_city ? `, ${product.seller_city}` : ''}</span>
-                  </div>
-                )}
-              </div>
-              
-              <Button 
-                onClick={() => setSelectedProduct(product)}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                <Icon name="Eye" size={16} className="mr-2" />
-                Подробнее
-              </Button>
-            </Card>
-          ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} onClick={() => setSelectedProduct(product)} />
+              ))}
             </div>
           )}
         </>
       ) : (
         <div className="space-y-4">
-          {myRequests.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Icon name="Inbox" size={48} className="mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-500">У вас пока нет заявок</p>
-              <Button onClick={() => setActiveTab('products')} className="mt-4">
-                Перейти к товарам
-              </Button>
-            </Card>
-          ) : (
-            myRequests.map(req => (
-              <Card key={req.id} className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icon name="Package" size={20} className="text-blue-600" />
-                      <h4 className="font-bold text-lg">{req.product_name}</h4>
-                    </div>
-                    
-                    <div className="space-y-2 text-sm text-gray-600 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Icon name="Calendar" size={14} />
-                        <span>Отправлено: {new Date(req.created_at).toLocaleDateString('ru-RU')}</span>
-                      </div>
-                      {req.farmer_region && (
-                        <div className="flex items-center gap-2">
-                          <Icon name="MapPin" size={14} />
-                          <span>{req.farmer_region}</span>
+          <Card className="p-6">
+            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <Icon name="MessageSquare" size={20} className="text-blue-600" />
+              Мои заявки на товары
+            </h3>
+            {myRequests.length === 0 ? (
+              <div className="text-center py-8">
+                <Icon name="Inbox" size={48} className="mx-auto text-gray-400 mb-3" />
+                <p className="text-gray-500">У вас пока нет заявок</p>
+                <p className="text-sm text-gray-400 mt-1">Выберите товар и отправьте заявку продавцу</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {myRequests.map((request, idx) => (
+                  <Card key={idx} className="p-4 bg-gray-50">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Icon name="Package" size={16} className="text-blue-600" />
+                          <h4 className="font-semibold">{request.product_name}</h4>
                         </div>
-                      )}
-                    </div>
-                    
-                    {req.message && (
-                      <div className="p-3 bg-gray-50 rounded-lg mb-4">
-                        <p className="text-sm text-gray-700">
-                          <Icon name="MessageCircle" size={14} className="inline mr-2" />
-                          {req.message}
-                        </p>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Store" size={14} />
+                            <span>Продавец: {request.seller_name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Icon name="User" size={14} />
+                            <span>{request.farmer_name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Icon name="Phone" size={14} />
+                            <span>{request.farmer_phone}</span>
+                          </div>
+                          {request.message && (
+                            <div className="flex items-start gap-2 mt-2">
+                              <Icon name="MessageSquare" size={14} className="mt-0.5" />
+                              <span className="text-xs">{request.message}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                      <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        req.status === 'new' ? 'bg-blue-100 text-blue-700' :
-                        req.status === 'viewed' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
-                      }`}>
-                        {req.status === 'new' ? 'Новая' : req.status === 'viewed' ? 'Просмотрена' : 'Обработана'}
+                      <div className="text-xs text-gray-500">
+                        {new Date(request.created_at).toLocaleDateString('ru-RU')}
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="ml-4">
-                    <Icon name="CheckCircle" size={24} className="text-green-500" />
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </Card>
         </div>
       )}
 
       {selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <Card className="max-w-2xl w-full p-6 my-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold">Подробная информация</h3>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedProduct(null)}>
-                <Icon name="X" size={20} />
-              </Button>
-            </div>
-            
-            <div className="space-y-6">
-              {selectedProduct.photo_url ? (
-                <img 
-                  src={selectedProduct.photo_url} 
-                  alt={selectedProduct.name} 
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              ) : (
-                <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Icon name="Package" size={64} className="text-gray-400" />
-                </div>
-              )}
-
-              <div>
-                <div className="inline-block mb-2">
-                  <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">
-                    {PRODUCT_TYPES.find(t => t.value === selectedProduct.type)?.label}
-                  </span>
-                </div>
-                <h4 className="text-2xl font-bold mb-2">{selectedProduct.name}</h4>
-                <div className="text-3xl font-bold text-green-600 mb-4">
-                  {selectedProduct.price.toLocaleString('ru-RU')} ₽
-                </div>
-                
-                {selectedProduct.description && (
-                  <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                    <h5 className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
-                      <Icon name="FileText" size={16} />
-                      Описание товара
-                    </h5>
-                    <p className="text-gray-700">{selectedProduct.description}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t pt-4">
-                <h5 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                  <Icon name="Store" size={20} className="text-blue-600" />
-                  Информация о продавце
-                </h5>
-                <div className="space-y-3 text-gray-700">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Icon name="Building2" size={20} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-lg">{selectedProduct.seller_name}</p>
-                    </div>
-                  </div>
-                  
-                  {selectedProduct.seller_region && (
-                    <div className="flex items-center gap-3 ml-13">
-                      <Icon name="MapPin" size={18} className="text-blue-600" />
-                      <span>
-                        {selectedProduct.seller_region}
-                        {selectedProduct.seller_city ? `, ${selectedProduct.seller_city}` : ''}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="ml-13">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedSeller({
-                          id: selectedProduct.seller_id,
-                          name: selectedProduct.seller_name,
-                          region: selectedProduct.seller_region,
-                          city: selectedProduct.seller_city
-                        });
-                        setSellerProducts(products.filter(p => p.seller_id === selectedProduct.seller_id));
-                        setSelectedProduct(null);
-                      }}
-                      className="w-full"
-                    >
-                      <Icon name="Package" size={16} className="mr-2" />
-                      Все товары продавца
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <h5 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                  <Icon name="MessageSquare" size={20} className="text-green-600" />
-                  Оставить заявку
-                </h5>
-                <p className="text-sm text-gray-600 mb-4">
-                  Заполните форму, и продавец свяжется с вами для уточнения деталей
-                </p>
-            
-                <form onSubmit={sendRequest} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Ваше имя *</Label>
-                <Input
-                  value={requestForm.farmer_name}
-                  onChange={(e) => setRequestForm({ ...requestForm, farmer_name: e.target.value })}
-                  placeholder="Иван Иванов"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Телефон *</Label>
-                <Input
-                  value={requestForm.farmer_phone}
-                  onChange={(e) => setRequestForm({ ...requestForm, farmer_phone: e.target.value })}
-                  placeholder="+7 900 123-45-67"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Регион</Label>
-                <Input
-                  value={requestForm.farmer_region}
-                  onChange={(e) => setRequestForm({ ...requestForm, farmer_region: e.target.value })}
-                  placeholder="Московская область"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Сообщение</Label>
-                <Textarea
-                  value={requestForm.message}
-                  onChange={(e) => setRequestForm({ ...requestForm, message: e.target.value })}
-                  placeholder="Расскажите о ваших потребностях..."
-                  rows={3}
-                />
-              </div>
-              
-              <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setSelectedProduct(null)} className="flex-1">
-                  Отмена
-                </Button>
-                <Button type="submit" disabled={sending} className="flex-1 bg-green-600 hover:bg-green-700">
-                  <Icon name="Send" size={16} className="mr-2" />
-                  {sending ? 'Отправка...' : 'Отправить заявку'}
-                </Button>
-              </div>
-            </form>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <ProductDetailsModal
+          product={selectedProduct}
+          products={products}
+          requestForm={requestForm}
+          sending={sending}
+          onClose={() => setSelectedProduct(null)}
+          onFormChange={(updates) => setRequestForm({ ...requestForm, ...updates })}
+          onSubmit={sendRequest}
+          onViewSeller={handleViewSeller}
+        />
       )}
     </div>
   );
