@@ -16,7 +16,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
+    <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
       <div className="aspect-video bg-gray-100 relative" style={{ aspectRatio: '16/9', maxHeight: '100px' }}>
         {product.photo_url ? (
           <img src={product.photo_url} alt={product.name} className="w-full h-full object-contain" />
@@ -31,14 +31,14 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           </span>
         </div>
       </div>
-      <div className="p-2.5 flex flex-col">
-        <h3 className="font-semibold text-sm mb-1 line-clamp-1">{product.name}</h3>
+      <div className="p-2.5 flex flex-col flex-1">
+        <h3 className="font-semibold text-sm mb-1 line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-1.5">
           <Icon name="Store" size={11} />
           <span className="line-clamp-1">{product.seller_name}</span>
         </div>
         <p className="text-base font-bold text-green-600 mb-2">{product.price.toLocaleString('ru-RU')} ₽</p>
-        <Button size="sm" className="h-7 text-xs self-start px-3">
+        <Button size="sm" className="h-7 text-xs self-start px-3 mt-auto">
           <Icon name="Eye" size={12} className="mr-1" />
           Подробнее
         </Button>
