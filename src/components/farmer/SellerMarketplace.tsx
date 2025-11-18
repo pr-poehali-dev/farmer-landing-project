@@ -106,8 +106,11 @@ export default function SellerMarketplace() {
   };
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-                         p.seller_name.toLowerCase().includes(search.toLowerCase());
+    const searchLower = search.toLowerCase().trim();
+    const matchesSearch = !searchLower || 
+                         (p.name && p.name.toLowerCase().includes(searchLower)) || 
+                         (p.seller_name && p.seller_name.toLowerCase().includes(searchLower)) ||
+                         (p.description && p.description.toLowerCase().includes(searchLower));
     const matchesType = typeFilter === 'all' || p.type === typeFilter;
     return matchesSearch && matchesType;
   });
