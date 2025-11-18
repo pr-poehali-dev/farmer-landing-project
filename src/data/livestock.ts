@@ -37,6 +37,8 @@ export const LIVESTOCK_BREEDS: Record<string, { value: string; label: string }[]
     { value: 'simmental', label: 'Симментальская' },
     { value: 'hereford', label: 'Герефордская' },
     { value: 'angus', label: 'Ангусская' },
+    { value: 'kalmyk', label: 'Калмыцкая' },
+    { value: 'kazakh_whiteheaded', label: 'Казахская белоголовая' },
     { value: 'yaroslavl', label: 'Ярославская' },
     { value: 'kholmogorsk', label: 'Холмогорская' },
     { value: 'black_pied', label: 'Черно-пёстрая' },
