@@ -42,7 +42,14 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
     }
   }, [open, initialData]);
 
-  const [tempAnimal, setTempAnimal] = useState({ type: 'cow', count: 0 });
+  const [tempAnimal, setTempAnimal] = useState({ 
+    type: 'cow', 
+    count: 0, 
+    breed: '', 
+    direction: 'meat' as 'meat' | 'milk' | 'mixed' | 'other',
+    meatYield: 0,
+    meatPrice: 0
+  });
   const [tempEquipment, setTempEquipment] = useState({ brand: '', model: '', year: '' });
   const [tempCrop, setTempCrop] = useState({ type: 'wheat', area: 0 });
 
@@ -65,9 +72,16 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
     if (tempAnimal.count > 0) {
       setData({
         ...data,
-        animals: [...data.animals, { ...tempAnimal, breed: '', direction: 'meat' } as Animal]
+        animals: [...data.animals, { ...tempAnimal } as Animal]
       });
-      setTempAnimal({ type: 'cow', count: 0 });
+      setTempAnimal({ 
+        type: 'cow', 
+        count: 0, 
+        breed: '', 
+        direction: 'meat' as 'meat' | 'milk' | 'mixed' | 'other',
+        meatYield: 0,
+        meatPrice: 0
+      });
     }
   };
 
@@ -183,6 +197,44 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                   onChange={(e) => setTempAnimal({ ...tempAnimal, count: parseInt(e.target.value) || 0 })}
                 />
               </div>
+              <div>
+                <Label>Порода</Label>
+                <Input
+                  placeholder="Голштинская"
+                  value={tempAnimal.breed}
+                  onChange={(e) => setTempAnimal({ ...tempAnimal, breed: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Направление</Label>
+                <Select value={tempAnimal.direction} onValueChange={(v: any) => setTempAnimal({ ...tempAnimal, direction: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meat">Мясное</SelectItem>
+                    <SelectItem value="milk">Молочное</SelectItem>
+                    <SelectItem value="mixed">Смешанное</SelectItem>
+                    <SelectItem value="other">Другое</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Выход мяса (кг)</Label>
+                <Input
+                  type="number"
+                  placeholder="250"
+                  value={tempAnimal.meatYield || ''}
+                  onChange={(e) => setTempAnimal({ ...tempAnimal, meatYield: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+              <div>
+                <Label>Стоимость мяса (₽/кг)</Label>
+                <Input
+                  type="number"
+                  placeholder="450"
+                  value={tempAnimal.meatPrice || ''}
+                  onChange={(e) => setTempAnimal({ ...tempAnimal, meatPrice: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
             </div>
             <Button onClick={addAnimal} variant="outline" className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
@@ -193,7 +245,12 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                 <p className="text-sm font-medium">Добавлено:</p>
                 {data.animals.map((a, i) => (
                   <div key={i} className="text-sm flex items-center justify-between">
-                    <span>{a.type}: {a.count} голов</span>
+                    <div className="flex-1">
+                      <div className="font-medium">{a.type}: {a.count} голов</div>
+                      {a.breed && <div className="text-xs text-gray-600">Порода: {a.breed}</div>}
+                      {a.direction && <div className="text-xs text-gray-600">Направление: {a.direction === 'meat' ? 'Мясное' : a.direction === 'milk' ? 'Молочное' : a.direction === 'mixed' ? 'Смешанное' : 'Другое'}</div>}
+                      {a.meatYield && a.meatPrice ? <div className="text-xs text-gray-600">Выход мяса: {a.meatYield} кг × {a.meatPrice} ₽/кг</div> : null}
+                    </div>
                     <Button
                       size="sm"
                       variant="ghost"
