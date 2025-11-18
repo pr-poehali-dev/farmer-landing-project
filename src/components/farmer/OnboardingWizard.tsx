@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { Animal, Equipment, Crop } from '@/types/farm.types';
 import { LIVESTOCK_TYPES, LIVESTOCK_BREEDS } from '@/data/livestock';
+import { CROP_TYPES } from '@/data/crops';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -282,11 +283,9 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                 <Select value={tempCrop.type} onValueChange={(v) => setTempCrop({ ...tempCrop, type: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="wheat">Пшеница</SelectItem>
-                    <SelectItem value="corn">Кукуруза</SelectItem>
-                    <SelectItem value="barley">Ячмень</SelectItem>
-                    <SelectItem value="soybean">Соя</SelectItem>
-                    <SelectItem value="sunflower">Подсолнечник</SelectItem>
+                    {CROP_TYPES.map(crop => (
+                      <SelectItem key={crop.value} value={crop.value}>{crop.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
