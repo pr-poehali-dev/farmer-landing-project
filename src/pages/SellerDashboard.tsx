@@ -202,6 +202,32 @@ const SellerDashboard = () => {
     }
   };
 
+  const updateProduct = async (productId: string, updates: any) => {
+    try {
+      const response = await fetch(SELLER_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user!.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'update_product',
+          product_id: productId,
+          ...updates
+        })
+      });
+      
+      if (response.ok) {
+        toast.success('Товар обновлен');
+        loadProfile();
+      } else {
+        toast.error('Ошибка обновления');
+      }
+    } catch (error) {
+      toast.error('Ошибка соединения');
+    }
+  };
+
   const addAd = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -361,6 +387,7 @@ const SellerDashboard = () => {
               onFormChange={(updates) => setProductForm({ ...productForm, ...updates })}
               onAddProduct={addProduct}
               onDeleteProduct={deleteProduct}
+              onUpdateProduct={updateProduct}
             />
           </TabsContent>
 

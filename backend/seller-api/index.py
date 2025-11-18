@@ -418,7 +418,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'photo_url_2': photo_url_2,
                     'photo_url_3': photo_url_3,
                     'target_audience': target_audience,
-                    'status': 'active'
+                    'status': 'active',
+                    'is_active': True
                 }
                 
                 current_products.append(product)
@@ -433,6 +434,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True, 'product_id': product['id']}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'update_product':
+                product_id = body_data.get('product_id', '')
+                
+                cur.execute(
+                    f"""SELECT products FROM {schema}.seller_data WHERE user_id = %s""",
+                    (user_id,)
+                )
+                row = cur.fetchone()
+                products = row[0] if row and row[0] else []
+                
+                for product in products:
+                    if product.get('id') == product_id:
+                        if 'type' in body_data:
+                            product['type'] = body_data['type']
+                        if 'name' in body_data:
+                            product['name'] = body_data['name']
+                        if 'price' in body_data:
+                            product['price'] = body_data['price']
+                        if 'description' in body_data:
+                            product['description'] = body_data['description']
+                        if 'photo_url' in body_data:
+                            product['photo_url'] = body_data['photo_url']
+                        if 'photo_url_2' in body_data:
+                            product['photo_url_2'] = body_data['photo_url_2']
+                        if 'photo_url_3' in body_data:
+                            product['photo_url_3'] = body_data['photo_url_3']
+                        if 'is_active' in body_data:
+                            product['is_active'] = body_data['is_active']
+                            product['status'] = 'active' if body_data['is_active'] else 'inactive'
+                        break
+                
+                cur.execute(
+                    f"""UPDATE {schema}.seller_data SET products = %s::jsonb WHERE user_id = %s""",
+                    (json.dumps(products), user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
                     'isBase64Encoded': False
                 }
             

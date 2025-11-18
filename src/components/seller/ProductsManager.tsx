@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +15,7 @@ interface Props {
   onFormChange: (updates: Partial<ProductForm>) => void;
   onAddProduct: (e: React.FormEvent) => void;
   onDeleteProduct: (productId: string) => void;
+  onUpdateProduct: (productId: string, updates: any) => void;
 }
 
 const PRODUCT_TYPES = [
@@ -23,8 +25,51 @@ const PRODUCT_TYPES = [
   { value: 'technology', label: 'Технологии' }
 ];
 
-export default function ProductsManager({ tier, products, productForm, onFormChange, onAddProduct, onDeleteProduct }: Props) {
+export default function ProductsManager({ tier, products, productForm, onFormChange, onAddProduct, onDeleteProduct, onUpdateProduct }: Props) {
   const canAddProduct = true;
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState<ProductForm>({
+    type: 'fertilizer',
+    name: '',
+    price: 0,
+    description: '',
+    photo_url: '',
+    photo_url_2: '',
+    photo_url_3: '',
+    target_audience: []
+  });
+
+  const activeProducts = products.filter(p => p.is_active !== false);
+  const inactiveProducts = products.filter(p => p.is_active === false);
+  
+  const filteredProducts = statusFilter === 'all' ? products : 
+    statusFilter === 'active' ? activeProducts : inactiveProducts;
+
+  const startEdit = (product: any) => {
+    setEditingProduct(product);
+    setEditForm({
+      type: product.type,
+      name: product.name,
+      price: product.price,
+      description: product.description || '',
+      photo_url: product.photo_url || '',
+      photo_url_2: product.photo_url_2 || '',
+      photo_url_3: product.photo_url_3 || '',
+      target_audience: product.target_audience || []
+    });
+  };
+
+  const saveEdit = () => {
+    if (editingProduct) {
+      onUpdateProduct(editingProduct.id, editForm);
+      setEditingProduct(null);
+    }
+  };
+
+  const toggleStatus = (product: any) => {
+    onUpdateProduct(product.id, { is_active: !product.is_active });
+  };
 
   return (
     <div className="space-y-6">
@@ -122,46 +167,144 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
       </Card>
       
       <Card className="p-6">
-        <h3 className="font-semibold mb-4">Мои товары ({products.length})</h3>
-        {products.length === 0 ? (
-          <p className="text-gray-500 text-sm">У вас пока нет товаров</p>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold">Мои товары ({products.length})</h3>
+          <div className="flex gap-2">
+            <Button
+              variant={statusFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('all')}
+            >
+              Все ({products.length})
+            </Button>
+            <Button
+              variant={statusFilter === 'active' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('active')}
+            >
+              Активные ({activeProducts.length})
+            </Button>
+            <Button
+              variant={statusFilter === 'inactive' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('inactive')}
+            >
+              Не опубликованные ({inactiveProducts.length})
+            </Button>
+          </div>
+        </div>
+        {filteredProducts.length === 0 ? (
+          <p className="text-gray-500 text-sm">Нет товаров в этой категории</p>
         ) : (
           <div className="space-y-3">
-            {products.map((product) => (
-              <Card key={product.id} className="p-4 bg-gray-50">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                        {PRODUCT_TYPES.find(t => t.value === product.type)?.label}
-                      </span>
-                      <h4 className="font-semibold">{product.name}</h4>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-                    <p className="text-lg font-bold text-blue-600 mb-3">{product.price.toLocaleString()} ₽</p>
-                    {(product.photo_url || product.photo_url_2 || product.photo_url_3) && (
-                      <div className="flex gap-2 flex-wrap">
-                        {product.photo_url && (
-                          <img src={product.photo_url} alt="Фото 1" className="w-20 h-20 object-cover rounded border" />
-                        )}
-                        {product.photo_url_2 && (
-                          <img src={product.photo_url_2} alt="Фото 2" className="w-20 h-20 object-cover rounded border" />
-                        )}
-                        {product.photo_url_3 && (
-                          <img src={product.photo_url_3} alt="Фото 3" className="w-20 h-20 object-cover rounded border" />
-                        )}
+            {filteredProducts.map((product) => (
+              <Card key={product.id} className={`p-4 ${product.is_active === false ? 'bg-gray-100' : 'bg-gray-50'}`}>
+                {editingProduct?.id === product.id ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Тип товара</Label>
+                        <Select value={editForm.type} onValueChange={(val) => setEditForm({...editForm, type: val})}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PRODUCT_TYPES.map(t => (
+                              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
+                      <div className="space-y-2">
+                        <Label>Название</Label>
+                        <Input value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Цена</Label>
+                        <Input type="number" value={editForm.price} onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value) || 0})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>URL фото 1</Label>
+                        <Input value={editForm.photo_url} onChange={(e) => setEditForm({...editForm, photo_url: e.target.value})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>URL фото 2</Label>
+                        <Input value={editForm.photo_url_2} onChange={(e) => setEditForm({...editForm, photo_url_2: e.target.value})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>URL фото 3</Label>
+                        <Input value={editForm.photo_url_3} onChange={(e) => setEditForm({...editForm, photo_url_3: e.target.value})} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Описание</Label>
+                      <Textarea value={editForm.description} onChange={(e) => setEditForm({...editForm, description: e.target.value})} rows={3} />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={saveEdit} size="sm">
+                        <Icon name="Check" size={16} className="mr-1" />
+                        Сохранить
+                      </Button>
+                      <Button onClick={() => setEditingProduct(null)} size="sm" variant="outline">
+                        Отмена
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDeleteProduct(product.id)}
-                    className="text-red-600"
-                  >
-                    <Icon name="Trash2" size={16} />
-                  </Button>
-                </div>
+                ) : (
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                          {PRODUCT_TYPES.find(t => t.value === product.type)?.label}
+                        </span>
+                        {product.is_active === false && (
+                          <span className="text-xs bg-gray-300 text-gray-700 px-2 py-0.5 rounded">Не опубликовано</span>
+                        )}
+                        <h4 className="font-semibold">{product.name}</h4>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{product.description}</p>
+                      <p className="text-lg font-bold text-blue-600 mb-3">{product.price.toLocaleString()} ₽</p>
+                      {(product.photo_url || product.photo_url_2 || product.photo_url_3) && (
+                        <div className="flex gap-2 flex-wrap">
+                          {product.photo_url && (
+                            <img src={product.photo_url} alt="Фото 1" className="w-20 h-20 object-cover rounded border" />
+                          )}
+                          {product.photo_url_2 && (
+                            <img src={product.photo_url_2} alt="Фото 2" className="w-20 h-20 object-cover rounded border" />
+                          )}
+                          {product.photo_url_3 && (
+                            <img src={product.photo_url_3} alt="Фото 3" className="w-20 h-20 object-cover rounded border" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleStatus(product)}
+                        title={product.is_active === false ? 'Опубликовать' : 'Снять с публикации'}
+                      >
+                        <Icon name={product.is_active === false ? 'Eye' : 'EyeOff'} size={16} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEdit(product)}
+                      >
+                        <Icon name="Pencil" size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDeleteProduct(product.id)}
+                        className="text-red-600"
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
