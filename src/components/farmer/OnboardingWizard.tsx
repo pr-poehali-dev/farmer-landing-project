@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { Animal, Equipment, Crop } from '@/types/farm.types';
+import { LIVESTOCK_TYPES, LIVESTOCK_BREEDS } from '@/data/livestock';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -177,14 +178,12 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Тип животного</Label>
-                <Select value={tempAnimal.type} onValueChange={(v) => setTempAnimal({ ...tempAnimal, type: v })}>
+                <Select value={tempAnimal.type} onValueChange={(v) => setTempAnimal({ ...tempAnimal, type: v, breed: '' })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cow">Коровы</SelectItem>
-                    <SelectItem value="pig">Свиньи</SelectItem>
-                    <SelectItem value="chicken">Куры</SelectItem>
-                    <SelectItem value="sheep">Овцы</SelectItem>
-                    <SelectItem value="goat">Козы</SelectItem>
+                    {LIVESTOCK_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -202,13 +201,9 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
                 <Select value={tempAnimal.breed} onValueChange={(v) => setTempAnimal({ ...tempAnimal, breed: v })}>
                   <SelectTrigger><SelectValue placeholder="Выберите породу" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Голштинская">Голштинская</SelectItem>
-                    <SelectItem value="Калмыцкая">Калмыцкая</SelectItem>
-                    <SelectItem value="Казахская белоголовая">Казахская белоголовая</SelectItem>
-                    <SelectItem value="Симментальская">Симментальская</SelectItem>
-                    <SelectItem value="Герефордская">Герефордская</SelectItem>
-                    <SelectItem value="Красная степная">Красная степная</SelectItem>
-                    <SelectItem value="Другая">Другая</SelectItem>
+                    {tempAnimal.type && LIVESTOCK_BREEDS[tempAnimal.type]?.map(breed => (
+                      <SelectItem key={breed.value} value={breed.value}>{breed.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
