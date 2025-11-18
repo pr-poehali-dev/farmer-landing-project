@@ -21,7 +21,7 @@ const PRODUCT_TYPES = [
 
 export default function SellerMarketplace() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'products' | 'requests'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'requests' | 'favorites'>('products');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [products, setProducts] = useState<any[]>([]);
@@ -37,11 +37,34 @@ export default function SellerMarketplace() {
     message: ''
   });
   const [sending, setSending] = useState(false);
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   useEffect(() => {
     loadProducts();
     loadMyRequests();
+    loadFavorites();
   }, []);
+
+  const loadFavorites = () => {
+    const saved = localStorage.getItem('marketplace_favorites');
+    if (saved) {
+      setFavorites(JSON.parse(saved));
+    }
+  };
+
+  const toggleFavorite = (productId: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setFavorites(prev => {
+      const newFavorites = prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId];
+      localStorage.setItem('marketplace_favorites', JSON.stringify(newFavorites));
+      toast.success(prev.includes(productId) ? 'Удалено из избранного' : 'Добавлено в избранное');
+      return newFavorites;
+    });
+  };
 
   const loadProducts = async () => {
     try {
@@ -157,6 +180,14 @@ export default function SellerMarketplace() {
           Все товары
         </Button>
         <Button
+          variant={activeTab === 'favorites' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('favorites')}
+          className="flex items-center gap-2"
+        >
+          <Icon name="Heart" size={16} />
+          Избранное {favorites.length > 0 && `(${favorites.length})`}
+        </Button>
+        <Button
           variant={activeTab === 'requests' ? 'default' : 'outline'}
           onClick={() => setActiveTab('requests')}
           className="flex items-center gap-2"
@@ -166,7 +197,7 @@ export default function SellerMarketplace() {
         </Button>
       </div>
 
-      {activeTab === 'products' ? (
+      {activeTab === 'products' || activeTab === 'favorites' ? (
         <>
           <div className="flex gap-4">
             <div className="flex-1">
@@ -190,19 +221,37 @@ export default function SellerMarketplace() {
             </Select>
           </div>
 
-          {filteredProducts.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Icon name="Package" size={48} className="mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500 mb-2">Товары не найдены</p>
-              <p className="text-sm text-gray-400">Попробуйте изменить фильтры или поисковый запрос</p>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onClick={() => setSelectedProduct(product)} />
-              ))}
-            </div>
-          )}
+          {(() => {
+            const displayProducts = activeTab === 'favorites' 
+              ? filteredProducts.filter(p => favorites.includes(p.id)) 
+              : filteredProducts;
+            
+            return displayProducts.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Icon name={activeTab === 'favorites' ? "Heart" : "Package"} size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500 mb-2">
+                  {activeTab === 'favorites' ? 'В избранном пока ничего нет' : 'Товары не найдены'}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {activeTab === 'favorites' 
+                    ? 'Нажмите на сердечко на карточке товара, чтобы добавить его в избранное' 
+                    : 'Попробуйте изменить фильтры или поисковый запрос'}
+                </p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {displayProducts.map((product) => (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    isFavorite={favorites.includes(product.id)}
+                    onToggleFavorite={toggleFavorite}
+                    onClick={() => setSelectedProduct(product)} 
+                  />
+                ))}
+              </div>
+            );
+          })()}
         </>
       ) : (
         <div className="space-y-4">

@@ -11,10 +11,12 @@ const PRODUCT_TYPES = [
 
 interface ProductCardProps {
   product: any;
+  isFavorite?: boolean;
+  onToggleFavorite?: (productId: number, e?: React.MouseEvent) => void;
   onClick: () => void;
 }
 
-export default function ProductCard({ product, onClick }: ProductCardProps) {
+export default function ProductCard({ product, isFavorite = false, onToggleFavorite, onClick }: ProductCardProps) {
   return (
     <div className="group cursor-pointer" onClick={onClick}>
       <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 h-full flex flex-col">
@@ -26,8 +28,11 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
               <Icon name="Package" size={48} className="text-gray-300" />
             </div>
           )}
-          <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors">
-            <Icon name="Heart" size={16} className="text-gray-600" />
+          <button 
+            onClick={(e) => onToggleFavorite?.(product.id, e)}
+            className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors"
+          >
+            <Icon name="Heart" size={16} className={isFavorite ? "text-red-500 fill-red-500" : "text-gray-600"} />
           </button>
         </div>
         <div className="p-3 flex flex-col flex-1">
