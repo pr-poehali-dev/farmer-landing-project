@@ -19,6 +19,80 @@ const PRODUCT_TYPES = [
   { value: 'technology', label: 'Технологии' }
 ];
 
+const FERTILIZER_CATEGORIES = [
+  {
+    value: 'mineral',
+    label: 'Минеральные удобрения',
+    subcategories: [
+      'Калий хлорид 40% мелкогранулированный',
+      'Калий хлорид 40% гранулированный',
+      'Калий хлорид 40% (дробленый)',
+      'Калий хлористый гранулированный (красный)',
+      'Калий хлористый марка А',
+      'Калий хлористый мелкий 60% (красный)',
+      'Калий хлористый марка А мелкий 60% (белый)',
+      'Калийная соль',
+      'Калийная соль (гранула)',
+      'Калийная соль (порошок)',
+      'Калий хлорид (тип Калийная гранула)',
+      'Аммиачная селитра ГОСТ',
+      'Изестково-аммиачная селитра',
+      'Карбамид марка Б',
+      'Сульфат аммония (Кристалл) Акриатный гранулированный (форма гранулы)',
+      'Сульфат аммония (Кристалл) Акриатный гранулированный (форма граби)',
+      'Сульфат аммония Коксохимический (форма кристалл)',
+      'Аммофос',
+      'Фосфогипс',
+      'Нитроаммофоска (Азофоска)',
+      'Магний сернокислый'
+    ]
+  },
+  {
+    value: 'organic',
+    label: 'Органические удобрения',
+    subcategories: [
+      'Доломитовая мука',
+      'Стромолотый гипс',
+      'Фосфоритная мука'
+    ]
+  },
+  {
+    value: 'root_additives',
+    label: 'Корневые добавки',
+    subcategories: [
+      'Соль',
+      'Сера молотая'
+    ]
+  },
+  {
+    value: 'soil_structure',
+    label: 'Удобрения для улучшения структуры почвы',
+    subcategories: [
+      'Доломитовая мука',
+      'Стромолотый гипс',
+      'Фосфоритная мука'
+    ]
+  },
+  {
+    value: 'yield_boost',
+    label: 'Удобрения для повышения урожайности',
+    subcategories: [
+      'Калийные удобрения',
+      'Азотные удобрения',
+      'Фосфорные удобрения',
+      'Сложные удобрения'
+    ]
+  },
+  {
+    value: 'plant_protection',
+    label: 'Удобрения для защиты растений',
+    subcategories: [
+      'Соль',
+      'Сера молотая'
+    ]
+  }
+];
+
 const EQUIPMENT_CATEGORIES = [
   {
     value: 'planting',
@@ -258,6 +332,24 @@ export default function SellerMarketplace() {
       }
     }
     
+    if (typeFilter === 'fertilizer' && p.type === 'fertilizer') {
+      if (categoryFilter !== 'all') {
+        const category = FERTILIZER_CATEGORIES.find(c => c.value === categoryFilter);
+        if (category) {
+          matchesCategory = category.subcategories.some(sub => 
+            p.name?.toLowerCase().includes(sub.toLowerCase()) ||
+            p.description?.toLowerCase().includes(sub.toLowerCase())
+          );
+        }
+      }
+      
+      if (subcategoryFilter !== 'all') {
+        matchesSubcategory = 
+          p.name?.toLowerCase().includes(subcategoryFilter.toLowerCase()) ||
+          p.description?.toLowerCase().includes(subcategoryFilter.toLowerCase());
+      }
+    }
+    
     return matchesSearch && matchesType && matchesCategory && matchesSubcategory;
   });
 
@@ -374,6 +466,41 @@ export default function SellerMarketplace() {
                     <SelectContent>
                       <SelectItem value="all">Вся техника категории</SelectItem>
                       {EQUIPMENT_CATEGORIES
+                        .find(c => c.value === categoryFilter)
+                        ?.subcategories.map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            )}
+
+            {typeFilter === 'fertilizer' && (
+              <div className="flex gap-4">
+                <Select value={categoryFilter} onValueChange={(value) => {
+                  setCategoryFilter(value);
+                  setSubcategoryFilter('all');
+                }}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Выберите категорию удобрений" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все категории удобрений</SelectItem>
+                    {FERTILIZER_CATEGORIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {categoryFilter !== 'all' && (
+                  <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
+                    <SelectTrigger className="w-80">
+                      <SelectValue placeholder="Выберите конкретное удобрение" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Все удобрения категории</SelectItem>
+                      {FERTILIZER_CATEGORIES
                         .find(c => c.value === categoryFilter)
                         ?.subcategories.map(sub => (
                           <SelectItem key={sub} value={sub}>{sub}</SelectItem>

@@ -13,7 +13,7 @@ interface Props {
   products: any[];
   productForm: ProductForm;
   onFormChange: (updates: Partial<ProductForm>) => void;
-  onAddProduct: (e: React.FormEvent, equipmentCategory?: string, equipmentSubcategory?: string) => void;
+  onAddProduct: (e: React.FormEvent, equipmentCategory?: string, equipmentSubcategory?: string, fertilizerCategory?: string, fertilizerSubcategory?: string) => void;
   onDeleteProduct: (productId: string) => void;
   onUpdateProduct: (productId: string, updates: any) => void;
 }
@@ -23,6 +23,80 @@ const PRODUCT_TYPES = [
   { value: 'fertilizer', label: 'Удобрения' },
   { value: 'seeds', label: 'Семена для посева' },
   { value: 'technology', label: 'Технологии' }
+];
+
+const FERTILIZER_CATEGORIES = [
+  {
+    value: 'mineral',
+    label: 'Минеральные удобрения',
+    subcategories: [
+      'Калий хлорид 40% мелкогранулированный',
+      'Калий хлорид 40% гранулированный',
+      'Калий хлорид 40% (дробленый)',
+      'Калий хлористый гранулированный (красный)',
+      'Калий хлористый марка А',
+      'Калий хлористый мелкий 60% (красный)',
+      'Калий хлористый марка А мелкий 60% (белый)',
+      'Калийная соль',
+      'Калийная соль (гранула)',
+      'Калийная соль (порошок)',
+      'Калий хлорид (тип Калийная гранула)',
+      'Аммиачная селитра ГОСТ',
+      'Изестково-аммиачная селитра',
+      'Карбамид марка Б',
+      'Сульфат аммония (Кристалл) Акриатный гранулированный (форма гранулы)',
+      'Сульфат аммония (Кристалл) Акриатный гранулированный (форма граби)',
+      'Сульфат аммония Коксохимический (форма кристалл)',
+      'Аммофос',
+      'Фосфогипс',
+      'Нитроаммофоска (Азофоска)',
+      'Магний сернокислый'
+    ]
+  },
+  {
+    value: 'organic',
+    label: 'Органические удобрения',
+    subcategories: [
+      'Доломитовая мука',
+      'Стромолотый гипс',
+      'Фосфоритная мука'
+    ]
+  },
+  {
+    value: 'root_additives',
+    label: 'Корневые добавки',
+    subcategories: [
+      'Соль',
+      'Сера молотая'
+    ]
+  },
+  {
+    value: 'soil_structure',
+    label: 'Удобрения для улучшения структуры почвы',
+    subcategories: [
+      'Доломитовая мука',
+      'Стромолотый гипс',
+      'Фосфоритная мука'
+    ]
+  },
+  {
+    value: 'yield_boost',
+    label: 'Удобрения для повышения урожайности',
+    subcategories: [
+      'Калийные удобрения',
+      'Азотные удобрения',
+      'Фосфорные удобрения',
+      'Сложные удобрения'
+    ]
+  },
+  {
+    value: 'plant_protection',
+    label: 'Удобрения для защиты растений',
+    subcategories: [
+      'Соль',
+      'Сера молотая'
+    ]
+  }
 ];
 
 const EQUIPMENT_CATEGORIES = [
@@ -142,6 +216,10 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
   const [equipmentSubcategory, setEquipmentSubcategory] = useState<string>('');
   const [editEquipmentCategory, setEditEquipmentCategory] = useState<string>('');
   const [editEquipmentSubcategory, setEditEquipmentSubcategory] = useState<string>('');
+  const [fertilizerCategory, setFertilizerCategory] = useState<string>('');
+  const [fertilizerSubcategory, setFertilizerSubcategory] = useState<string>('');
+  const [editFertilizerCategory, setEditFertilizerCategory] = useState<string>('');
+  const [editFertilizerSubcategory, setEditFertilizerSubcategory] = useState<string>('');
 
   const activeProducts = products.filter(p => p.is_active !== false);
   const inactiveProducts = products.filter(p => p.is_active === false);
@@ -163,6 +241,8 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
     });
     setEditEquipmentCategory(product.equipment_category || '');
     setEditEquipmentSubcategory(product.equipment_subcategory || '');
+    setEditFertilizerCategory(product.fertilizer_category || '');
+    setEditFertilizerSubcategory(product.fertilizer_subcategory || '');
   };
 
   const saveEdit = () => {
@@ -170,7 +250,9 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
       const updates = {
         ...editForm,
         equipment_category: editForm.type === 'equipment' ? editEquipmentCategory : null,
-        equipment_subcategory: editForm.type === 'equipment' ? editEquipmentSubcategory : null
+        equipment_subcategory: editForm.type === 'equipment' ? editEquipmentSubcategory : null,
+        fertilizer_category: editForm.type === 'fertilizer' ? editFertilizerCategory : null,
+        fertilizer_subcategory: editForm.type === 'fertilizer' ? editFertilizerSubcategory : null
       };
       onUpdateProduct(editingProduct.id, updates);
       setEditingProduct(null);
@@ -194,9 +276,11 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
         
         <form onSubmit={(e) => {
           e.preventDefault();
-          onAddProduct(e, equipmentCategory, equipmentSubcategory);
+          onAddProduct(e, equipmentCategory, equipmentSubcategory, fertilizerCategory, fertilizerSubcategory);
           setEquipmentCategory('');
           setEquipmentSubcategory('');
+          setFertilizerCategory('');
+          setFertilizerSubcategory('');
         }} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -205,6 +289,8 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                 onFormChange({ type: val });
                 setEquipmentCategory('');
                 setEquipmentSubcategory('');
+                setFertilizerCategory('');
+                setFertilizerSubcategory('');
               }}>
                 <SelectTrigger>
                   <SelectValue />
@@ -227,6 +313,45 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
               />
             </div>
           </div>
+
+          {productForm.type === 'fertilizer' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Категория удобрений *</Label>
+                <Select value={fertilizerCategory} onValueChange={(val) => {
+                  setFertilizerCategory(val);
+                  setFertilizerSubcategory('');
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите категорию" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FERTILIZER_CATEGORIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {fertilizerCategory && (
+                <div className="space-y-2">
+                  <Label>Тип удобрения *</Label>
+                  <Select value={fertilizerSubcategory} onValueChange={setFertilizerSubcategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите тип удобрения" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FERTILIZER_CATEGORIES
+                        .find(c => c.value === fertilizerCategory)
+                        ?.subcategories.map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
           {productForm.type === 'equipment' && (
             <div className="grid grid-cols-2 gap-4">
@@ -322,7 +447,10 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
           
           <Button 
             type="submit"
-            disabled={productForm.type === 'equipment' && (!equipmentCategory || !equipmentSubcategory)}
+            disabled={
+              (productForm.type === 'equipment' && (!equipmentCategory || !equipmentSubcategory)) ||
+              (productForm.type === 'fertilizer' && (!fertilizerCategory || !fertilizerSubcategory))
+            }
           >
             <Icon name="Plus" size={16} className="mr-2" />
             Добавить товар
@@ -372,6 +500,8 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                           setEditForm({...editForm, type: val});
                           setEditEquipmentCategory('');
                           setEditEquipmentSubcategory('');
+                          setEditFertilizerCategory('');
+                          setEditFertilizerSubcategory('');
                         }}>
                           <SelectTrigger>
                             <SelectValue />
@@ -388,6 +518,45 @@ export default function ProductsManager({ tier, products, productForm, onFormCha
                         <Input value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} />
                       </div>
                     </div>
+
+                    {editForm.type === 'fertilizer' && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Категория удобрений</Label>
+                          <Select value={editFertilizerCategory} onValueChange={(val) => {
+                            setEditFertilizerCategory(val);
+                            setEditFertilizerSubcategory('');
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите категорию" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FERTILIZER_CATEGORIES.map(c => (
+                                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {editFertilizerCategory && (
+                          <div className="space-y-2">
+                            <Label>Тип удобрения</Label>
+                            <Select value={editFertilizerSubcategory} onValueChange={setEditFertilizerSubcategory}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите тип удобрения" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FERTILIZER_CATEGORIES
+                                  .find(c => c.value === editFertilizerCategory)
+                                  ?.subcategories.map(sub => (
+                                    <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {editForm.type === 'equipment' && (
                       <div className="grid grid-cols-2 gap-4">

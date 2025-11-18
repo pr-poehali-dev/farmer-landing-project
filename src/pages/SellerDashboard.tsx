@@ -139,7 +139,7 @@ const SellerDashboard = () => {
     }
   };
 
-  const addProduct = async (e: React.FormEvent, equipmentCategory?: string, equipmentSubcategory?: string) => {
+  const addProduct = async (e: React.FormEvent, equipmentCategory?: string, equipmentSubcategory?: string, fertilizerCategory?: string, fertilizerSubcategory?: string) => {
     e.preventDefault();
     
     try {
@@ -153,7 +153,9 @@ const SellerDashboard = () => {
           action: 'add_product',
           ...productForm,
           equipment_category: productForm.type === 'equipment' ? equipmentCategory : null,
-          equipment_subcategory: productForm.type === 'equipment' ? equipmentSubcategory : null
+          equipment_subcategory: productForm.type === 'equipment' ? equipmentSubcategory : null,
+          fertilizer_category: productForm.type === 'fertilizer' ? fertilizerCategory : null,
+          fertilizer_subcategory: productForm.type === 'fertilizer' ? fertilizerSubcategory : null
         })
       });
       

@@ -422,6 +422,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 target_audience = body_data.get('target_audience', [])
                 equipment_category = body_data.get('equipment_category')
                 equipment_subcategory = body_data.get('equipment_subcategory')
+                fertilizer_category = body_data.get('fertilizer_category')
+                fertilizer_subcategory = body_data.get('fertilizer_subcategory')
                 
                 if not name or price <= 0:
                     return {
@@ -443,6 +445,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'target_audience': target_audience,
                     'equipment_category': equipment_category,
                     'equipment_subcategory': equipment_subcategory,
+                    'fertilizer_category': fertilizer_category,
+                    'fertilizer_subcategory': fertilizer_subcategory,
                     'status': 'active',
                     'is_active': True
                 }
@@ -492,6 +496,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             product['equipment_category'] = body_data['equipment_category']
                         if 'equipment_subcategory' in body_data:
                             product['equipment_subcategory'] = body_data['equipment_subcategory']
+                        if 'fertilizer_category' in body_data:
+                            product['fertilizer_category'] = body_data['fertilizer_category']
+                        if 'fertilizer_subcategory' in body_data:
+                            product['fertilizer_subcategory'] = body_data['fertilizer_subcategory']
                         if 'is_active' in body_data:
                             product['is_active'] = body_data['is_active']
                             product['status'] = 'active' if body_data['is_active'] else 'inactive'
