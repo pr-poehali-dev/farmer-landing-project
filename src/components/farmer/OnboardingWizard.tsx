@@ -199,11 +199,18 @@ export default function OnboardingWizard({ open, onClose, onComplete, initialDat
               </div>
               <div>
                 <Label>Порода</Label>
-                <Input
-                  placeholder="Голштинская"
-                  value={tempAnimal.breed}
-                  onChange={(e) => setTempAnimal({ ...tempAnimal, breed: e.target.value })}
-                />
+                <Select value={tempAnimal.breed} onValueChange={(v) => setTempAnimal({ ...tempAnimal, breed: v })}>
+                  <SelectTrigger><SelectValue placeholder="Выберите породу" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Голштинская">Голштинская</SelectItem>
+                    <SelectItem value="Калмыцкая">Калмыцкая</SelectItem>
+                    <SelectItem value="Казахская белоголовая">Казахская белоголовая</SelectItem>
+                    <SelectItem value="Симментальская">Симментальская</SelectItem>
+                    <SelectItem value="Герефордская">Герефордская</SelectItem>
+                    <SelectItem value="Красная степная">Красная степная</SelectItem>
+                    <SelectItem value="Другая">Другая</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Направление</Label>
