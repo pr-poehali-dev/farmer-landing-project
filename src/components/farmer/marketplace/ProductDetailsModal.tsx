@@ -115,7 +115,8 @@ export default function ProductDetailsModal({
                         id: product.seller_id,
                         name: product.seller_name,
                         region: product.seller_region,
-                        city: product.seller_city
+                        city: product.seller_city,
+                        description: product.seller_description
                       })}
                       className="w-full"
                     >

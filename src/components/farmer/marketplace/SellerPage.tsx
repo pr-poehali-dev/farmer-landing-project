@@ -24,7 +24,7 @@ export default function SellerPage({ seller, products, onBack, onProductClick }:
           Назад к каталогу
         </Button>
         
-        <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
             <Icon name="Building2" size={32} className="text-blue-600" />
           </div>
@@ -38,6 +38,12 @@ export default function SellerPage({ seller, products, onBack, onProductClick }:
             )}
           </div>
         </div>
+        
+        {seller.description && (
+          <Card className="p-4 bg-gray-50 mb-4">
+            <p className="text-gray-700">{seller.description}</p>
+          </Card>
+        )}
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
