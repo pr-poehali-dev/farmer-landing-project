@@ -19,11 +19,112 @@ const PRODUCT_TYPES = [
   { value: 'technology', label: 'Технологии' }
 ];
 
+const EQUIPMENT_CATEGORIES = [
+  {
+    value: 'planting',
+    label: 'Посадка растений',
+    subcategories: [
+      'Сеялка',
+      'Рассадопосадочная машина',
+      'Картофелесажалка',
+      'Пересадчик деревьев',
+      'Комплекс посевной'
+    ]
+  },
+  {
+    value: 'care',
+    label: 'Уход за растениями',
+    subcategories: [
+      'Культиватор',
+      'Опрыскиватель',
+      'Почвофреза',
+      'Обрезчик деревьев',
+      'Планировщик почвы',
+      'Пленкоукладчик / Грядообразователь',
+      'Рапсовый стол',
+      'Бороздодел',
+      'Глубокорыхлитель',
+      'Камнеуборочная машина',
+      'Измельчитель веток',
+      'Машины для сбора листьев',
+      'Машина для уборки пленки',
+      'Резчик рулонов',
+      'Размотчик капельной ленты'
+    ]
+  },
+  {
+    value: 'harvest',
+    label: 'Сбор урожая',
+    subcategories: [
+      'Жатка',
+      'Комбайн',
+      'Косилка',
+      'Копатель корнеплодов',
+      'Подборщик',
+      'Пресc-подборщик',
+      'Транспортировщик рулонов',
+      'Транспортер',
+      'Загрузчик сеялок',
+      'Кормораздатчик / миксер-кормораздатчик',
+      'Ботвоудалитель',
+      'Погрузчики (зернопогрузчик)',
+      'Скреперы (скрепер-планировщик)',
+      'Упаковщик'
+    ]
+  },
+  {
+    value: 'processing',
+    label: 'Первичная обработка продукции',
+    subcategories: [
+      'Зернодробилка',
+      'Зерноочиститель',
+      'Зерноперерабатывающий комплекс',
+      'Зерносушилка',
+      'Протравливатель',
+      'Смесительный комплекс',
+      'Минеральные удобрения (Разбрасыватель удобрений)',
+      'Солома (Разбрасыватель соломы)',
+      'Распределение почвенного покрытия (Разбрасыватель пола)'
+    ]
+  },
+  {
+    value: 'storage',
+    label: 'Хранение и транспортировка',
+    subcategories: [
+      'Тележка для адаптера',
+      'Тележка для жаток',
+      'Тележка переходная',
+      'Мини-трактор',
+      'Трактор',
+      'Платформа садовая',
+      'Носитель для сеялок',
+      'Сцепка',
+      'Плуг',
+      'Вилы',
+      'Грабли, ворошилки, валкователи',
+      'Бункер',
+      'Каток',
+      'Минитехника (мини-трактора)',
+      'Телега',
+      'Грузоподъемники (зернометатель)'
+    ]
+  },
+  {
+    value: 'irrigation',
+    label: 'Агрооборудование для полива и орошения',
+    subcategories: [
+      'Дождевальная машина'
+    ]
+  }
+];
+
 export default function SellerMarketplace() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'products' | 'requests' | 'favorites'>('products');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [subcategoryFilter, setSubcategoryFilter] = useState('all');
   const [products, setProducts] = useState<any[]>([]);
   const [myRequests, setMyRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,7 +236,29 @@ export default function SellerMarketplace() {
                          (p.seller_name && p.seller_name.toLowerCase().includes(searchLower)) ||
                          (p.description && p.description.toLowerCase().includes(searchLower));
     const matchesType = typeFilter === 'all' || p.type === typeFilter;
-    return matchesSearch && matchesType;
+    
+    let matchesCategory = true;
+    let matchesSubcategory = true;
+    
+    if (typeFilter === 'equipment' && p.type === 'equipment') {
+      if (categoryFilter !== 'all') {
+        const category = EQUIPMENT_CATEGORIES.find(c => c.value === categoryFilter);
+        if (category) {
+          matchesCategory = category.subcategories.some(sub => 
+            p.name?.toLowerCase().includes(sub.toLowerCase()) ||
+            p.description?.toLowerCase().includes(sub.toLowerCase())
+          );
+        }
+      }
+      
+      if (subcategoryFilter !== 'all') {
+        matchesSubcategory = 
+          p.name?.toLowerCase().includes(subcategoryFilter.toLowerCase()) ||
+          p.description?.toLowerCase().includes(subcategoryFilter.toLowerCase());
+      }
+    }
+    
+    return matchesSearch && matchesType && matchesCategory && matchesSubcategory;
   });
 
   const handleViewSeller = (seller: any) => {
@@ -199,26 +322,67 @@ export default function SellerMarketplace() {
 
       {activeTab === 'products' || activeTab === 'favorites' ? (
         <>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Input 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Поиск по товарам и продавцам..."
-                className="w-full"
-              />
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Input 
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Поиск по товарам и продавцам..."
+                  className="w-full"
+                />
+              </div>
+              <Select value={typeFilter} onValueChange={(value) => {
+                setTypeFilter(value);
+                setCategoryFilter('all');
+                setSubcategoryFilter('all');
+              }}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Все категории</SelectItem>
+                  {PRODUCT_TYPES.map(t => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все категории</SelectItem>
-                {PRODUCT_TYPES.map(t => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+            {typeFilter === 'equipment' && (
+              <div className="flex gap-4">
+                <Select value={categoryFilter} onValueChange={(value) => {
+                  setCategoryFilter(value);
+                  setSubcategoryFilter('all');
+                }}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Выберите тип техники" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все типы техники</SelectItem>
+                    {EQUIPMENT_CATEGORIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {categoryFilter !== 'all' && (
+                  <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
+                    <SelectTrigger className="w-80">
+                      <SelectValue placeholder="Выберите конкретную технику" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Вся техника категории</SelectItem>
+                      {EQUIPMENT_CATEGORIES
+                        .find(c => c.value === categoryFilter)
+                        ?.subcategories.map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            )}
           </div>
 
           {(() => {
